@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import styles from "./page.module.css";
+import "./page.module.css";
 
 export const metadata: Metadata = {
-  title: 'Home | DS_Capture',
+  title: 'Blog | DS_Capture',
   description: '',
   openGraph: {
-    title: 'Home | DS_Capture',
+    title: 'Blog | DS_Capture',
     description: '',
     url: 'https://www.deinedomain.de/about',
     siteName: 'DS_Capture',
@@ -14,10 +14,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return (
-    <div>
-      <h1>Home</h1>
-    </div>
-  );
+export default function BlogPage() {
+    return(
+        <h1>Blog</h1>
+    );
 }
