@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import LogoutButton from '@/components/logoutButton/LogoutButton';
+
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -18,6 +20,7 @@ export default function AdminPage() {
     return(
       <div className={styles.adminContent}>
         <h1>Admin</h1>
+        <LogoutButton />
       </div>
     );
 }

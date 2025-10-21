@@ -2,7 +2,7 @@
 
 import styles from "./page.module.css";
 import { useState } from "react";
-import { supabase } from "../../lib/supabaseClint";
+import { supabase } from "../../lib/supabaseClient";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
