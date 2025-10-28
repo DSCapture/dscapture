@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import "bootstrap-icons/font/bootstrap-icons.css";
-import "./globals.css";
 import { Roboto } from "next/font/google";
+import Header from "@/components/header/Header";
+import "bootstrap-icons/font/bootstrap-icons.css"
+import "./globals.css";
+
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -31,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={`${roboto.className}`}>
+        <Header />
         {children}
       </body>
     </html>
