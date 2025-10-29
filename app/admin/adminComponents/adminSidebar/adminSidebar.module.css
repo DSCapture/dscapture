@@ -3,12 +3,22 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     background-color: var(--primary-dark);
 }
 
+.sidebarLogoBox {
+    margin-left: 2rem;
+    margin-top: 2rem;
+}
+
+.sidebarHeadline {
+    color: white;
+}
+
 .adminSidebarNavigation {
+    margin-left: 2rem;
     width: calc(100% - 4rem);
     display: flex;
     flex-direction: column;
@@ -24,5 +34,6 @@
 }
 
 .logoutBox {
+    margin-left: 2rem;
     margin-bottom: 2rem;
 }

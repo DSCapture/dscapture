@@ -5,7 +5,9 @@ import styles from "./adminSidebar.module.css";
 export default function() {
     return(
         <div className={styles.adminSidebar}>
-            <div className={styles.spacer}></div>
+            <div className={styles.sidebarLogoBox}>
+                <h1 className={styles.sidebarHeadline}>Admin Panel</h1>
+            </div>
             <nav className={styles.adminSidebarNavigation}>
                 <Link className={styles.adminNavLink} href="/admin">
                     <i className="bi bi-speedometer2"></i>
