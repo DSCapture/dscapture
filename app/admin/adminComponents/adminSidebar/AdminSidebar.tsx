@@ -1,0 +1,36 @@
+import Link from "next/link";
+import LogoutButton from "@/components/logoutButton/LogoutButton";
+import styles from "./adminSidebar.module.css";
+
+export default function() {
+    return(
+        <div className={styles.adminSidebar}>
+            <div className={styles.spacer}></div>
+            <nav className={styles.adminSidebarNavigation}>
+                <Link className={styles.adminNavLink} href="/admin">
+                    <i className="bi bi-speedometer2"></i>
+                    Admin Dashboard
+                </Link>
+                <Link className={styles.adminNavLink} href="/admin/homepage">
+                    <i className="bi bi-house"></i>
+                    Homepage
+                </Link>
+                <Link className={styles.adminNavLink} href="/admin/portfolio">
+                    <i className="bi bi-columns-gap"></i>
+                    Portfolio Manager
+                </Link>
+                <Link className={styles.adminNavLink} href="/admin/blog">
+                    <i className="bi bi-card-text"></i>
+                    Blog Manager
+                </Link>
+                <Link className={styles.adminNavLink} href="/admin/contact">
+                    <i className="bi bi-envelope"></i>
+                    Kontaktanfragen
+                </Link>
+            </nav>
+            <div className={styles.logoutBox}>
+                <LogoutButton />
+            </div>
+        </div>
+    );
+}

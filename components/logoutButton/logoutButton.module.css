@@ -1,0 +1,15 @@
+.logoutButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: 0 4rem;
+    width: 100%;
+    height: 3rem;
+    background-color: transparent;
+    border: 3px solid red;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    color: red;
+    cursor: pointer;
+}
