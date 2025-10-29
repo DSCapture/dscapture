@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const userId = req.cookies.get("userId")?.value;
-  const role = req.cookies.get("role")?.value;
 
   // Alle geschützten Routen (nur eingeloggte User)
   const protectedRoutes = ["/admin"];
