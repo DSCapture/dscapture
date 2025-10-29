@@ -9,8 +9,9 @@ import styles from "./page.module.css";
 import "../../adminComponents/adminPageHader.css";
 import Cookies from "js-cookie";
 
-export default async function BlogCreatePage() {
-    const userId = Cookies.get("userId");
+export default function BlogCreatePage() {
+  const { loading: verifying } = useVerifyAdminAccess();
+  const userId = Cookies.get("userId");
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -36,9 +37,9 @@ export default async function BlogCreatePage() {
     e.preventDefault();
     setLoading(true);
 
-    const { data, error } = await supabase.from("posts").insert([
+    const { error } = await supabase.from("posts").insert([
       {
-        author_id : userId,
+        author_id: userId,
         title,
         slug,
         excerpt,
@@ -57,6 +58,10 @@ export default async function BlogCreatePage() {
 
     alert("Artikel erfolgreich erstellt!");
     router.push("/admin/blog-manager");
+  }
+
+  if (verifying) {
+    return <div className={styles.blogManagerContent}>Überprüfung läuft...</div>;
   }
 
   return (
