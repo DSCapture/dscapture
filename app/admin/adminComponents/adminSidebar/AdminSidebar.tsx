@@ -2,8 +2,8 @@ import Link from "next/link";
 import LogoutButton from "@/components/logoutButton/LogoutButton";
 import styles from "./adminSidebar.module.css";
 
-export default function() {
-    return(
+const AdminSidebar = () => {
+    return (
         <div className={styles.adminSidebar}>
             <div className={styles.sidebarLogoBox}>
                 <h1 className={styles.sidebarHeadline}>Admin Panel</h1>
@@ -35,4 +35,6 @@ export default function() {
             </div>
         </div>
     );
-}
+};
+
+export default AdminSidebar;
