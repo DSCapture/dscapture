@@ -9,6 +9,8 @@ import blogStyles from "./page.module.css";
 import "../adminComponents/adminPageHader.css";
 import { supabase } from "@/lib/supabaseClient";
 
+type BlogPostStatus = "draft" | "published" | "archived";
+
 interface BlogPostPreview {
   id: number;
   title: string;
@@ -16,13 +18,17 @@ interface BlogPostPreview {
   excerpt: string | null;
   cover_image: string | null;
   published_at: string | null;
+  status: BlogPostStatus;
 }
 
 export default function BlogManager() {
   const { loading } = useVerifyAdminAccess();
-  const [posts, setPosts] = useState<BlogPostPreview[]>([]);
-  const [fetchingPosts, setFetchingPosts] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [publishedPosts, setPublishedPosts] = useState<BlogPostPreview[]>([]);
+  const [draftPosts, setDraftPosts] = useState<BlogPostPreview[]>([]);
+  const [fetchingPublished, setFetchingPublished] = useState(true);
+  const [fetchingDrafts, setFetchingDrafts] = useState(true);
+  const [publishedError, setPublishedError] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) {
@@ -32,28 +38,52 @@ export default function BlogManager() {
     let isMounted = true;
 
     async function loadPosts() {
-      setFetchingPosts(true);
-      setFetchError(null);
+      setFetchingPublished(true);
+      setFetchingDrafts(true);
+      setPublishedError(null);
+      setDraftError(null);
 
-      const { data, error } = await supabase
-        .from("posts")
-        .select("id, title, slug, excerpt, cover_image, published_at")
-        .eq("status", "published")
-        .order("published_at", { ascending: false, nullsFirst: false });
+      const [publishedResult, draftsResult] = await Promise.all([
+        supabase
+          .from("posts")
+          .select("id, title, slug, excerpt, cover_image, published_at, status")
+          .eq("status", "published")
+          .order("published_at", { ascending: false, nullsFirst: false }),
+        supabase
+          .from("posts")
+          .select("id, title, slug, excerpt, cover_image, published_at, status")
+          .eq("status", "draft")
+          .order("id", { ascending: false }),
+      ]);
 
       if (!isMounted) {
         return;
       }
 
-      if (error) {
-        console.error("Fehler beim Laden der veröffentlichten Artikel:", error);
-        setFetchError("Die veröffentlichten Artikel konnten nicht geladen werden.");
-        setPosts([]);
+      if (publishedResult.error) {
+        console.error(
+          "Fehler beim Laden der veröffentlichten Artikel:",
+          publishedResult.error,
+        );
+        setPublishedError("Die veröffentlichten Artikel konnten nicht geladen werden.");
+        setPublishedPosts([]);
       } else {
-        setPosts(data ?? []);
+        setPublishedPosts(publishedResult.data ?? []);
       }
 
-      setFetchingPosts(false);
+      if (draftsResult.error) {
+        console.error(
+          "Fehler beim Laden der Entwürfe:",
+          draftsResult.error,
+        );
+        setDraftError("Die Entwürfe konnten nicht geladen werden.");
+        setDraftPosts([]);
+      } else {
+        setDraftPosts(draftsResult.data ?? []);
+      }
+
+      setFetchingPublished(false);
+      setFetchingDrafts(false);
     }
 
     loadPosts();
@@ -91,35 +121,42 @@ export default function BlogManager() {
         <section className={blogStyles.blogSection}>
           <h2>Veröffentlichte Artikel</h2>
 
-          {fetchingPosts && <p>Lade veröffentlichte Artikel...</p>}
+          {fetchingPublished && <p>Lade veröffentlichte Artikel...</p>}
 
-          {!fetchingPosts && fetchError && <p className={blogStyles.errorText}>{fetchError}</p>}
+          {!fetchingPublished && publishedError && (
+            <p className={blogStyles.errorText}>{publishedError}</p>
+          )}
 
-          {!fetchingPosts && !fetchError && posts.length === 0 && (
+          {!fetchingPublished && !publishedError && publishedPosts.length === 0 && (
             <p className={blogStyles.emptyState}>Es wurden noch keine Artikel veröffentlicht.</p>
           )}
 
-          {!fetchingPosts && !fetchError && posts.length > 0 && (
+          {!fetchingPublished && !publishedError && publishedPosts.length > 0 && (
             <div className={blogStyles.blogGrid}>
-              {posts.map((post) => (
+              {publishedPosts.map((post) => (
                 <article key={post.id} className={blogStyles.blogCard}>
-                  <div
-                    className={blogStyles.blogCardImage}
-                    style={{
-                      backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
-                    }}
-                    aria-hidden={!post.cover_image}
-                  />
-                  <div className={blogStyles.blogCardBody}>
-                    <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
-                    {post.published_at && (
-                      <p className={blogStyles.blogCardMeta}>
-                        {dateFormatter.format(new Date(post.published_at))}
-                      </p>
-                    )}
-                    {post.excerpt && <p className={blogStyles.blogCardExcerpt}>{post.excerpt}</p>}
-                  </div>
+                  <Link href={`/admin/blog/${post.id}`} className={blogStyles.blogCardMain}>
+                    <div
+                      className={blogStyles.blogCardImage}
+                      style={{
+                        backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
+                      }}
+                      aria-hidden={!post.cover_image}
+                    />
+                    <div className={blogStyles.blogCardBody}>
+                      <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
+                      {post.published_at && (
+                        <p className={blogStyles.blogCardMeta}>
+                          Veröffentlicht am {dateFormatter.format(new Date(post.published_at))}
+                        </p>
+                      )}
+                      {post.excerpt && <p className={blogStyles.blogCardExcerpt}>{post.excerpt}</p>}
+                    </div>
+                  </Link>
                   <footer className={blogStyles.blogCardFooter}>
+                    <Link className={blogStyles.blogCardAction} href={`/admin/blog/${post.id}`}>
+                      Bearbeiten
+                    </Link>
                     <Link
                       className={blogStyles.blogCardLink}
                       href={`/blog/${post.slug}`}
@@ -127,6 +164,54 @@ export default function BlogManager() {
                       rel="noopener noreferrer"
                     >
                       Artikel ansehen
+                    </Link>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className={blogStyles.blogSection}>
+          <h2>Entwürfe</h2>
+
+          {fetchingDrafts && <p>Lade Entwürfe...</p>}
+
+          {!fetchingDrafts && draftError && <p className={blogStyles.errorText}>{draftError}</p>}
+
+          {!fetchingDrafts && !draftError && draftPosts.length === 0 && (
+            <p className={blogStyles.emptyState}>Aktuell sind keine Entwürfe vorhanden.</p>
+          )}
+
+          {!fetchingDrafts && !draftError && draftPosts.length > 0 && (
+            <div className={blogStyles.blogGrid}>
+              {draftPosts.map((post) => (
+                <article key={post.id} className={blogStyles.blogCard}>
+                  <Link href={`/admin/blog/${post.id}`} className={blogStyles.blogCardMain}>
+                    <div
+                      className={blogStyles.blogCardImage}
+                      style={{
+                        backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
+                      }}
+                      aria-hidden={!post.cover_image}
+                    />
+                    <div className={blogStyles.blogCardBody}>
+                      <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
+                      <p className={blogStyles.blogCardMeta}>Entwurf</p>
+                      {post.excerpt && <p className={blogStyles.blogCardExcerpt}>{post.excerpt}</p>}
+                    </div>
+                  </Link>
+                  <footer className={blogStyles.blogCardFooter}>
+                    <Link className={blogStyles.blogCardAction} href={`/admin/blog/${post.id}`}>
+                      Bearbeiten
+                    </Link>
+                    <Link
+                      className={blogStyles.blogCardLink}
+                      href={`/blog/${post.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Vorschau öffnen
                     </Link>
                   </footer>
                 </article>
