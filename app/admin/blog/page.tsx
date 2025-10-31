@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AdminSidebar from "../adminComponents/adminSidebar/AdminSidebar";
-import styles from "../page.module.css";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
 import blogStyles from "./page.module.css";
 import "../adminComponents/adminPageHader.css";
@@ -105,17 +104,17 @@ export default function BlogManager() {
 
   if (loading) {
     return (
-      <div className={styles.adminPage}>
+      <div className="admin-page">
         <AdminSidebar />
-        <div className={styles.adminContent}>Überprüfung läuft...</div>
+        <div className="admin-content">Überprüfung läuft...</div>
       </div>
     );
   }
 
   return (
-    <div className={styles.adminPage}>
+    <div className="admin-page">
       <AdminSidebar />
-      <div className={`${styles.adminContent} ${blogStyles.blogContent}`}>
+      <div className={`admin-content ${blogStyles.blogContent}`}>
         <header className="adminPageHeader">
           <h1>Blog Manager</h1>
           <Link className={blogStyles.newBlogButton} href="/admin/blog/neuer-artikel">

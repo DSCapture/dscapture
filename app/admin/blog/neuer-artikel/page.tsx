@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
-import layoutStyles from "../../page.module.css";
 import AdminSidebar from "../../adminComponents/adminSidebar/AdminSidebar";
 import styles from "./page.module.css";
 import "../../adminComponents/adminPageHader.css";
@@ -124,17 +123,17 @@ export default function BlogCreatePage() {
 
   if (verifying) {
     return (
-      <div className={layoutStyles.adminPage}>
+      <div className="admin-page">
         <AdminSidebar />
-        <div className={layoutStyles.adminContent}>Überprüfung läuft...</div>
+        <div className="admin-content">Überprüfung läuft...</div>
       </div>
     );
   }
 
   return (
-    <div className={layoutStyles.adminPage}>
+    <div className="admin-page">
       <AdminSidebar />
-      <div className={`${layoutStyles.adminContent} ${styles.blogContent}`}>
+      <div className={`admin-content ${styles.blogContent}`}>
         <header className="adminPageHeader">
           <h1>Neuer Artikel</h1>
           <Link className={styles.abortButton} href="/admin/blog">

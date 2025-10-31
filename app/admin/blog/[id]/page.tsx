@@ -9,7 +9,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
 
 import AdminSidebar from "../../adminComponents/adminSidebar/AdminSidebar";
-import layoutStyles from "../page.module.css";
 import styles from "../neuer-artikel/page.module.css";
 import "../../adminComponents/adminPageHader.css";
 
@@ -239,17 +238,17 @@ export default function BlogEditPage() {
 
   if (verifying) {
     return (
-      <div className={layoutStyles.adminPage}>
+      <div className="admin-page">
         <AdminSidebar />
-        <div className={layoutStyles.adminContent}>Überprüfung läuft...</div>
+        <div className="admin-content">Überprüfung läuft...</div>
       </div>
     );
   }
 
   return (
-    <div className={layoutStyles.adminPage}>
+    <div className="admin-page">
       <AdminSidebar />
-      <div className={`${layoutStyles.adminContent} ${styles.blogContent}`}>
+      <div className={`admin-content ${styles.blogContent}`}>
         <header className="adminPageHeader">
           <h1>Artikel bearbeiten</h1>
           <Link className={styles.abortButton} href="/admin/blog">
