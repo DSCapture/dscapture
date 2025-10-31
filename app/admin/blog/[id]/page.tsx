@@ -257,7 +257,7 @@ export default function BlogEditPage() {
           </Link>
         </header>
 
-        {loadingPost && <p>Lade Artikel...</p>}
+        {loadingPost && <p>Lade Artikel....</p>}
 
         {!loadingPost && fetchError && <p className={styles.errorText}>{fetchError}</p>}
 
