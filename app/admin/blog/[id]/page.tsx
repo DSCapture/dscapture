@@ -248,7 +248,7 @@ export default function BlogEditPage() {
   return (
     <div className="admin-page">
       <AdminSidebar />
-      <div className={`admin-content ${styles.blogContent}`}>
+      <div className={`admin-content`}>
         <header className="adminPageHeader">
           <h1>Artikel bearbeiten</h1>
           <Link className={styles.abortButton} href="/admin/blog">
