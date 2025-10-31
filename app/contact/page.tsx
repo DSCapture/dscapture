@@ -8,6 +8,7 @@ export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
+  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -30,6 +31,7 @@ export default function ContactPage() {
       name: name.trim(),
       email: email.trim(),
       subject: subject.trim() || null,
+      phone: phone.trim() || null,
       message: message.trim(),
     });
 
@@ -44,6 +46,7 @@ export default function ContactPage() {
     setName("");
     setEmail("");
     setSubject("");
+    setPhone("");
     setMessage("");
   };
 
@@ -70,6 +73,17 @@ export default function ContactPage() {
               onChange={(event) => setName(event.target.value)}
               placeholder="Max Mustermann"
               required
+            />
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label htmlFor="phone">Telefon</label>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder="Optional: +49 123 456789"
             />
           </div>
 

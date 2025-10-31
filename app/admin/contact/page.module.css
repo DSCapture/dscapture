@@ -1,0 +1,219 @@
+.contactContent {
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header p {
+  color: rgba(32, 43, 72, 0.7);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.reloadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(32, 43, 72, 0.15);
+  background-color: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reloadButton:hover {
+  background-color: rgba(32, 43, 72, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(23, 30, 51, 0.1);
+}
+
+.reloadButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.messageList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.messageCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(32, 43, 72, 0.08);
+  padding: 1.5rem;
+  box-shadow: 0 18px 45px rgba(23, 30, 51, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cardTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cardTitle h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.cardTitle span {
+  font-size: 0.95rem;
+  color: rgba(32, 43, 72, 0.65);
+}
+
+.metaInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.35rem 1rem;
+  font-size: 0.95rem;
+  color: rgba(32, 43, 72, 0.75);
+}
+
+.metaInfo a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.metaInfo a:hover {
+  text-decoration: underline;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+}
+
+.statusOpen {
+  background-color: rgba(32, 43, 72, 0.08);
+  color: var(--primary-dark);
+}
+
+.statusInProgress {
+  background-color: rgba(156, 97, 64, 0.12);
+  color: var(--secondary-dark);
+}
+
+.statusDone {
+  background-color: rgba(30, 153, 95, 0.18);
+  color: #1f7a57;
+}
+
+.statusControl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.statusControl label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(32, 43, 72, 0.75);
+}
+
+.statusControl select {
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(32, 43, 72, 0.2);
+  background-color: #f9fafb;
+  font-weight: 500;
+  color: var(--primary);
+  min-width: 180px;
+}
+
+.statusControl select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.messageBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.messageText {
+  white-space: pre-wrap;
+  line-height: 1.55;
+  color: rgba(32, 43, 72, 0.85);
+}
+
+.toggleButton {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggleButton:hover {
+  text-decoration: underline;
+}
+
+.errorMessage {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 99, 71, 0.12);
+  color: #b42318;
+  font-weight: 500;
+}
+
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  border-radius: 18px;
+  border: 1px dashed rgba(32, 43, 72, 0.2);
+  color: rgba(32, 43, 72, 0.65);
+}
+
+@media (max-width: 720px) {
+  .cardHeader {
+    flex-direction: column;
+  }
+
+  .statusControl {
+    width: 100%;
+  }
+
+  .statusControl select {
+    width: 100%;
+  }
+}
