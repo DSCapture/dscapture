@@ -89,7 +89,7 @@ export default function AdminContactPage() {
 
     const { data, error } = await supabase
       .from("contact_messages")
-      .select<ContactMessageRow>("id, name, email, phone, message, status, created_at")
+      .select("id, name, email, phone, message, status, created_at")
       .order("created_at", { ascending: false });
 
     if (!isMountedRef.current) {
@@ -101,7 +101,9 @@ export default function AdminContactPage() {
       setFetchError("Die Kontaktanfragen konnten nicht geladen werden.");
       setMessages([]);
     } else {
-      const normalizedMessages = (data ?? []).map<ContactMessage>((message) => ({
+      const typedData = (data ?? []) as ContactMessageRow[];
+
+      const normalizedMessages = typedData.map<ContactMessage>((message) => ({
         ...message,
         status: (message.status ?? "open") as ContactMessageStatus,
       }));
