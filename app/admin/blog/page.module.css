@@ -7,16 +7,17 @@
 .blogSection {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
     width: 100%;
+    margin-bottom: 3rem;
 }
 
 .newBlogButton {
     padding: 1rem 1.5rem;
-    background-color: #ededed;
+    background-color: var(--primary);
     border-radius: 12px;
     text-decoration: none;
-    color: black;
+    color: var(--text-contrast);
     display: inline-flex;
     align-items: center;
     gap: .5rem;

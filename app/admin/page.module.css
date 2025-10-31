@@ -8,6 +8,8 @@
 }
 
 .adminContent {
+    position: absolute;
+    right: 2rem;
     margin-top: 1rem;
     width: calc(100% - 24rem);
     height: calc(100vh - 5rem);
