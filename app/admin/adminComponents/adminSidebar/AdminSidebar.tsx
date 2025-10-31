@@ -1,8 +1,61 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import LogoutButton from "@/components/logoutButton/LogoutButton";
 import styles from "./adminSidebar.module.css";
+import { supabase } from "@/lib/supabaseClient";
 
 const AdminSidebar = () => {
+    const [pendingContacts, setPendingContacts] = useState<number | null>(null);
+
+    const fetchPendingContacts = useCallback(async () => {
+        const { count, error } = await supabase
+            .from("contact_messages")
+            .select("id", { count: "exact", head: true })
+            .or("status.is.null,status.eq.open,status.eq.in_progress");
+
+        if (error) {
+            console.error("Fehler beim Laden der offenen Kontaktanfragen:", error);
+            return null;
+        }
+
+        return count ?? 0;
+    }, []);
+
+    useEffect(() => {
+        let active = true;
+
+        const updatePendingContacts = async () => {
+            const count = await fetchPendingContacts();
+            if (active && count !== null) {
+                setPendingContacts(count);
+            }
+        };
+
+        void updatePendingContacts();
+
+        const channel = supabase
+            .channel("contact-messages-sidebar")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "contact_messages" },
+                () => {
+                    void updatePendingContacts();
+                },
+            )
+            .subscribe();
+
+        return () => {
+            active = false;
+            void channel.unsubscribe();
+        };
+    }, [fetchPendingContacts]);
+
+    const shouldShowPendingBadge = useMemo(() => {
+        return typeof pendingContacts === "number" && pendingContacts > 0;
+    }, [pendingContacts]);
+
     return (
         <div className={styles.adminSidebar}>
             <div className={styles.sidebarLogoBox}>
@@ -27,7 +80,14 @@ const AdminSidebar = () => {
                 </Link>
                 <Link className={styles.adminNavLink} href="/admin/contact">
                     <i className="bi bi-envelope"></i>
-                    Kontaktanfragen
+                    <span className={styles.linkLabel}>
+                        Kontaktanfragen
+                        {shouldShowPendingBadge ? (
+                            <span className={styles.pendingBadge} aria-label={`${pendingContacts} Kontaktanfragen zu bearbeiten`}>
+                                {pendingContacts}
+                            </span>
+                        ) : null}
+                    </span>
                 </Link>
             </nav>
             <div className={styles.logoutBox}>

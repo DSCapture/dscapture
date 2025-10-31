@@ -57,6 +57,8 @@ export default function AdminContactPage() {
   const [statusUpdateError, setStatusUpdateError] = useState<string | null>(null);
   const [updatingMessageId, setUpdatingMessageId] = useState<number | null>(null);
   const [expandedMessages, setExpandedMessages] = useState<Set<number>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<"all" | ContactMessageStatus>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -179,6 +181,30 @@ export default function AdminContactPage() {
     [messages],
   );
 
+  const filteredMessages = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return messages.filter((message) => {
+      const matchesStatus =
+        statusFilter === "all" ? true : message.status === statusFilter;
+
+      if (!normalizedQuery) {
+        return matchesStatus;
+      }
+
+      const haystack = [
+        message.name,
+        message.email,
+        message.phone ?? "",
+        message.message,
+      ]
+        .join("\n")
+        .toLowerCase();
+
+      return matchesStatus && haystack.includes(normalizedQuery);
+    });
+  }, [messages, searchQuery, statusFilter]);
+
   if (loading) {
     return (
       <div className="admin-page">
@@ -198,6 +224,39 @@ export default function AdminContactPage() {
             <p>Verwalte eingehende Nachrichten und behalte den Bearbeitungsstatus im Blick.</p>
           </div>
           <div className={styles.actions}>
+            <div className={styles.filterBar}>
+              <label className={styles.visuallyHidden} htmlFor="contact-status-filter">
+                Nach Status filtern
+              </label>
+              <select
+                id="contact-status-filter"
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as "all" | ContactMessageStatus)
+                }
+              >
+                <option value="all">Alle Status</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              <label className={styles.visuallyHidden} htmlFor="contact-search">
+                Kontaktanfragen durchsuchen
+              </label>
+              <div className={styles.searchWrapper}>
+                <i className="bi bi-search" aria-hidden="true"></i>
+                <input
+                  id="contact-search"
+                  type="search"
+                  placeholder="Suche nach Name, E-Mail, Telefon oder Nachricht"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                />
+              </div>
+            </div>
             <button
               className={styles.reloadButton}
               type="button"
@@ -224,11 +283,18 @@ export default function AdminContactPage() {
         ) : null}
 
         {!loadingMessages && !fetchError && messages.length > 0 ? (
+          filteredMessages.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>Es wurden keine Kontaktanfragen zu den aktuellen Such- und Filterkriterien gefunden.</p>
+            </div>
+          ) : (
           <ul className={styles.messageList}>
-            {messages.map((message) => {
+            {filteredMessages.map((message) => {
               const isExpanded = expandedMessages.has(message.id);
               const preview = getMessagePreview(message.message);
               const badgeClassName = `${styles.statusBadge} ${STATUS_CLASSNAME[message.status]}`;
+              const trimmedPhone = message.phone?.trim();
+              const sanitizedPhone = trimmedPhone?.replace(/[^+\d]/g, "");
 
               return (
                 <li key={message.id} className={styles.messageCard}>
@@ -264,7 +330,12 @@ export default function AdminContactPage() {
                       <a href={`mailto:${message.email}`}>{message.email}</a>
                     </span>
                     <span>
-                      <strong>Telefon:</strong> {message.phone?.trim() ? message.phone : "Nicht angegeben"}
+                      <strong>Telefon:</strong>{" "}
+                      {trimmedPhone ? (
+                        <a href={`tel:${sanitizedPhone ?? trimmedPhone}`}>{trimmedPhone}</a>
+                      ) : (
+                        "Nicht angegeben"
+                      )}
                     </span>
                   </div>
 
@@ -284,6 +355,7 @@ export default function AdminContactPage() {
               );
             })}
           </ul>
+          )
         ) : null}
       </div>
     </div>
