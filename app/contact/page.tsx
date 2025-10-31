@@ -108,7 +108,7 @@ export default function ContactPage() {
             />
           </div>
 
-          <button type="submit" disabled={isSubmitting}>
+          <button className={styles.submitButton} type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Wird gesendet..." : "Nachricht senden"}
           </button>
 
