@@ -26,3 +26,38 @@
 body {
   font-family: "Roboto", sans-serif;
 }
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  background-color: var(--primary);
+  color: var(--text-contrast);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  letter-spacing: .01em;
+  transition: background-color .2s ease, transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(32, 43, 72, 0.25);
+}
+
+.primaryButton:focus-visible {
+  outline: 3px solid rgba(32, 43, 72, 0.35);
+  outline-offset: 3px;
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

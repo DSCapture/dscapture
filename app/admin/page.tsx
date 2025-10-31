@@ -9,7 +9,12 @@ export default function AdminPage() {
   const { loading, adminUser } = useVerifyAdminAccess();
 
   if (loading) {
-    return <div className={styles.adminContent}>Überprüfung läuft...</div>;
+    return (
+      <div className={styles.adminPage}>
+        <AdminSidebar />
+        <div className={styles.adminContent}>Überprüfung läuft...</div>
+      </div>
+    );
   }
 
   return (

@@ -1,40 +1,94 @@
 .adminSidebar {
     position: fixed;
+    top: 0;
+    left: 0;
     width: 20rem;
     height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
-    background-color: var(--primary-dark);
+    padding: 2.5rem 2.25rem 2.75rem;
+    background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%);
+    box-shadow: 16px 0 40px rgba(23, 30, 51, 0.35);
+    color: var(--text-contrast);
+    z-index: 10;
 }
 
 .sidebarLogoBox {
-    margin-left: 2rem;
-    margin-top: 2rem;
+    width: 100%;
 }
 
 .sidebarHeadline {
-    color: white;
+    color: var(--text-contrast);
+    font-size: 1.8rem;
+    letter-spacing: .04em;
 }
 
 .adminSidebarNavigation {
-    margin-left: 2rem;
-    width: calc(100% - 4rem);
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin-top: 2rem;
 }
 
 .adminNavLink {
     display: flex;
+    align-items: center;
     gap: 1rem;
     font-size: 1.1rem;
     color: var(--text-contrast);
     text-decoration: none;
+    padding: .85rem 1rem;
+    border-radius: 14px;
+    transition: background-color .2s ease, transform .2s ease;
+}
+
+.adminNavLink:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(6px);
 }
 
 .logoutBox {
-    margin-left: 2rem;
-    margin-bottom: 2rem;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .adminSidebar {
+        width: 100%;
+        height: 5rem;
+        flex-direction: row;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 12px 40px rgba(23, 30, 51, 0.25);
+    }
+
+    .sidebarLogoBox {
+        display: none;
+    }
+
+    .adminSidebarNavigation {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        margin-top: 0;
+        overflow-x: auto;
+        gap: .75rem;
+    }
+
+    .adminNavLink {
+        padding: .5rem .75rem;
+        gap: .5rem;
+        font-size: .95rem;
+    }
+
+    .logoutBox {
+        display: none;
+    }
+
+    .adminSidebarNavigation::-webkit-scrollbar {
+        display: none;
+    }
 }

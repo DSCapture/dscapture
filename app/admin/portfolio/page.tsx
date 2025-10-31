@@ -8,7 +8,12 @@ export default function AdminPortfolioPage() {
   const { loading } = useVerifyAdminAccess();
 
   if (loading) {
-    return <div className={styles.adminContent}>Überprüfung läuft...</div>;
+    return (
+      <div className={styles.adminPage}>
+        <AdminSidebar />
+        <div className={styles.adminContent}>Überprüfung läuft...</div>
+      </div>
+    );
   }
 
   return (

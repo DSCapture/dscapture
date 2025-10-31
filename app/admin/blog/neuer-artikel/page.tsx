@@ -123,7 +123,12 @@ export default function BlogCreatePage() {
   }
 
   if (verifying) {
-    return <div className={layoutStyles.adminContent}>Überprüfung läuft...</div>;
+    return (
+      <div className={layoutStyles.adminPage}>
+        <AdminSidebar />
+        <div className={layoutStyles.adminContent}>Überprüfung läuft...</div>
+      </div>
+    );
   }
 
   return (

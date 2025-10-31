@@ -1,49 +1,61 @@
 .blogContent {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
+    color: var(--primary);
 }
 
 .blogSection {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     width: 100%;
     margin-bottom: 3rem;
 }
 
 .newBlogButton {
-    padding: 1rem 1.5rem;
-    background-color: var(--primary);
-    border-radius: 12px;
+    padding: 1rem 1.75rem;
+    background-color: var(--secondary);
+    border-radius: 999px;
     text-decoration: none;
     color: var(--text-contrast);
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
-    transition: background-color .2s ease;
+    gap: .75rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    transition: background-color .2s ease, transform .2s ease;
+    box-shadow: 0 12px 30px rgba(154, 97, 64, 0.28);
 }
 
 .newBlogButton:hover {
-    background-color: #dcdcdc;
+    background-color: var(--secondary-light);
+    transform: translateY(-2px);
 }
 
 .blogGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
     width: 100%;
 }
 
 .blogCard {
-    background-color: #ffffff;
-    border-radius: 16px;
-    padding: 1.25rem;
+    background-color: var(--bg-light);
+    border-radius: 24px;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    box-shadow: 0 10px 30px rgba(15, 30, 51, 0.08);
+    gap: 1.25rem;
+    box-shadow: 0 20px 50px rgba(23, 30, 51, 0.12);
+    border: 1px solid rgba(23, 30, 51, 0.05);
     min-height: 100%;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.blogCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 60px rgba(23, 30, 51, 0.16);
 }
 
 .blogCardMain {
@@ -61,18 +73,19 @@
 }
 
 .blogCardMain:focus-visible {
-    outline: 3px solid #111827;
-    outline-offset: 3px;
-    border-radius: 12px;
+    outline: 3px solid rgba(32, 43, 72, 0.35);
+    outline-offset: 4px;
+    border-radius: 18px;
 }
 
 .blogCardImage {
     width: 100%;
     padding-top: 56.25%;
-    border-radius: 12px;
-    background-color: #f3f4f6;
+    border-radius: 18px;
+    background-color: var(--bg-dark);
     background-size: cover;
     background-position: center;
+    box-shadow: inset 0 0 0 1px rgba(23, 30, 51, 0.05);
 }
 
 .blogCardBody {
@@ -83,20 +96,21 @@
 }
 
 .blogCardTitle {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     margin: 0;
+    color: var(--primary);
 }
 
 .blogCardMeta {
     font-size: .85rem;
-    color: #6b7280;
+    color: rgba(32, 43, 72, 0.65);
     margin: 0;
 }
 
 .blogCardExcerpt {
     margin: 0;
-    color: #1f2937;
-    line-height: 1.5;
+    color: rgba(32, 43, 72, 0.85);
+    line-height: 1.6;
 }
 
 .blogCardFooter {
@@ -110,43 +124,58 @@
 .blogCardLink {
     text-decoration: none;
     font-weight: 600;
-    color: #111827;
+    color: var(--primary);
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    padding: .5rem .75rem;
+    gap: .5rem;
+    padding: .6rem 1rem;
     border-radius: 999px;
-    background-color: #e5e7eb;
-    transition: background-color .2s ease;
+    background-color: rgba(32, 43, 72, 0.08);
+    transition: background-color .2s ease, transform .2s ease;
 }
 
 .blogCardLink:hover {
-    background-color: #d1d5db;
+    background-color: rgba(32, 43, 72, 0.16);
+    transform: translateY(-1px);
 }
 
 .blogCardAction {
     text-decoration: none;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-contrast);
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    padding: .5rem .75rem;
+    gap: .5rem;
+    padding: .6rem 1.1rem;
     border-radius: 999px;
-    background-color: #111827;
-    transition: background-color .2s ease;
+    background-color: var(--primary);
+    transition: background-color .2s ease, transform .2s ease;
+    box-shadow: 0 12px 30px rgba(32, 43, 72, 0.25);
 }
 
 .blogCardAction:hover {
-    background-color: #1f2937;
+    background-color: var(--primary-light);
+    transform: translateY(-1px);
 }
 
 .emptyState {
     margin: 0;
-    color: #6b7280;
+    color: rgba(32, 43, 72, 0.6);
 }
 
 .errorText {
     margin: 0;
     color: #b91c1c;
 }
+
+@media (max-width: 600px) {
+    .newBlogButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .blogCard {
+        padding: 1.5rem;
+    }
+}
+
