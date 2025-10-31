@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/logoutButton/LogoutButton";
 import styles from "./adminSidebar.module.css";
 import { supabase } from "@/lib/supabaseClient";
@@ -52,9 +53,11 @@ const AdminSidebar = () => {
         };
     }, [fetchPendingContacts]);
 
+    const pathname = usePathname();
     const shouldShowPendingBadge = useMemo(() => {
-        return typeof pendingContacts === "number" && pendingContacts > 0;
-    }, [pendingContacts]);
+        const isContactPage = pathname === "/admin/contact";
+        return !isContactPage && typeof pendingContacts === "number" && pendingContacts > 0;
+    }, [pathname, pendingContacts]);
 
     return (
         <div className={styles.adminSidebar}>
