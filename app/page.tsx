@@ -29,6 +29,13 @@ export default function Home() {
 
             {/* Inhalt */}
             <div className={styles.heroContent}>
+              {/* Text links daneben */}
+              <div className={styles.textContainer}>
+                <h1>Visuelle Exzellenz. Digitale Präzision.</h1>
+                <p>DS_Capture vereint Design, Strategie und Technologie zu einem klaren Markenauftritt.</p>
+                <button className={styles.ctaButton}>Mehr erfahren</button>
+              </div>
+
               {/* Overlay mit schnellerer Parallaxbewegung */}
               {/* <motion.div style={{ y: overlayY }} className={styles.overlayContainer}> */}
                 <Image
@@ -39,13 +46,6 @@ export default function Home() {
                   className={styles.overlay}
                 />
               {/* </motion.div> */}
-
-              {/* Text rechts daneben */}
-              <div className={styles.textContainer}>
-                <h1>Visuelle Exzellenz. Digitale Präzision.</h1>
-                <p>DS_Capture vereint Design, Strategie und Technologie zu einem klaren Markenauftritt.</p>
-                <button className={styles.ctaButton}>Mehr erfahren</button>
-              </div>
             </div>
           </div>
         </section>
