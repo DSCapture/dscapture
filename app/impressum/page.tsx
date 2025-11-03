@@ -6,6 +6,8 @@ export const metadata: Metadata = {
 };
 
 export default function ImpressumPage() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <section className="legalPage">
       <div className="legalSection">
@@ -38,7 +40,7 @@ export default function ImpressumPage() {
 
       <div className="legalSection">
         <h2>Urheberrechtshinweis</h2>
-        <p>© Copyright 2022 – Dawid Chmielewski</p>
+        <p>© Copyright {currentYear} – Dawid Chmielewski</p>
         <p>
           Die auf der Website verwendeten Texte, Bilder, Grafiken, Dateien usw. unterliegen auch ohne gesonderte
           Kennzeichnung dem Urheberrecht. Vervielfältigung, Verbreitung, Veränderung und Verwendung (auch auszugsweise)
