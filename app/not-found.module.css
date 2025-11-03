@@ -1,0 +1,63 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  color: rgba(32, 43, 72, 0.8);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  background: rgba(32, 43, 72, 0.08);
+  color: var(--primary);
+  font-size: 0.95rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.primaryLink {
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.secondaryLink {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.secondaryLink:hover,
+.secondaryLink:focus-visible {
+  color: var(--primary-dark);
+  outline: none;
+}
+
+@media (max-width: 640px) {
+  .content {
+    gap: 1.5rem;
+  }
+}
