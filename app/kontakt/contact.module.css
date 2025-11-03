@@ -48,12 +48,37 @@
   flex-direction: column;
   gap: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.formHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.formHeader h2 {
+  font-size: 1.75rem;
+  color: #f4f4f4;
+}
+
+.formHeader p {
+  color: rgba(244, 244, 244, 0.7);
+  line-height: 1.6;
 }
 
 .fieldGroup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.fieldRow {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .fieldGroup label {
@@ -72,6 +97,11 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.fieldGroup input::placeholder,
+.fieldGroup textarea::placeholder {
+  color: rgba(244, 244, 244, 0.45);
+}
+
 .fieldGroup input:focus,
 .fieldGroup textarea:focus {
   outline: none;
@@ -82,6 +112,19 @@
 .fieldGroup textarea {
   resize: vertical;
   min-height: 160px;
+}
+
+.formFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.formFooter span {
+  color: rgba(244, 244, 244, 0.65);
+  font-size: 0.95rem;
 }
 
 .submitButton {
@@ -123,11 +166,52 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: rgba(244, 244, 244, 0.85);
   line-height: 1.7;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar h2 {
   margin-bottom: 1rem;
   color: #f4f4f4;
+}
+
+.contactList {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contactList li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.contactList span {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 244, 244, 0.6);
+}
+
+.contactList a {
+  color: #9ca3ff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contactList a:hover {
+  text-decoration: underline;
+}
+
+.officeHours {
+  color: rgba(244, 244, 244, 0.7);
 }
 
 .sidebar a {
@@ -147,5 +231,14 @@
 
   .formSection {
     grid-template-columns: 1fr;
+  }
+
+  .formFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formFooter span {
+    text-align: center;
   }
 }
