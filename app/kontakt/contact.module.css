@@ -3,8 +3,10 @@
   flex-direction: column;
   gap: 3rem;
   padding: 6rem 1.5rem 4rem;
-  color: #0b0b0b;
-  background: linear-gradient(180deg, #0b0b0b 0%, #111 35%, #1c1c1c 100%);
+  color: rgba(32, 43, 72, 0.95);
+  background: radial-gradient(circle at top left, rgba(188, 227, 250, 0.35), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(32, 43, 72, 0.18), transparent 55%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(247, 247, 247, 0.9));
   min-height: 100vh;
 }
 
@@ -16,7 +18,7 @@
 .heroContent {
   max-width: 720px;
   text-align: center;
-  color: #f4f4f4;
+  color: rgba(32, 43, 72, 0.92);
 }
 
 .heroContent h1 {
@@ -27,7 +29,7 @@
 .heroContent p {
   font-size: 1.1rem;
   line-height: 1.6;
-  color: rgba(244, 244, 244, 0.85);
+  color: rgba(32, 43, 72, 0.75);
 }
 
 .formSection {
@@ -40,14 +42,33 @@
 }
 
 .form {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
-  border-radius: 18px;
+  border-radius: 24px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 25px 60px rgba(23, 30, 51, 0.15);
+}
+
+.formHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(32, 43, 72, 0.08);
+}
+
+.formHeader h2 {
+  font-size: 1.75rem;
+  color: var(--primary);
+}
+
+.formHeader p {
+  color: rgba(32, 43, 72, 0.7);
+  line-height: 1.6;
 }
 
 .fieldGroup {
@@ -56,27 +77,39 @@
   gap: 0.5rem;
 }
 
+.fieldRow {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
 .fieldGroup label {
   font-weight: 600;
-  color: #f4f4f4;
+  color: rgba(32, 43, 72, 0.95);
 }
 
 .fieldGroup input,
 .fieldGroup textarea {
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(12, 12, 12, 0.85);
-  color: #f4f4f4;
+  padding: 0.9rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(32, 43, 72, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--primary);
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.fieldGroup input::placeholder,
+.fieldGroup textarea::placeholder {
+  color: rgba(32, 43, 72, 0.35);
 }
 
 .fieldGroup input:focus,
 .fieldGroup textarea:focus {
   outline: none;
-  border-color: rgba(102, 126, 234, 0.8);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+  border-color: rgba(32, 43, 72, 0.45);
+  box-shadow: 0 18px 40px rgba(32, 43, 72, 0.12);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .fieldGroup textarea {
@@ -84,12 +117,25 @@
   min-height: 160px;
 }
 
+.formFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.formFooter span {
+  color: rgba(32, 43, 72, 0.65);
+  font-size: 0.95rem;
+}
+
 .submitButton {
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   color: #fff;
   padding: 0.95rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 18px;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -103,35 +149,78 @@
 
 .submitButton:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(102, 126, 234, 0.25);
+  box-shadow: 0 18px 40px rgba(32, 43, 72, 0.18);
 }
 
 .feedback {
-  color: #6ee7b7;
+  color: #1f9d76;
   font-weight: 500;
 }
 
 .error {
-  color: #f87171;
+  color: #b73232;
   font-weight: 500;
 }
 
 .sidebar {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 24px;
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(244, 244, 244, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: rgba(32, 43, 72, 0.8);
   line-height: 1.7;
+  box-shadow: 0 20px 45px rgba(23, 30, 51, 0.12);
+  backdrop-filter: blur(10px);
 }
 
 .sidebar h2 {
   margin-bottom: 1rem;
-  color: #f4f4f4;
+  color: var(--primary);
+}
+
+.contactList {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contactList li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(32, 43, 72, 0.08);
+  box-shadow: 0 12px 28px rgba(23, 30, 51, 0.08);
+}
+
+.contactList span {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(32, 43, 72, 0.5);
+}
+
+.contactList a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contactList a:hover {
+  text-decoration: underline;
+}
+
+.officeHours {
+  color: rgba(32, 43, 72, 0.65);
 }
 
 .sidebar a {
-  color: #9ca3ff;
+  color: var(--primary);
   font-weight: 600;
   text-decoration: none;
 }
@@ -147,5 +236,14 @@
 
   .formSection {
     grid-template-columns: 1fr;
+  }
+
+  .formFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formFooter span {
+    text-align: center;
   }
 }

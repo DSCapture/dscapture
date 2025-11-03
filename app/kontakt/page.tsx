@@ -64,50 +64,62 @@ export default function ContactPage() {
 
       <section className={styles.formSection}>
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.fieldGroup}>
-            <label htmlFor="name">Name*</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Max Mustermann"
-              required
-            />
+          <div className={styles.formHeader}>
+            <h2>Schreib uns eine Nachricht</h2>
+            <p>
+              Erzähl uns mehr über dein Projekt oder stelle deine Fragen. Wir nehmen innerhalb
+              eines Werktages Kontakt zu dir auf.
+            </p>
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label htmlFor="phone">Telefon</label>
-            <input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder="Optional: +49 123 456789"
-            />
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="name">Name*</label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Max Mustermann"
+                required
+              />
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="phone">Telefon</label>
+              <input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="Optional: +49 123 456789"
+              />
+            </div>
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label htmlFor="email">E-Mail*</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="max@beispiel.de"
-              required
-            />
-          </div>
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="email">E-Mail*</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="max@beispiel.de"
+                required
+              />
+            </div>
 
-          <div className={styles.fieldGroup}>
-            <label htmlFor="subject">Betreff</label>
-            <input
-              id="subject"
-              type="text"
-              value={subject}
-              onChange={(event) => setSubject(event.target.value)}
-              placeholder="Worum geht es?"
-            />
+            <div className={styles.fieldGroup}>
+              <label htmlFor="subject">Betreff</label>
+              <input
+                id="subject"
+                type="text"
+                value={subject}
+                onChange={(event) => setSubject(event.target.value)}
+                placeholder="Worum geht es?"
+              />
+            </div>
           </div>
 
           <div className={styles.fieldGroup}>
@@ -122,24 +134,41 @@ export default function ContactPage() {
             />
           </div>
 
-          <button className={styles.submitButton} type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Wird gesendet..." : "Nachricht senden"}
-          </button>
+          <div className={styles.formFooter}>
+            <button className={styles.submitButton} type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Wird gesendet..." : "Nachricht senden"}
+            </button>
+            <span>Wir melden uns in der Regel innerhalb von 24 Stunden.</span>
+          </div>
 
-          {feedback && <p className={styles.feedback}>{feedback}</p>}
-          {error && <p className={styles.error}>{error}</p>}
+          {feedback && (
+            <p className={styles.feedback} role="status" aria-live="polite">
+              {feedback}
+            </p>
+          )}
+          {error && (
+            <p className={styles.error} role="alert" aria-live="assertive">
+              {error}
+            </p>
+          )}
         </form>
 
         <aside className={styles.sidebar}>
           <h2>Direkter Kontakt</h2>
           <p>
-            Lieber ein persönliches Gespräch? Schreibe uns eine E-Mail an
-            <a href="mailto:hello@dscapture.de"> hello@dscapture.de</a> oder ruf uns an unter
-            <a href="tel:+4900000000"> +49 000 0000</a>.
+            Lieber ein persönliches Gespräch? Du erreichst uns über die folgenden Kanäle:
           </p>
-          <p>
-            Wir sind von Montag bis Freitag zwischen 9 und 18 Uhr für dich erreichbar.
-          </p>
+          <ul className={styles.contactList}>
+            <li>
+              <span>E-Mail</span>
+              <a href="mailto:hello@dscapture.de">hello@dscapture.de</a>
+            </li>
+            <li>
+              <span>Telefon</span>
+              <a href="tel:+4900000000">+49 000 0000</a>
+            </li>
+          </ul>
+          <p className={styles.officeHours}>Wir sind montags bis freitags von 9 bis 18 Uhr für dich da.</p>
         </aside>
       </section>
     </main>
