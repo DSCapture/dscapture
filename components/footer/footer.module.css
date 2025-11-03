@@ -1,0 +1,87 @@
+.footer {
+  background: var(--primary);
+  color: var(--text-contrast);
+  padding: 4rem 1.5rem 2rem;
+  margin-top: auto;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.branding {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.logoLink {
+  display: inline-flex;
+  width: fit-content;
+}
+
+.brandingText {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 320px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.navigationGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.groupTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+.bottomBar {
+  max-width: 1200px;
+  margin: 2.5rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.copyright {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 600px) {
+  .footer {
+    padding: 3rem 1.25rem 1.5rem;
+  }
+
+  .brandingText {
+    max-width: 100%;
+  }
+}
