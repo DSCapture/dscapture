@@ -7,6 +7,7 @@ import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
 import blogStyles from "./page.module.css";
 import "../adminComponents/adminPageHader.css";
 import { supabase } from "@/lib/supabaseClient";
+import type { BlogCategory } from "@/lib/blogCategories";
 
 type BlogPostStatus = "draft" | "published" | "archived";
 
@@ -19,6 +20,7 @@ interface BlogPostPreview {
   published_at: string | null;
   status: BlogPostStatus;
   spotlight: boolean;
+  category: BlogCategory | null;
 }
 
 export default function BlogManager() {
@@ -32,6 +34,10 @@ export default function BlogManager() {
   const [updatingSpotlightId, setUpdatingSpotlightId] = useState<number | null>(
     null,
   );
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
   useEffect(() => {
     if (loading) {
@@ -45,19 +51,25 @@ export default function BlogManager() {
       setFetchingDrafts(true);
       setPublishedError(null);
       setDraftError(null);
+      setCategoriesLoading(true);
+      setCategoriesError(null);
 
-      const [publishedResult, draftsResult] = await Promise.all([
+      const [categoriesResult, publishedResult, draftsResult] = await Promise.all([
+        supabase
+          .from("blog_categories")
+          .select("id, name, slug")
+          .order("name", { ascending: true }),
         supabase
           .from("posts")
           .select(
-            "id, title, slug, excerpt, cover_image, published_at, status, spotlight",
+            "id, title, slug, excerpt, cover_image, published_at, status, spotlight, category:blog_categories(id, name, slug)",
           )
           .eq("status", "published")
           .order("published_at", { ascending: false, nullsFirst: false }),
         supabase
           .from("posts")
           .select(
-            "id, title, slug, excerpt, cover_image, published_at, status, spotlight",
+            "id, title, slug, excerpt, cover_image, published_at, status, spotlight, category:blog_categories(id, name, slug)",
           )
           .eq("status", "draft")
           .order("id", { ascending: false }),
@@ -66,6 +78,19 @@ export default function BlogManager() {
       if (!isMounted) {
         return;
       }
+
+      if (categoriesResult.error) {
+        console.error(
+          "Fehler beim Laden der Kategorien:",
+          categoriesResult.error,
+        );
+        setCategoriesError("Die Kategorien konnten nicht geladen werden.");
+        setCategories([]);
+      } else {
+        setCategories(categoriesResult.data ?? []);
+      }
+
+      setCategoriesLoading(false);
 
       if (publishedResult.error) {
         console.error(
@@ -79,6 +104,7 @@ export default function BlogManager() {
           (publishedResult.data ?? []).map((post) => ({
             ...post,
             spotlight: Boolean(post.spotlight),
+            category: (post.category as BlogCategory | null) ?? null,
           })),
         );
       }
@@ -95,6 +121,7 @@ export default function BlogManager() {
           (draftsResult.data ?? []).map((post) => ({
             ...post,
             spotlight: Boolean(post.spotlight),
+            category: (post.category as BlogCategory | null) ?? null,
           })),
         );
       }
@@ -119,6 +146,24 @@ export default function BlogManager() {
       }),
     []
   );
+
+  const filteredPublishedPosts = useMemo(() => {
+    if (!selectedCategoryId) {
+      return publishedPosts;
+    }
+
+    return publishedPosts.filter(
+      (post) => post.category?.id === selectedCategoryId,
+    );
+  }, [publishedPosts, selectedCategoryId]);
+
+  const filteredDraftPosts = useMemo(() => {
+    if (!selectedCategoryId) {
+      return draftPosts;
+    }
+
+    return draftPosts.filter((post) => post.category?.id === selectedCategoryId);
+  }, [draftPosts, selectedCategoryId]);
 
   async function handleSpotlightToggle(post: BlogPostPreview) {
     setUpdatingSpotlightId(post.id);
@@ -190,6 +235,27 @@ export default function BlogManager() {
           </Link>
         </header>
 
+        <section className={blogStyles.filterSection}>
+          <label className={blogStyles.filterControl}>
+            Kategorie filtern
+            <select
+              value={selectedCategoryId}
+              onChange={(event) => setSelectedCategoryId(event.target.value)}
+              disabled={categoriesLoading}
+            >
+              <option value="">Alle Kategorien</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {categoriesError && (
+            <p className={blogStyles.errorText}>{categoriesError}</p>
+          )}
+        </section>
+
         <section className={blogStyles.blogSection}>
           <h2>Veröffentlichte Artikel</h2>
 
@@ -199,13 +265,17 @@ export default function BlogManager() {
             <p className={blogStyles.errorText}>{publishedError}</p>
           )}
 
-          {!fetchingPublished && !publishedError && publishedPosts.length === 0 && (
+          {!fetchingPublished &&
+            !publishedError &&
+            filteredPublishedPosts.length === 0 && (
             <p className={blogStyles.emptyState}>Es wurden noch keine Artikel veröffentlicht.</p>
           )}
 
-          {!fetchingPublished && !publishedError && publishedPosts.length > 0 && (
+          {!fetchingPublished &&
+            !publishedError &&
+            filteredPublishedPosts.length > 0 && (
             <div className={blogStyles.blogGrid}>
-              {publishedPosts.map((post) => (
+              {filteredPublishedPosts.map((post) => (
                 <article key={post.id} className={blogStyles.blogCard}>
                   <Link href={`/admin/blog/${post.id}`} className={blogStyles.blogCardMain}>
                     <div
@@ -218,6 +288,9 @@ export default function BlogManager() {
                   <div className={blogStyles.blogCardBody}>
                     {post.spotlight && (
                       <span className={blogStyles.spotlightBadge}>Spotlight</span>
+                    )}
+                    {post.category && (
+                      <span className={blogStyles.categoryBadge}>{post.category.name}</span>
                     )}
                     <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
                       {post.published_at && (
@@ -263,13 +336,13 @@ export default function BlogManager() {
 
           {!fetchingDrafts && draftError && <p className={blogStyles.errorText}>{draftError}</p>}
 
-          {!fetchingDrafts && !draftError && draftPosts.length === 0 && (
+          {!fetchingDrafts && !draftError && filteredDraftPosts.length === 0 && (
             <p className={blogStyles.emptyState}>Aktuell sind keine Entwürfe vorhanden.</p>
           )}
 
-          {!fetchingDrafts && !draftError && draftPosts.length > 0 && (
+          {!fetchingDrafts && !draftError && filteredDraftPosts.length > 0 && (
             <div className={blogStyles.blogGrid}>
-              {draftPosts.map((post) => (
+              {filteredDraftPosts.map((post) => (
                 <article key={post.id} className={blogStyles.blogCard}>
                   <Link href={`/admin/blog/${post.id}`} className={blogStyles.blogCardMain}>
                     <div
@@ -280,6 +353,9 @@ export default function BlogManager() {
                       aria-hidden={!post.cover_image}
                     />
                     <div className={blogStyles.blogCardBody}>
+                      {post.category && (
+                        <span className={blogStyles.categoryBadge}>{post.category.name}</span>
+                      )}
                       <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
                       <p className={blogStyles.blogCardMeta}>Entwurf</p>
                       {post.excerpt && <p className={blogStyles.blogCardExcerpt}>{post.excerpt}</p>}

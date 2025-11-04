@@ -7,6 +7,8 @@ import Link from "next/link";
 
 import { supabase } from "@/lib/supabaseClient";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
+import { createSlug } from "@/lib/slug";
+import type { BlogCategory } from "@/lib/blogCategories";
 
 import AdminSidebar from "../../adminComponents/adminSidebar/AdminSidebar";
 import styles from "../neuer-artikel/page.module.css";
@@ -32,6 +34,13 @@ export default function BlogEditPage() {
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [status, setStatus] = useState<PostStatus>("draft");
   const [publishedAt, setPublishedAt] = useState<string | null>(null);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [savingCategory, setSavingCategory] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -47,6 +56,49 @@ export default function BlogEditPage() {
       }),
     [],
   );
+
+  const trimmedNewCategoryName = useMemo(
+    () => newCategoryName.trim(),
+    [newCategoryName],
+  );
+
+  useEffect(() => {
+    if (verifying) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadCategories() {
+      setCategoriesLoading(true);
+      setCategoriesError(null);
+
+      const { data, error } = await supabase
+        .from("blog_categories")
+        .select("id, name, slug")
+        .order("name", { ascending: true });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (error) {
+        console.error("Fehler beim Laden der Kategorien:", error);
+        setCategoriesError("Die Kategorien konnten nicht geladen werden.");
+        setCategories([]);
+      } else {
+        setCategories(data ?? []);
+      }
+
+      setCategoriesLoading(false);
+    }
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [verifying]);
 
   useEffect(() => {
     if (verifying) {
@@ -64,7 +116,9 @@ export default function BlogEditPage() {
 
       const { data, error } = await supabase
         .from("posts")
-        .select("id, title, slug, excerpt, content, cover_image, status, published_at")
+        .select(
+          "id, title, slug, excerpt, content, cover_image, status, published_at, category_id, category:blog_categories(id, name, slug)",
+        )
         .eq("id", numericId)
         .maybeSingle();
 
@@ -89,6 +143,7 @@ export default function BlogEditPage() {
       setCoverImage(data.cover_image ?? "");
       setStatus((data.status as PostStatus) ?? "draft");
       setPublishedAt(data.published_at ?? null);
+      setSelectedCategoryId((data.category_id as string | null) ?? "");
       setFetchError(null);
       setLoadingPost(false);
     }
@@ -180,6 +235,7 @@ export default function BlogEditPage() {
       cover_image: string | null;
       status: PostStatus;
       published_at?: string | null;
+      category_id?: string | null;
     } = {
       title,
       slug,
@@ -194,6 +250,8 @@ export default function BlogEditPage() {
     } else {
       updates.published_at = null;
     }
+
+    updates.category_id = selectedCategoryId || null;
 
     const { error } = await supabase.from("posts").update(updates).eq("id", postId);
 
@@ -326,6 +384,104 @@ export default function BlogEditPage() {
                 placeholder="https://..."
               />
             </label>
+
+            <section className={styles.categorySection}>
+              <div className={styles.categoryHeader}>
+                <label>
+                  Kategorie (optional)
+                  <select
+                    value={selectedCategoryId}
+                    onChange={(event) => setSelectedCategoryId(event.target.value)}
+                    disabled={categoriesLoading}
+                  >
+                    <option value="">Keine Kategorie</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <button
+                  type="button"
+                  className={styles.categoryActionButton}
+                  onClick={() => setShowNewCategoryForm((prev) => !prev)}
+                >
+                  {showNewCategoryForm ? "Abbrechen" : "Neue Kategorie"}
+                </button>
+              </div>
+
+              {showNewCategoryForm && (
+                <div className={styles.newCategoryForm}>
+                  <input
+                    type="text"
+                    placeholder="Name der Kategorie"
+                    value={newCategoryName}
+                    onChange={(event) => setNewCategoryName(event.target.value)}
+                    disabled={savingCategory}
+                  />
+                  <button
+                    type="button"
+                    className="primaryButton"
+                    disabled={savingCategory || !trimmedNewCategoryName}
+                    onClick={async () => {
+                      const trimmedName = trimmedNewCategoryName;
+
+                      if (!trimmedName) {
+                        return;
+                      }
+
+                      setSavingCategory(true);
+                      setCategoriesError(null);
+
+                      const slug = createSlug(trimmedName);
+
+                      const { data, error } = await supabase
+                        .from("blog_categories")
+                        .insert({
+                          name: trimmedName,
+                          slug,
+                        })
+                        .select()
+                        .maybeSingle();
+
+                      if (error) {
+                        console.error("Fehler beim Anlegen der Kategorie:", error);
+                        setCategoriesError(
+                          error.code === "23505"
+                            ? "Eine Kategorie mit diesem Namen oder Slug existiert bereits."
+                            : "Die Kategorie konnte nicht erstellt werden.",
+                        );
+                        setSavingCategory(false);
+                        return;
+                      }
+
+                      const createdCategory = data as BlogCategory | null;
+
+                      if (createdCategory) {
+                        setCategories((prev) =>
+                          [...prev, createdCategory].sort((a, b) =>
+                            a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
+                          ),
+                        );
+                        setSelectedCategoryId(createdCategory.id);
+                      }
+
+                      setNewCategoryName("");
+                      setShowNewCategoryForm(false);
+                      setSavingCategory(false);
+                    }}
+                  >
+                    {savingCategory ? "Speichere..." : "Kategorie hinzufügen"}
+                  </button>
+                </div>
+              )}
+
+              {categoriesError && (
+                <p className={styles.errorText}>{categoriesError}</p>
+              )}
+            </section>
 
             <label>
               Status

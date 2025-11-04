@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +9,8 @@ import AdminSidebar from "../../adminComponents/adminSidebar/AdminSidebar";
 import styles from "./page.module.css";
 import "../../adminComponents/adminPageHader.css";
 import Cookies from "js-cookie";
+import { createSlug } from "@/lib/slug";
+import type { BlogCategory } from "@/lib/blogCategories";
 
 export default function BlogCreatePage() {
   const { loading: verifying } = useVerifyAdminAccess();
@@ -23,15 +25,59 @@ export default function BlogCreatePage() {
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [status, setStatus] = useState("draft");
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [savingCategory, setSavingCategory] = useState(false);
+  const trimmedNewCategoryName = useMemo(
+    () => newCategoryName.trim(),
+    [newCategoryName],
+  );
+
+  useEffect(() => {
+    if (verifying) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadCategories() {
+      setCategoriesLoading(true);
+      setCategoriesError(null);
+
+      const { data, error } = await supabase
+        .from("blog_categories")
+        .select("id, name, slug")
+        .order("name", { ascending: true });
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (error) {
+        console.error("Fehler beim Laden der Kategorien:", error);
+        setCategoriesError("Die Kategorien konnten nicht geladen werden.");
+        setCategories([]);
+      } else {
+        setCategories(data ?? []);
+      }
+
+      setCategoriesLoading(false);
+    }
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [verifying]);
 
   function handleTitleChange(value: string) {
     setTitle(value);
-    setSlug(
-      value
-        .toLowerCase()
-        .replace(/[^a-z0-9äöüß ]/gi, "")
-        .replace(/\s+/g, "-")
-    );
+    setSlug(createSlug(value));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -107,6 +153,7 @@ export default function BlogCreatePage() {
         status,
         spotlight: false,
         published_at: status === "published" ? new Date().toISOString() : null,
+        category_id: selectedCategoryId || null,
       },
     ]);
 
@@ -209,6 +256,102 @@ export default function BlogCreatePage() {
               placeholder="https://..."
             />
           </label>
+
+          <section className={styles.categorySection}>
+            <div className={styles.categoryHeader}>
+              <label>
+                Kategorie (optional)
+                <select
+                  value={selectedCategoryId}
+                  onChange={(event) => setSelectedCategoryId(event.target.value)}
+                  disabled={categoriesLoading}
+                >
+                  <option value="">Keine Kategorie</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                type="button"
+                className={styles.categoryActionButton}
+                onClick={() => setShowNewCategoryForm((prev) => !prev)}
+              >
+                {showNewCategoryForm ? "Abbrechen" : "Neue Kategorie"}
+              </button>
+            </div>
+
+            {showNewCategoryForm && (
+              <div className={styles.newCategoryForm}>
+                <input
+                  type="text"
+                  placeholder="Name der Kategorie"
+                  value={newCategoryName}
+                  onChange={(event) => setNewCategoryName(event.target.value)}
+                  disabled={savingCategory}
+                />
+                <button
+                  type="button"
+                  className="primaryButton"
+                  disabled={savingCategory || !trimmedNewCategoryName}
+                  onClick={async () => {
+                    if (!trimmedNewCategoryName) {
+                      return;
+                    }
+
+                    setSavingCategory(true);
+                    setCategoriesError(null);
+
+                    const slug = createSlug(trimmedNewCategoryName);
+
+                    const { data, error } = await supabase
+                      .from("blog_categories")
+                      .insert({
+                        name: trimmedNewCategoryName,
+                        slug,
+                      })
+                      .select()
+                      .maybeSingle();
+
+                    if (error) {
+                      console.error("Fehler beim Anlegen der Kategorie:", error);
+                      setCategoriesError(
+                        error.code === "23505"
+                          ? "Eine Kategorie mit diesem Namen oder Slug existiert bereits."
+                          : "Die Kategorie konnte nicht erstellt werden.",
+                      );
+                      setSavingCategory(false);
+                      return;
+                    }
+
+                    const createdCategory = data as BlogCategory | null;
+
+                    if (createdCategory) {
+                      setCategories((prev) =>
+                        [...prev, createdCategory].sort((a, b) =>
+                          a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
+                        ),
+                      );
+                      setSelectedCategoryId(createdCategory.id);
+                    }
+
+                    setNewCategoryName("");
+                    setShowNewCategoryForm(false);
+                    setSavingCategory(false);
+                  }}
+                >
+                  {savingCategory ? "Speichere..." : "Kategorie hinzufügen"}
+                </button>
+              </div>
+            )}
+
+            {categoriesError && (
+              <p className={styles.errorText}>{categoriesError}</p>
+            )}
+          </section>
 
           <label>
             Status

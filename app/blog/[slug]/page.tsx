@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 import { supabase } from "@/lib/supabaseClient";
 import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
+import type { BlogCategory } from "@/lib/blogCategories";
 
 type BlogPost = {
   id: number;
@@ -12,12 +13,15 @@ type BlogPost = {
   content: string;
   cover_image: string | null;
   published_at: string | null;
+  category: BlogCategory | null;
 };
 
 async function getPost(slug: string): Promise<BlogPost | null> {
   const { data, error } = await supabase
     .from("posts")
-    .select("id, title, slug, excerpt, content, cover_image, published_at")
+    .select(
+      "id, title, slug, excerpt, content, cover_image, published_at, category:blog_categories(id, name, slug)",
+    )
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -27,7 +31,14 @@ async function getPost(slug: string): Promise<BlogPost | null> {
     return null;
   }
 
-  return data ?? null;
+  if (!data) {
+    return null;
+  }
+
+  return {
+    ...data,
+    category: (data.category as BlogCategory | null) ?? null,
+  };
 }
 
 export async function generateMetadata({
@@ -96,9 +107,16 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   return (
     <article className={styles.blogPost}>
       <header className={styles.blogPostHeader}>
-        <p className={styles.blogPostMeta}>
-          {post.published_at ? dateFormatter.format(new Date(post.published_at)) : "Unveröffentlicht"}
-        </p>
+        <div className={styles.metaRow}>
+          {post.category && (
+            <span className={styles.categoryBadge}>{post.category.name}</span>
+          )}
+          <p className={styles.blogPostMeta}>
+            {post.published_at
+              ? dateFormatter.format(new Date(post.published_at))
+              : "Unveröffentlicht"}
+          </p>
+        </div>
         <h1 className={styles.blogPostTitle}>{post.title}</h1>
         {post.excerpt && <p className={styles.blogPostExcerpt}>{post.excerpt}</p>}
       </header>

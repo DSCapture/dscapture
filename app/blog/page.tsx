@@ -3,6 +3,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { supabase } from "@/lib/supabaseClient";
 import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
+import type { BlogCategory } from "@/lib/blogCategories";
 
 const defaultMetadata: Metadata = {
   title: "Blog | DS_Capture",
@@ -35,12 +36,15 @@ type BlogPost = {
   cover_image: string | null;
   published_at: string | null;
   spotlight: boolean;
+  category: BlogCategory | null;
 };
 
 async function getPublishedPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
     .from("posts")
-    .select("id, title, slug, excerpt, cover_image, published_at, spotlight")
+    .select(
+      "id, title, slug, excerpt, cover_image, published_at, spotlight, category:blog_categories(id, name, slug)",
+    )
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false });
 
@@ -52,6 +56,7 @@ async function getPublishedPosts(): Promise<BlogPost[]> {
   return (data ?? []).map((post) => ({
     ...post,
     spotlight: Boolean(post.spotlight),
+    category: (post.category as BlogCategory | null) ?? null,
   }));
 }
 
@@ -91,10 +96,17 @@ export default async function BlogPage() {
                 <h2 className={styles.spotlightTitle}>
                   <Link href={`/blog/${spotlightPost.slug}`}>{spotlightPost.title}</Link>
                 </h2>
-                {spotlightPost.published_at && (
-                  <p className={styles.spotlightMeta}>
-                    {dateFormatter.format(new Date(spotlightPost.published_at))}
-                  </p>
+                {(spotlightPost.category || spotlightPost.published_at) && (
+                  <div className={styles.metaRow}>
+                    {spotlightPost.category && (
+                      <span className={styles.categoryBadge}>{spotlightPost.category.name}</span>
+                    )}
+                    {spotlightPost.published_at && (
+                      <p className={styles.spotlightMeta}>
+                        {dateFormatter.format(new Date(spotlightPost.published_at))}
+                      </p>
+                    )}
+                  </div>
                 )}
                 {spotlightPost.excerpt && (
                   <p className={styles.spotlightExcerpt}>{spotlightPost.excerpt}</p>
@@ -120,10 +132,17 @@ export default async function BlogPage() {
                     <h2 className={styles.blogCardTitle}>
                       <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                     </h2>
-                    {post.published_at && (
-                      <p className={styles.blogCardMeta}>
-                        {dateFormatter.format(new Date(post.published_at))}
-                      </p>
+                    {(post.category || post.published_at) && (
+                      <div className={styles.metaRow}>
+                        {post.category && (
+                          <span className={styles.categoryBadge}>{post.category.name}</span>
+                        )}
+                        {post.published_at && (
+                          <p className={styles.blogCardMeta}>
+                            {dateFormatter.format(new Date(post.published_at))}
+                          </p>
+                        )}
+                      </div>
                     )}
                     {post.excerpt && <p className={styles.blogCardExcerpt}>{post.excerpt}</p>}
                   </div>

@@ -13,10 +13,30 @@
     gap: 1rem;
 }
 
+.metaRow {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
 .blogPostMeta {
     margin: 0;
     font-size: .95rem;
     color: #6b7280;
+}
+
+.categoryBadge {
+    display: inline-flex;
+    align-items: center;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: .35rem .8rem;
+    border-radius: 999px;
+    background-color: #e0e7ff;
+    color: #1f2937;
 }
 
 .blogPostTitle {

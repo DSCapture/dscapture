@@ -32,6 +32,13 @@
     padding: 2.5rem;
 }
 
+.metaRow {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
 .spotlightBadge {
     align-self: flex-start;
     font-size: .75rem;
@@ -70,6 +77,19 @@
     font-size: 1.1rem;
     line-height: 1.6;
     color: rgba(249, 250, 251, 0.9);
+}
+
+.categoryBadge {
+    display: inline-flex;
+    align-items: center;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: .35rem .8rem;
+    border-radius: 999px;
+    background-color: rgba(249, 250, 251, 0.2);
+    color: #f9fafb;
 }
 
 .spotlightReadMore {
@@ -147,6 +167,11 @@
     margin: 0;
     font-size: .9rem;
     color: #6b7280;
+}
+
+.blogCardBody .categoryBadge {
+    background-color: #e0e7ff;
+    color: #1f2937;
 }
 
 .blogCardExcerpt {
