@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 import { supabase } from "@/lib/supabaseClient";
 import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
-import type { BlogCategory } from "@/lib/blogCategories";
+import { normalizeBlogCategory, type BlogCategory } from "@/lib/blogCategories";
 
 type BlogPost = {
   id: number;
@@ -37,7 +37,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
 
   return {
     ...data,
-    category: (data.category as BlogCategory | null) ?? null,
+    category: normalizeBlogCategory(data.category),
   };
 }
 

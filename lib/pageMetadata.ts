@@ -66,8 +66,10 @@ export function applyPageMetadata(
     mergedMetadata.alternates = defaults.alternates;
   }
 
-  const baseOpenGraph = defaults.openGraph ?? {};
-  const mergedOpenGraph = {
+  const baseOpenGraph = (defaults.openGraph ?? {}) as NonNullable<
+    Metadata["openGraph"]
+  >;
+  const mergedOpenGraph: NonNullable<Metadata["openGraph"]> = {
     ...baseOpenGraph,
     title:
       record.open_graph_title?.trim() ||
@@ -80,7 +82,7 @@ export function applyPageMetadata(
       baseOpenGraph.description ||
       mergedMetadata.description,
     url: canonicalUrl || baseOpenGraph.url,
-  } as Metadata["openGraph"];
+  };
 
   if (record.open_graph_image_url?.trim()) {
     mergedOpenGraph.images = [{ url: record.open_graph_image_url.trim() }];
