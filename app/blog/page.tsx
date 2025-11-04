@@ -3,7 +3,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { supabase } from "@/lib/supabaseClient";
 import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
-import type { BlogCategory } from "@/lib/blogCategories";
+import { normalizeBlogCategory, type BlogCategory } from "@/lib/blogCategories";
 
 const defaultMetadata: Metadata = {
   title: "Blog | DS_Capture",
@@ -56,7 +56,7 @@ async function getPublishedPosts(): Promise<BlogPost[]> {
   return (data ?? []).map((post) => ({
     ...post,
     spotlight: Boolean(post.spotlight),
-    category: (post.category as BlogCategory | null) ?? null,
+    category: normalizeBlogCategory(post?.category),
   }));
 }
 
