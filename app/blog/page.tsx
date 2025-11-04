@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { supabase } from "@/lib/supabaseClient";
+import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   title: "Blog | DS_Capture",
   description: "Aktuelle Beiträge und Neuigkeiten von DS_Capture.",
   openGraph: {
@@ -14,7 +15,15 @@ export const metadata: Metadata = {
     locale: "de_DE",
     type: "website",
   },
+  alternates: {
+    canonical: "https://ds-capture.de/blog",
+  },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const record = await fetchPageMetadata("blog");
+  return applyPageMetadata(defaultMetadata, record);
+}
 
 export const revalidate = 120;
 

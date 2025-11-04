@@ -81,6 +81,10 @@ const AdminSidebar = () => {
                     <i className="bi bi-card-text"></i>
                     Blog Manager
                 </Link>
+                <Link className={styles.adminNavLink} href="/admin/metadata">
+                    <i className="bi bi-tags"></i>
+                    Metadaten
+                </Link>
                 <Link className={styles.adminNavLink} href="/admin/contact">
                     <i className="bi bi-envelope"></i>
                     <span className={styles.linkLabel}>

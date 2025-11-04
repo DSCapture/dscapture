@@ -1,23 +1,32 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 import styles from "./page.module.css";
+import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
 
-export const metadata: Metadata = {
-  title: 'Portfolio | DS_Capture',
-  description: '',
+const defaultMetadata: Metadata = {
+  title: "Portfolio | DS_Capture",
+  description: "Projekte und Arbeiten von DS_Capture im Überblick.",
   openGraph: {
-    title: 'Portfolio | DS_Capture',
-    description: '',
-    url: 'https://ds-capture.de/portfolio',
-    siteName: 'DS_Capture',
-    locale: 'de_DE',
-    type: 'website',
+    title: "Portfolio | DS_Capture",
+    description: "Projekte und Arbeiten von DS_Capture im Überblick.",
+    url: "https://ds-capture.de/portfolio",
+    siteName: "DS_Capture",
+    locale: "de_DE",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://ds-capture.de/portfolio",
   },
 };
 
-export default function BlogPage() {
-    return(
-      <div className={styles.blogContent}>
-        <h1>Portfolio</h1>
-      </div>
-    );
+export async function generateMetadata(): Promise<Metadata> {
+  const record = await fetchPageMetadata("portfolio");
+  return applyPageMetadata(defaultMetadata, record);
+}
+
+export default function PortfolioPage() {
+  return (
+    <div className={styles.blogContent}>
+      <h1>Portfolio</h1>
+    </div>
+  );
 }
