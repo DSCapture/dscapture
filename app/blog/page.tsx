@@ -34,12 +34,13 @@ type BlogPost = {
   excerpt: string | null;
   cover_image: string | null;
   published_at: string | null;
+  spotlight: boolean;
 };
 
 async function getPublishedPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
     .from("posts")
-    .select("id, title, slug, excerpt, cover_image, published_at")
+    .select("id, title, slug, excerpt, cover_image, published_at, spotlight")
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false });
 
@@ -48,7 +49,10 @@ async function getPublishedPosts(): Promise<BlogPost[]> {
     return [];
   }
 
-  return data ?? [];
+  return (data ?? []).map((post) => ({
+    ...post,
+    spotlight: Boolean(post.spotlight),
+  }));
 }
 
 const dateFormatter = new Intl.DateTimeFormat("de-DE", {
@@ -59,6 +63,10 @@ const dateFormatter = new Intl.DateTimeFormat("de-DE", {
 
 export default async function BlogPage() {
   const posts = await getPublishedPosts();
+  const spotlightPost = posts.find((post) => post.spotlight);
+  const otherPosts = spotlightPost
+    ? posts.filter((post) => post.id !== spotlightPost.id)
+    : posts;
 
   return (
     <div className={styles.blogContent}>
@@ -66,35 +74,69 @@ export default async function BlogPage() {
       {posts.length === 0 ? (
         <p className={styles.emptyState}>Derzeit sind keine Blog-Beiträge veröffentlicht.</p>
       ) : (
-        <div className={styles.blogGrid}>
-          {posts.map((post) => (
-            <article key={post.id} className={styles.blogCard}>
+        <>
+          {spotlightPost && (
+            <article className={styles.spotlightCard}>
               <div
-                className={styles.blogCardImage}
+                className={styles.spotlightImage}
                 style={{
-                  backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
+                  backgroundImage: spotlightPost.cover_image
+                    ? `url(${spotlightPost.cover_image})`
+                    : undefined,
                 }}
-                aria-hidden={!post.cover_image}
+                aria-hidden={!spotlightPost.cover_image}
               />
-              <div className={styles.blogCardBody}>
-                <h2 className={styles.blogCardTitle}>
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+              <div className={styles.spotlightBody}>
+                <span className={styles.spotlightBadge}>Spotlight</span>
+                <h2 className={styles.spotlightTitle}>
+                  <Link href={`/blog/${spotlightPost.slug}`}>{spotlightPost.title}</Link>
                 </h2>
-                {post.published_at && (
-                  <p className={styles.blogCardMeta}>
-                    {dateFormatter.format(new Date(post.published_at))}
+                {spotlightPost.published_at && (
+                  <p className={styles.spotlightMeta}>
+                    {dateFormatter.format(new Date(spotlightPost.published_at))}
                   </p>
                 )}
-                {post.excerpt && <p className={styles.blogCardExcerpt}>{post.excerpt}</p>}
-              </div>
-              <footer className={styles.blogCardFooter}>
-                <Link className={styles.readMoreLink} href={`/blog/${post.slug}`}>
+                {spotlightPost.excerpt && (
+                  <p className={styles.spotlightExcerpt}>{spotlightPost.excerpt}</p>
+                )}
+                <Link className={styles.spotlightReadMore} href={`/blog/${spotlightPost.slug}`}>
                   Weiterlesen
                 </Link>
-              </footer>
+              </div>
             </article>
-          ))}
-        </div>
+          )}
+          {otherPosts.length > 0 && (
+            <div className={styles.blogGrid}>
+              {otherPosts.map((post) => (
+                <article key={post.id} className={styles.blogCard}>
+                  <div
+                    className={styles.blogCardImage}
+                    style={{
+                      backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
+                    }}
+                    aria-hidden={!post.cover_image}
+                  />
+                  <div className={styles.blogCardBody}>
+                    <h2 className={styles.blogCardTitle}>
+                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                    </h2>
+                    {post.published_at && (
+                      <p className={styles.blogCardMeta}>
+                        {dateFormatter.format(new Date(post.published_at))}
+                      </p>
+                    )}
+                    {post.excerpt && <p className={styles.blogCardExcerpt}>{post.excerpt}</p>}
+                  </div>
+                  <footer className={styles.blogCardFooter}>
+                    <Link className={styles.readMoreLink} href={`/blog/${post.slug}`}>
+                      Weiterlesen
+                    </Link>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

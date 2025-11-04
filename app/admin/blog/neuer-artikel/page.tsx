@@ -105,6 +105,7 @@ export default function BlogCreatePage() {
         content,
         cover_image: coverImageUrl,
         status,
+        spotlight: false,
         published_at: status === "published" ? new Date().toISOString() : null,
       },
     ]);

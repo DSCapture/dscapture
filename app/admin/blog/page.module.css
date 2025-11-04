@@ -95,6 +95,18 @@
     flex: 1;
 }
 
+.spotlightBadge {
+    align-self: flex-start;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    background-color: rgba(238, 167, 119, 0.2);
+    color: var(--secondary);
+}
+
 .blogCardTitle {
     font-size: 1.15rem;
     margin: 0;
@@ -119,6 +131,20 @@
     align-items: center;
     gap: .75rem;
     flex-wrap: wrap;
+}
+
+.spotlightToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.spotlightToggle input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--secondary);
 }
 
 .blogCardLink {
