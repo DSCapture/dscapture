@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 import { supabase } from "@/lib/supabaseClient";
+import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
 
 type BlogPost = {
   id: number;
@@ -35,27 +36,44 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   const post = await getPost(params.slug);
+  const pageSlug = `blog/${params.slug}`;
+  const baseUrl = `https://ds-capture.de/${pageSlug}`;
 
-  if (!post) {
-    return {
-      title: "Blog | DS_Capture",
-      description: "Blogbeiträge von DS_Capture.",
-    };
-  }
+  const defaultMetadata: Metadata = post
+    ? {
+        title: `${post.title} | DS_Capture`,
+        description: post.excerpt ?? "Blogbeiträge von DS_Capture.",
+        openGraph: {
+          title: `${post.title} | DS_Capture`,
+          description: post.excerpt ?? "Blogbeiträge von DS_Capture.",
+          url: baseUrl,
+          siteName: "DS_Capture",
+          locale: "de_DE",
+          type: "article",
+          images: post.cover_image ? [{ url: post.cover_image }] : undefined,
+        },
+        alternates: {
+          canonical: baseUrl,
+        },
+      }
+    : {
+        title: "Blog | DS_Capture",
+        description: "Blogbeiträge von DS_Capture.",
+        openGraph: {
+          title: "Blog | DS_Capture",
+          description: "Blogbeiträge von DS_Capture.",
+          url: baseUrl,
+          siteName: "DS_Capture",
+          locale: "de_DE",
+          type: "article",
+        },
+        alternates: {
+          canonical: baseUrl,
+        },
+      };
 
-  return {
-    title: `${post.title} | DS_Capture`,
-    description: post.excerpt ?? "Blogbeiträge von DS_Capture.",
-    openGraph: {
-      title: `${post.title} | DS_Capture`,
-      description: post.excerpt ?? "Blogbeiträge von DS_Capture.",
-      url: `https://ds-capture.de/blog/${post.slug}`,
-      siteName: "DS_Capture",
-      locale: "de_DE",
-      type: "article",
-      images: post.cover_image ? [{ url: post.cover_image }] : undefined,
-    },
-  };
+  const record = await fetchPageMetadata(pageSlug);
+  return applyPageMetadata(defaultMetadata, record);
 }
 
 const dateFormatter = new Intl.DateTimeFormat("de-DE", {

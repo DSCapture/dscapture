@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
+import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   title: "Datenschutzerklärung | DS_Capture",
   description: "Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten bei DS_Capture.",
+  openGraph: {
+    title: "Datenschutzerklärung | DS_Capture",
+    description: "Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten bei DS_Capture.",
+    url: "https://ds-capture.de/datenschutz",
+    siteName: "DS_Capture",
+    locale: "de_DE",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://ds-capture.de/datenschutz",
+  },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const record = await fetchPageMetadata("datenschutz");
+  return applyPageMetadata(defaultMetadata, record);
+}
 
 export default function DatenschutzPage() {
   return (

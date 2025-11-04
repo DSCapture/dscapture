@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
+import { applyPageMetadata, fetchPageMetadata } from "@/lib/pageMetadata";
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   title: "Impressum | DS_Capture",
   description: "Impressum von DS_Capture mit allen gesetzlich geforderten Angaben.",
+  openGraph: {
+    title: "Impressum | DS_Capture",
+    description: "Impressum von DS_Capture mit allen gesetzlich geforderten Angaben.",
+    url: "https://ds-capture.de/impressum",
+    siteName: "DS_Capture",
+    locale: "de_DE",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://ds-capture.de/impressum",
+  },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const record = await fetchPageMetadata("impressum");
+  return applyPageMetadata(defaultMetadata, record);
+}
 
 export default function ImpressumPage() {
   const currentYear = new Date().getFullYear();
