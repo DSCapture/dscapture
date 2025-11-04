@@ -10,6 +10,32 @@ import { supabase } from "@/lib/supabaseClient";
 import { logUserAction } from "@/lib/logger";
 import type { BlogCategory } from "@/lib/blogCategories";
 
+function isBlogCategory(value: unknown): value is BlogCategory {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<BlogCategory>;
+
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.name === "string" &&
+    typeof candidate.slug === "string"
+  );
+}
+
+function normalizeCategory(category: unknown): BlogCategory | null {
+  if (!category) {
+    return null;
+  }
+
+  if (Array.isArray(category)) {
+    return category.find(isBlogCategory) ?? null;
+  }
+
+  return isBlogCategory(category) ? category : null;
+}
+
 type BlogPostStatus = "draft" | "published" | "archived";
 
 interface BlogPostPreview {
@@ -105,7 +131,7 @@ export default function BlogManager() {
           (publishedResult.data ?? []).map((post) => ({
             ...post,
             spotlight: Boolean(post.spotlight),
-            category: (post.category as BlogCategory | null) ?? null,
+            category: normalizeCategory(post.category),
           })),
         );
       }
@@ -122,7 +148,7 @@ export default function BlogManager() {
           (draftsResult.data ?? []).map((post) => ({
             ...post,
             spotlight: Boolean(post.spotlight),
-            category: (post.category as BlogCategory | null) ?? null,
+            category: normalizeCategory(post.category),
           })),
         );
       }
