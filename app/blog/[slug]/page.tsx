@@ -35,9 +35,24 @@ async function getPost(slug: string): Promise<BlogPost | null> {
     return null;
   }
 
+  const categoryData = data.category;
+  let category: BlogCategory | null = null;
+
+  if (Array.isArray(categoryData)) {
+    category = categoryData[0] ?? null;
+  } else if (
+    categoryData &&
+    typeof categoryData === "object" &&
+    "id" in categoryData &&
+    "name" in categoryData &&
+    "slug" in categoryData
+  ) {
+    category = categoryData as BlogCategory;
+  }
+
   return {
     ...data,
-    category: normalizeBlogCategory(data.category),
+    category,
   };
 }
 
