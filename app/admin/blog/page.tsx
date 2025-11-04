@@ -18,6 +18,7 @@ interface BlogPostPreview {
   cover_image: string | null;
   published_at: string | null;
   status: BlogPostStatus;
+  spotlight: boolean;
 }
 
 export default function BlogManager() {
@@ -28,6 +29,9 @@ export default function BlogManager() {
   const [fetchingDrafts, setFetchingDrafts] = useState(true);
   const [publishedError, setPublishedError] = useState<string | null>(null);
   const [draftError, setDraftError] = useState<string | null>(null);
+  const [updatingSpotlightId, setUpdatingSpotlightId] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (loading) {
@@ -45,12 +49,16 @@ export default function BlogManager() {
       const [publishedResult, draftsResult] = await Promise.all([
         supabase
           .from("posts")
-          .select("id, title, slug, excerpt, cover_image, published_at, status")
+          .select(
+            "id, title, slug, excerpt, cover_image, published_at, status, spotlight",
+          )
           .eq("status", "published")
           .order("published_at", { ascending: false, nullsFirst: false }),
         supabase
           .from("posts")
-          .select("id, title, slug, excerpt, cover_image, published_at, status")
+          .select(
+            "id, title, slug, excerpt, cover_image, published_at, status, spotlight",
+          )
           .eq("status", "draft")
           .order("id", { ascending: false }),
       ]);
@@ -67,7 +75,12 @@ export default function BlogManager() {
         setPublishedError("Die veröffentlichten Artikel konnten nicht geladen werden.");
         setPublishedPosts([]);
       } else {
-        setPublishedPosts(publishedResult.data ?? []);
+        setPublishedPosts(
+          (publishedResult.data ?? []).map((post) => ({
+            ...post,
+            spotlight: Boolean(post.spotlight),
+          })),
+        );
       }
 
       if (draftsResult.error) {
@@ -78,7 +91,12 @@ export default function BlogManager() {
         setDraftError("Die Entwürfe konnten nicht geladen werden.");
         setDraftPosts([]);
       } else {
-        setDraftPosts(draftsResult.data ?? []);
+        setDraftPosts(
+          (draftsResult.data ?? []).map((post) => ({
+            ...post,
+            spotlight: Boolean(post.spotlight),
+          })),
+        );
       }
 
       setFetchingPublished(false);
@@ -101,6 +119,56 @@ export default function BlogManager() {
       }),
     []
   );
+
+  async function handleSpotlightToggle(post: BlogPostPreview) {
+    setUpdatingSpotlightId(post.id);
+
+    try {
+      if (post.spotlight) {
+        const { error } = await supabase
+          .from("posts")
+          .update({ spotlight: false })
+          .eq("id", post.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setPublishedPosts((prev) =>
+          prev.map((p) => (p.id === post.id ? { ...p, spotlight: false } : p)),
+        );
+      } else {
+        const { error: clearError } = await supabase
+          .from("posts")
+          .update({ spotlight: false })
+          .eq("spotlight", true);
+
+        if (clearError) {
+          throw clearError;
+        }
+
+        const { error } = await supabase
+          .from("posts")
+          .update({ spotlight: true })
+          .eq("id", post.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setPublishedPosts((prev) =>
+          prev.map((p) => ({ ...p, spotlight: p.id === post.id })),
+        );
+      }
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Spotlight-Status:", error);
+      alert(
+        "Der Spotlight-Status konnte nicht aktualisiert werden. Bitte später erneut versuchen.",
+      );
+    } finally {
+      setUpdatingSpotlightId(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -147,8 +215,11 @@ export default function BlogManager() {
                       }}
                       aria-hidden={!post.cover_image}
                     />
-                    <div className={blogStyles.blogCardBody}>
-                      <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
+                  <div className={blogStyles.blogCardBody}>
+                    {post.spotlight && (
+                      <span className={blogStyles.spotlightBadge}>Spotlight</span>
+                    )}
+                    <h3 className={blogStyles.blogCardTitle}>{post.title}</h3>
                       {post.published_at && (
                         <p className={blogStyles.blogCardMeta}>
                           Veröffentlicht am {dateFormatter.format(new Date(post.published_at))}
@@ -161,6 +232,15 @@ export default function BlogManager() {
                     <Link className={blogStyles.blogCardAction} href={`/admin/blog/${post.id}`}>
                       Bearbeiten
                     </Link>
+                    <label className={blogStyles.spotlightToggle}>
+                      <input
+                        type="checkbox"
+                        checked={post.spotlight}
+                        onChange={() => handleSpotlightToggle(post)}
+                        disabled={updatingSpotlightId === post.id}
+                      />
+                      Spotlight
+                    </label>
                     <Link
                       className={blogStyles.blogCardLink}
                       href={`/blog/${post.slug}`}
