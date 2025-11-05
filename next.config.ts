@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
+import type { RemotePattern } from "next/dist/shared/lib/image-config";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-const remotePatterns =
+const remotePatterns: RemotePattern[] =
   supabaseUrl && supabaseUrl.length > 0
     ? [
         {
