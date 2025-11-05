@@ -116,8 +116,6 @@ const HomePageClient = () => {
           </Swiper>
         </div>
       </section>
-
-      <section className={styles.secondSection}></section>
     </>
   );
 };
