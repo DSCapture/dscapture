@@ -82,10 +82,10 @@ export default function Header() {
           type="button"
           className={styles.menuToggle}
           onClick={() => {
-            setIsMenuOpen((previous) => !previous);
+            setIsMenuOpen(true);
           }}
           aria-expanded={isMenuOpen}
-          aria-label={isMenuOpen ? "Navigation schließen" : "Navigation öffnen"}
+          aria-label={isMenuOpen ? "Navigation geöffnet" : "Navigation öffnen"}
         >
           <span className={styles.menuIcon} aria-hidden>
             <span />
@@ -111,6 +111,18 @@ export default function Header() {
             event.stopPropagation();
           }}
         >
+          <div className={styles.mobileMenuHeader}>
+            <button
+              type="button"
+              className={styles.mobileMenuCloseButton}
+              onClick={() => {
+                setIsMenuOpen(false);
+              }}
+              aria-label="Navigation schließen"
+            >
+              <span className={styles.mobileMenuCloseIcon} aria-hidden />
+            </button>
+          </div>
           <div className={styles.mobileNavLinks}>
             {NAV_LINKS.map((link) => (
               <Link key={link.href} className={navLinkClassName} href={link.href}>
