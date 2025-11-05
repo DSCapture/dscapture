@@ -1,50 +1,268 @@
 .mainHeader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000000;
+  padding: 0 1.5rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  color: var(--primary);
+}
+
+.mainHeaderDefault {
+  background-color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  position: sticky;
+}
+
+.mainHeaderHome {
+  background: transparent;
+  color: var(--text-contrast);
+}
+
+.headerExpanded {
+  position: fixed;
 }
 
 .headerContent {
-    width: 100%;
-    max-width: 1920px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .headerLogoLink {
-    margin-left: 2rem;
+  display: inline-flex;
 }
 
 .headerNavigation {
-    margin-right: 2rem;
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
 .headerNavLink {
-    text-decoration: none;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--primary);
+  text-decoration: none;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--primary);
+  transition: color 0.2s ease;
+}
+
+.headerNavLink:hover,
+.headerNavLink:focus-visible {
+  color: var(--secondary);
+  outline: none;
 }
 
 .headerNavLinkHome {
-    color: var(--text-contrast);
+  color: var(--text-contrast);
+}
+
+.headerNavLinkHome:hover,
+.headerNavLinkHome:focus-visible {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .socialMediaBox {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
+  margin-left: 1rem;
 }
 
 .socialMediaLink {
-    color: white;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: color 0.2s ease;
+}
+
+.socialMediaLink:hover,
+.socialMediaLink:focus-visible {
+  color: var(--secondary);
+  outline: none;
+}
+
+.menuToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: rgba(15, 23, 42, 0.05);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.menuToggle:hover,
+.menuToggle:focus-visible {
+  background: rgba(15, 23, 42, 0.1);
+  border-color: rgba(15, 23, 42, 0.15);
+  outline: none;
+}
+
+.mainHeaderHome .menuToggle {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mainHeaderHome .menuToggle:hover,
+.mainHeaderHome .menuToggle:focus-visible {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.menuIcon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 1.4rem;
+}
+
+.menuIcon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mobileMenu {
+  display: none;
+}
+
+.mobileMenuOpen {
+  display: flex;
+}
+
+.mobileMenuContent {
+  position: fixed;
+  top: 4.5rem;
+  left: 0;
+  right: 0;
+  padding: 2rem 1.5rem 3rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+}
+
+.mainHeaderHome .mobileMenuContent {
+  background: rgba(15, 23, 42, 0.92);
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.35);
+}
+
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mobileNavLinks .headerNavLink {
+  font-size: 1.1rem;
+}
+
+.mainHeaderHome .mobileNavLinks .headerNavLink {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.mobileSocials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobileSocialLink {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.mobileSocialLink:hover,
+.mobileSocialLink:focus-visible {
+  color: var(--secondary);
+  outline: none;
+}
+
+.mainHeaderHome .mobileSocialLink:hover,
+.mainHeaderHome .mobileSocialLink:focus-visible {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 960px) {
+  .mainHeader {
+    position: fixed;
+    padding: 0 1rem;
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  }
+
+  .mainHeaderHome {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(12px);
+  }
+
+  .headerNavigation {
+    display: none;
+  }
+
+  .menuToggle {
+    display: inline-flex;
+  }
+
+  .mobileMenu {
+    display: none;
+  }
+
+  .headerExpanded .menuIcon span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .headerExpanded .menuIcon span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .headerExpanded .menuIcon span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .headerExpanded .mobileMenu {
+    display: flex;
+  }
+
+  .mobileMenuContent {
+    top: 4.5rem;
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+@media (max-width: 540px) {
+  .headerContent {
+    height: 4rem;
+  }
+
+  .mobileMenuContent {
+    padding: 1.75rem 1.25rem 2.5rem;
+  }
+
+  .mobileNavLinks .headerNavLink {
+    font-size: 1rem;
+  }
 }
