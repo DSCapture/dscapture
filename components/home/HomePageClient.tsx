@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+
 import styles from "@/app/page.module.css";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -43,6 +48,29 @@ const HomePageClient = () => {
   const backgroundSrc = backgroundImageUrl ?? FALLBACK_BACKGROUND;
   const overlaySrc = overlayImageUrl ?? FALLBACK_OVERLAY;
 
+  const services = [
+    {
+      title: "Strategische Markenführung",
+      description:
+        "Wir entwickeln klare Strategien, die Ihre Marke auf allen Kanälen prägnant und wiedererkennbar positionieren.",
+    },
+    {
+      title: "Visuelles Design",
+      description:
+        "Von Logos bis zu Kampagnenshootings – wir gestalten visuelle Erlebnisse, die im Gedächtnis bleiben.",
+    },
+    {
+      title: "Digitale Experiences",
+      description:
+        "Wir schaffen digitale Auftritte, die Technologie und Ästhetik vereinen und Nutzer nachhaltig begeistern.",
+    },
+    {
+      title: "Content Produktion",
+      description:
+        "Mit Foto- und Videoproduktionen erzählen wir Geschichten, die Ihre Zielgruppe berühren und aktivieren.",
+    },
+  ];
+
   return (
     <>
       <section className={styles.heroSection}>
@@ -60,6 +88,32 @@ const HomePageClient = () => {
 
             <Image src={overlaySrc} alt="Overlay" width={425} height={550} className={styles.overlay} />
           </div>
+        </div>
+      </section>
+
+      <section className={styles.servicesSection}>
+        <div className={styles.servicesContent}>
+          <h2>Unsere Leistungen</h2>
+          <Swiper
+            modules={[Pagination]}
+            pagination={{ clickable: true }}
+            spaceBetween={24}
+            slidesPerView={1}
+            breakpoints={{
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+            className={styles.servicesSwiper}
+          >
+            {services.map((service) => (
+              <SwiperSlide key={service.title}>
+                <article className={styles.serviceCard}>
+                  <h3>{service.title}</h3>
+                  <p>{service.description}</p>
+                </article>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </section>
 
