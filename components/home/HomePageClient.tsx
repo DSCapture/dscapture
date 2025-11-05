@@ -1,18 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
 
 import styles from "@/app/page.module.css";
 import { supabase } from "@/lib/supabaseClient";
 
 const FALLBACK_BACKGROUND = "/DJI_0727.jpg";
 const FALLBACK_OVERLAY = "/dawid3Mask.png";
+
+const SERVICES = [
+  {
+    title: "Strategische Markenführung",
+    description:
+      "Wir entwickeln klare Strategien, die Ihre Marke auf allen Kanälen prägnant und wiedererkennbar positionieren.",
+  },
+  {
+    title: "Visuelles Design",
+    description:
+      "Von Logos bis zu Kampagnenshootings – wir gestalten visuelle Erlebnisse, die im Gedächtnis bleiben.",
+  },
+  {
+    title: "Digitale Experiences",
+    description:
+      "Wir schaffen digitale Auftritte, die Technologie und Ästhetik vereinen und Nutzer nachhaltig begeistern.",
+  },
+  {
+    title: "Content Produktion",
+    description:
+      "Mit Foto- und Videoproduktionen erzählen wir Geschichten, die Ihre Zielgruppe berühren und aktivieren.",
+  },
+];
 
 const HomePageClient = () => {
   const { scrollY } = useScroll();
@@ -47,29 +66,115 @@ const HomePageClient = () => {
 
   const backgroundSrc = backgroundImageUrl ?? FALLBACK_BACKGROUND;
   const overlaySrc = overlayImageUrl ?? FALLBACK_OVERLAY;
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const totalServices = SERVICES.length;
 
-  const services = [
-    {
-      title: "Strategische Markenführung",
-      description:
-        "Wir entwickeln klare Strategien, die Ihre Marke auf allen Kanälen prägnant und wiedererkennbar positionieren.",
+  const clampIndex = useCallback(
+    (index: number) => {
+      if (index < 0) {
+        return 0;
+      }
+
+      if (index >= totalServices) {
+        return totalServices - 1;
+      }
+
+      return index;
     },
-    {
-      title: "Visuelles Design",
-      description:
-        "Von Logos bis zu Kampagnenshootings – wir gestalten visuelle Erlebnisse, die im Gedächtnis bleiben.",
+    [totalServices]
+  );
+
+  const scrollToService = useCallback(
+    (index: number, behavior: ScrollBehavior = "smooth") => {
+      const container = carouselRef.current;
+
+      if (!container) {
+        return;
+      }
+
+      const targetIndex = clampIndex(index);
+      const slides = Array.from(container.children) as HTMLElement[];
+      const targetSlide = slides[targetIndex];
+
+      if (!targetSlide) {
+        return;
+      }
+
+      container.scrollTo({
+        left: targetSlide.offsetLeft,
+        behavior,
+      });
+
+      setActiveServiceIndex(targetIndex);
     },
-    {
-      title: "Digitale Experiences",
-      description:
-        "Wir schaffen digitale Auftritte, die Technologie und Ästhetik vereinen und Nutzer nachhaltig begeistern.",
+    [clampIndex]
+  );
+
+  const handlePrev = useCallback(() => {
+    scrollToService(activeServiceIndex - 1);
+  }, [activeServiceIndex, scrollToService]);
+
+  const handleNext = useCallback(() => {
+    scrollToService(activeServiceIndex + 1);
+  }, [activeServiceIndex, scrollToService]);
+
+  const handlePaginationClick = useCallback(
+    (index: number) => {
+      scrollToService(index);
     },
-    {
-      title: "Content Produktion",
-      description:
-        "Mit Foto- und Videoproduktionen erzählen wir Geschichten, die Ihre Zielgruppe berühren und aktivieren.",
-    },
-  ];
+    [scrollToService]
+  );
+
+  useEffect(() => {
+    const container = carouselRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const handleScroll = () => {
+      const slides = Array.from(container.children) as HTMLElement[];
+
+      if (!slides.length) {
+        return;
+      }
+
+      const scrollLeft = container.scrollLeft;
+      let closestIndex = 0;
+      let smallestDistance = Number.POSITIVE_INFINITY;
+
+      slides.forEach((slide, index) => {
+        const distance = Math.abs(slide.offsetLeft - scrollLeft);
+
+        if (distance < smallestDistance) {
+          smallestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      setActiveServiceIndex((prev) => (prev === closestIndex ? prev : closestIndex));
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [totalServices]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      scrollToService(activeServiceIndex, "auto");
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [activeServiceIndex, scrollToService]);
 
   return (
     <>
@@ -93,27 +198,62 @@ const HomePageClient = () => {
 
       <section className={styles.servicesSection}>
         <div className={styles.servicesContent}>
-          <h2>Unsere Leistungen</h2>
-          <Swiper
-            modules={[Pagination]}
-            pagination={{ clickable: true }}
-            spaceBetween={24}
-            slidesPerView={1}
-            breakpoints={{
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-            className={styles.servicesSwiper}
-          >
-            {services.map((service) => (
-              <SwiperSlide key={service.title}>
-                <article className={styles.serviceCard}>
-                  <h3>{service.title}</h3>
-                  <p>{service.description}</p>
-                </article>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className={styles.servicesHeader}>
+            <h2>Unsere Leistungen</h2>
+            <div className={styles.servicesNavigation}>
+              <button
+                type="button"
+                onClick={handlePrev}
+                className={styles.navButton}
+                aria-label="Vorheriger Service"
+                disabled={activeServiceIndex === 0}
+              >
+                Zurück
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                className={styles.navButton}
+                aria-label="Nächster Service"
+                disabled={activeServiceIndex === totalServices - 1}
+              >
+                Weiter
+              </button>
+            </div>
+          </div>
+          <div className={styles.servicesCarousel}>
+            <div ref={carouselRef} className={styles.servicesViewport}>
+              {SERVICES.map((service) => (
+                <div key={service.title} className={styles.serviceSlide}>
+                  <article className={styles.serviceCard}>
+                    <h3>{service.title}</h3>
+                    <p>{service.description}</p>
+                  </article>
+                </div>
+              ))}
+            </div>
+            <div className={styles.servicesPagination} role="tablist" aria-label="Service Auswahl">
+              {SERVICES.map((service, index) => {
+                const isActive = index === activeServiceIndex;
+
+                return (
+                  <button
+                    key={service.title}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-label={`${service.title} anzeigen`}
+                    className={
+                      isActive
+                        ? `${styles.paginationBullet} ${styles.paginationBulletActive}`
+                        : styles.paginationBullet
+                    }
+                    onClick={() => handlePaginationClick(index)}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
     </>
