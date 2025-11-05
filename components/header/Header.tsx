@@ -31,6 +31,10 @@ export default function Header() {
                     <Link className={navLinkClassName} href="/portfolio">Portfolio</Link>
                     <Link className={navLinkClassName} href="/blog">Blog</Link>
                     <Link className={navLinkClassName} href="/kontakt">Kontakt</Link>
+                    <div className={styles.socialMediaBox}>
+                        <Link className={styles.socialMediaLink} href="https://www.instagram.com/ds_capture_portraits/"><i className="bi bi-instagram"></i></Link>
+                        <Link className={styles.socialMediaLink} href="https://www.linkedin.com/in/dawid-chmielewski-860308209/"><i className="bi bi-linkedin"></i></Link>
+                    </div>
                 </nav>
             </div>
         </header>

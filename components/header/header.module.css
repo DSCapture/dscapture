@@ -39,3 +39,12 @@
 .headerNavLinkHome {
     color: var(--text-contrast);
 }
+
+.socialMediaBox {
+    display: flex;
+    gap: 1rem;
+}
+
+.socialMediaLink {
+    color: white;
+}
