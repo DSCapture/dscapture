@@ -29,7 +29,7 @@ export default function Footer() {
       <div className={styles.footerContent}>
         <div className={styles.branding}>
           <Link className={styles.logoLink} href="/" aria-label="Zur Startseite">
-            <Image src="/logo_white.webp" width={64} height={80} alt="DS_Capture Logo" />
+            <Image src="/logo_white.webp" width={100} height={80} alt="DS_Capture Logo" />
           </Link>
           <p className={styles.brandingText}>
             DS_Capture – urbane, ästhetische Bildwelten mit Fokus auf authentische
