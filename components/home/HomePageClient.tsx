@@ -249,13 +249,13 @@ const HomePageClient = () => {
           </motion.div>
 
           <div className={styles.heroContent}>
+            <Image src={overlaySrc} alt="Overlay" width={350} height={450} className={styles.overlay} />
+
             <div className={styles.textContainer}>
               <h1>Visuelle Exzellenz. Digitale Präzision.</h1>
               <p>DS_Capture vereint Design, Strategie und Technologie zu einem klaren Markenauftritt.</p>
               <button className={styles.ctaButton}>Mehr erfahren</button>
             </div>
-
-            <Image src={overlaySrc} alt="Overlay" width={350} height={450} className={styles.overlay} />
           </div>
         </div>
       </section>
