@@ -63,6 +63,9 @@ export default function Footer() {
         <p className={styles.copyright}>
           © {new Date().getFullYear()} DS_Capture. Alle Rechte vorbehalten.
         </p>
+        <p className={styles.createdByText}>
+          Designed & Developed by <Link className={styles.flowefyLink} href="https://flowefy.de">flowefy.</Link>
+        </p>
       </div>
     </footer>
   );

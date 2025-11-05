@@ -69,11 +69,25 @@
   margin: 2.5rem auto 0;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .copyright {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.7);
+}
+
+.createdByText {
+  font-size: 0.85rem;
+}
+
+.flowefyLink {
+  font-family: "Nunito", sans-serif !important;
+  text-decoration: none;
+  color: #920cff;
+  font-weight: 700;
 }
 
 @media (max-width: 600px) {
