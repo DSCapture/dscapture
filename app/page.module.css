@@ -87,20 +87,26 @@
 }
 
 .servicesSection {
-  background: #090909;
-  color: white;
+  background: radial-gradient(circle at top left, rgba(188, 227, 250, 0.35), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(32, 43, 72, 0.18), transparent 55%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(247, 247, 247, 0.9));
+  color: var(--primary);
   padding: 6rem 1.5rem;
 }
 
 .servicesContent {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 
 .servicesContent h2 {
   font-size: 2.5rem;
-  margin-bottom: 2.5rem;
+  margin: 0;
   text-align: center;
+  color: var(--primary);
 }
 
 .servicesSwiper {
@@ -108,37 +114,38 @@
 }
 
 .serviceCard {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
   padding: 2rem;
   min-height: 260px;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
+  box-shadow: 0 25px 60px rgba(23, 30, 51, 0.18);
+  backdrop-filter: blur(12px);
 }
 
 .serviceCard h3 {
   font-size: 1.5rem;
   margin: 0;
+  color: var(--primary);
 }
 
 .serviceCard p {
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(32, 43, 72, 0.75);
 }
 
 :global(.swiper-pagination-bullet) {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(32, 43, 72, 0.25);
   opacity: 1;
 }
 
 :global(.swiper-pagination-bullet-active) {
-  background: white;
+  background: var(--primary);
 }
 
 .secondSection {
