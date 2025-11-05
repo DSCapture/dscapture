@@ -101,10 +101,20 @@ const HomePageClient = () => {
         return;
       }
 
-      container.scrollTo({
-        left: targetSlide.offsetLeft,
-        behavior,
-      });
+      const containerCenter = container.clientWidth / 2;
+      const slideCenter = targetSlide.offsetLeft + targetSlide.offsetWidth / 2;
+      const rawTarget = slideCenter - containerCenter;
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      const targetScrollLeft = Math.max(0, Math.min(rawTarget, Math.max(0, maxScrollLeft)));
+
+      if (typeof container.scrollTo === "function") {
+        container.scrollTo({
+          left: targetScrollLeft,
+          behavior,
+        });
+      } else {
+        container.scrollLeft = targetScrollLeft;
+      }
 
       setActiveServiceIndex(targetIndex);
     },
@@ -140,12 +150,13 @@ const HomePageClient = () => {
         return;
       }
 
-      const scrollLeft = container.scrollLeft;
+      const viewCenter = container.scrollLeft + container.clientWidth / 2;
       let closestIndex = 0;
       let smallestDistance = Number.POSITIVE_INFINITY;
 
       slides.forEach((slide, index) => {
-        const distance = Math.abs(slide.offsetLeft - scrollLeft);
+        const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+        const distance = Math.abs(slideCenter - viewCenter);
 
         if (distance < smallestDistance) {
           smallestDistance = distance;
