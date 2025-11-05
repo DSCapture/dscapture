@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
+import type { Swiper as SwiperInstance } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -71,6 +72,59 @@ const HomePageClient = () => {
     },
   ];
 
+  const prevButtonRef = useRef<HTMLButtonElement | null>(null);
+  const nextButtonRef = useRef<HTMLButtonElement | null>(null);
+  const swiperInstanceRef = useRef<SwiperInstance | null>(null);
+
+  const updateSwiperNavigation = useCallback(() => {
+    const swiper = swiperInstanceRef.current;
+    const prevEl = prevButtonRef.current;
+    const nextEl = nextButtonRef.current;
+
+    if (!swiper || !prevEl || !nextEl) {
+      return;
+    }
+
+    if (typeof swiper.params.navigation === "boolean" || !swiper.params.navigation) {
+      swiper.params.navigation = {
+        enabled: true,
+        prevEl,
+        nextEl,
+      };
+    } else {
+      swiper.params.navigation.prevEl = prevEl;
+      swiper.params.navigation.nextEl = nextEl;
+    }
+
+    swiper.navigation.destroy();
+    swiper.navigation.init();
+    swiper.navigation.update();
+  }, []);
+
+  const handleSwiperInit = useCallback(
+    (swiper: SwiperInstance) => {
+      swiperInstanceRef.current = swiper;
+      updateSwiperNavigation();
+    },
+    [updateSwiperNavigation]
+  );
+
+  const setPrevButtonRef = useCallback(
+    (node: HTMLButtonElement | null) => {
+      prevButtonRef.current = node;
+      updateSwiperNavigation();
+    },
+    [updateSwiperNavigation]
+  );
+
+  const setNextButtonRef = useCallback(
+    (node: HTMLButtonElement | null) => {
+      nextButtonRef.current = node;
+      updateSwiperNavigation();
+    },
+    [updateSwiperNavigation]
+  );
+
   return (
     <>
       <section className={styles.heroSection}>
@@ -93,16 +147,24 @@ const HomePageClient = () => {
 
       <section className={styles.servicesSection}>
         <div className={styles.servicesContent}>
-          <h2>Unsere Leistungen</h2>
+          <div className={styles.servicesHeader}>
+            <h2>Unsere Leistungen</h2>
+            <div className={styles.servicesNavigation}>
+              <button ref={setPrevButtonRef} className={styles.navButton} aria-label="Vorheriger Service">
+                Zurück
+              </button>
+              <button ref={setNextButtonRef} className={styles.navButton} aria-label="Nächster Service">
+                Weiter
+              </button>
+            </div>
+          </div>
           <Swiper
-            modules={[Pagination]}
+            modules={[Navigation, Pagination]}
             pagination={{ clickable: true }}
+            navigation
+            onBeforeInit={handleSwiperInit}
             spaceBetween={24}
             slidesPerView={1}
-            breakpoints={{
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
             className={styles.servicesSwiper}
           >
             {services.map((service) => (
