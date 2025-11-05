@@ -52,7 +52,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
 
   return {
     ...data,
-    category,
+    category: normalizeBlogCategory(data.category),
   };
 }
 
