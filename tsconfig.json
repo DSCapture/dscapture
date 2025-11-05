@@ -19,7 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "swiper/react": ["./lib/swiper/Swiper"],
+      "swiper/modules": ["./lib/swiper/modules"],
+      "swiper/css": ["./lib/swiper/swiper.css"],
+      "swiper/css/pagination": ["./lib/swiper/pagination.css"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -1,0 +1,81 @@
+.swiper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.swiper-wrapper {
+  display: flex;
+  transition: transform 0.45s ease;
+  will-change: transform;
+}
+
+.swiper-slide {
+  box-sizing: border-box;
+}
+
+.swiper-pagination {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.swiper-pagination-bullet:hover {
+  transform: scale(1.1);
+}
+
+.swiper-pagination-bullet-active {
+  background: white;
+}
+
+.swiper-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.swiper-button {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.12), rgba(148, 163, 184, 0.1));
+  color: #f8fafc;
+  cursor: pointer;
+  box-shadow: 0 18px 45px rgba(8, 15, 35, 0.4);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.swiper-button:hover:not(.swiper-button-disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.2), rgba(148, 163, 184, 0.18));
+  color: #ffffff;
+}
+
+.swiper-button:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.6);
+  outline-offset: 3px;
+}
+
+.swiper-button-disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}

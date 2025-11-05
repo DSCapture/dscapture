@@ -1,3 +1,11 @@
+.heroSection {
+  position: relative;
+  height: 100vh;
+  color: white;
+  display: flex;
+  align-items: stretch;
+}
+
 .wrapper {
   position: relative;
   width: 100%;
@@ -78,8 +86,145 @@
   transform: translateY(-2px);
 }
 
+.servicesSection {
+  position: relative;
+  background: linear-gradient(135deg, #0b1120 0%, #111827 45%, #1f2937 100%);
+  color: white;
+  padding: 6rem 1.5rem 6.5rem;
+  overflow: hidden;
+}
 
+.servicesSection::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.18), transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(236, 72, 153, 0.16), transparent 60%);
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.servicesContent {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.servicesHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.servicesHeader h2 {
+  font-size: clamp(2.25rem, 3vw + 1rem, 3.25rem);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.servicesIntro {
+  max-width: 640px;
+  margin: 0;
+  color: rgba(226, 232, 240, 0.78);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+.servicesSwiper {
+  padding-bottom: 4.5rem;
+}
+
+.serviceCard {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(150deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.08) 45%, rgba(17, 24, 39, 0.85));
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  padding: 2.25rem;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  box-shadow: 0 30px 60px rgba(8, 15, 35, 0.35);
+  backdrop-filter: blur(10px);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.serviceCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(226, 232, 240, 0.18), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.serviceCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 38px 70px rgba(8, 15, 35, 0.45);
+  border-color: rgba(226, 232, 240, 0.32);
+}
+
+.serviceCard:hover::after {
+  opacity: 1;
+}
+
+.serviceCard h3 {
+  font-size: 1.65rem;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.serviceCard p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 0;
+  color: rgba(226, 232, 240, 0.85);
+}
+
+:global(.swiper-pagination) {
+  gap: 1rem;
+}
+
+:global(.swiper-pagination-bullet) {
+  background: rgba(226, 232, 240, 0.45);
+  opacity: 1;
+  box-shadow: 0 12px 25px rgba(15, 30, 51, 0.45);
+}
+
+:global(.swiper-pagination-bullet-active) {
+  background: #ffffff;
+}
+
+:global(.swiper-navigation) {
+  margin-top: 0;
+}
+
+:global(.swiper-button) {
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.22), rgba(14, 165, 233, 0.2));
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+:global(.swiper-button:hover:not(.swiper-button-disabled)) {
+  border-color: rgba(226, 232, 240, 0.55);
+}
+
+:global(.swiper-button svg) {
+  width: 20px;
+  height: 20px;
+}
+
+:global(.swiper-button-disabled) {
+  border-color: rgba(148, 163, 184, 0.2);
+}
 
 .secondSection {
-    height: 100vh;
+  height: 100vh;
 }
