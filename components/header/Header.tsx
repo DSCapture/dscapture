@@ -1,42 +1,129 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./header.module.css";
 
+type NavigationLink = {
+  href: string;
+  label: string;
+};
+
+const NAV_LINKS: NavigationLink[] = [
+  { href: "/", label: "Home" },
+  { href: "/portfolio", label: "Portfolio" },
+  { href: "/blog", label: "Blog" },
+  { href: "/kontakt", label: "Kontakt" },
+];
+
 export default function Header() {
-    const pathname = usePathname();
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    if (pathname?.startsWith("/admin")) {
-        return null;
-    }
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
-    const isHome = pathname === "/" || pathname === null;
-    const navLinkClassName = [
-        styles.headerNavLink,
-        isHome ? styles.headerNavLinkHome : null,
-    ].filter(Boolean).join(" ");
-    const logoSrc = isHome ? "/logo_white.webp" : "/logo_blue.webp";
+  const isHome = pathname === "/" || pathname === null;
+  const navLinkClassName = useMemo(
+    () =>
+      [styles.headerNavLink, isHome ? styles.headerNavLinkHome : null]
+        .filter(Boolean)
+        .join(" "),
+    [isHome]
+  );
 
-    return(
-        <header className={styles.mainHeader}>
-            <div className={styles.headerContent}>
-                <Link className={styles.headerLogoLink} href="/">
-                    <Image src={logoSrc} height={34} width={43} alt="DS_Capture Logo"></Image>
-                </Link>
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
-                <nav className={styles.headerNavigation}>
-                    <Link className={navLinkClassName} href="/">Home</Link>
-                    <Link className={navLinkClassName} href="/portfolio">Portfolio</Link>
-                    <Link className={navLinkClassName} href="/blog">Blog</Link>
-                    <Link className={navLinkClassName} href="/kontakt">Kontakt</Link>
-                    <div className={styles.socialMediaBox}>
-                        <Link className={styles.socialMediaLink} href="https://www.instagram.com/ds_capture_portraits/"><i className="bi bi-instagram"></i></Link>
-                        <Link className={styles.socialMediaLink} href="https://www.linkedin.com/in/dawid-chmielewski-860308209/"><i className="bi bi-linkedin"></i></Link>
-                    </div>
-                </nav>
-            </div>
-        </header>
-    );
+  const headerClassName = [
+    styles.mainHeader,
+    isHome ? styles.mainHeaderHome : styles.mainHeaderDefault,
+    isMenuOpen ? styles.headerExpanded : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const logoSrc = isHome ? "/logo_white.webp" : "/logo_blue.webp";
+
+  return (
+    <header className={headerClassName}>
+      <div className={styles.headerContent}>
+        <Link className={styles.headerLogoLink} href="/">
+          <Image src={logoSrc} height={34} width={43} alt="DS_Capture Logo" />
+        </Link>
+
+        <nav className={styles.headerNavigation}>
+          {NAV_LINKS.map((link) => (
+            <Link key={link.href} className={navLinkClassName} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
+          <div className={styles.socialMediaBox}>
+            <Link
+              className={styles.socialMediaLink}
+              href="https://www.instagram.com/ds_capture_portraits/"
+            >
+              <i className="bi bi-instagram" />
+            </Link>
+            <Link
+              className={styles.socialMediaLink}
+              href="https://www.linkedin.com/in/dawid-chmielewski-860308209/"
+            >
+              <i className="bi bi-linkedin" />
+            </Link>
+          </div>
+        </nav>
+
+        <button
+          type="button"
+          className={styles.menuToggle}
+          onClick={() => {
+            setIsMenuOpen((previous) => !previous);
+          }}
+          aria-expanded={isMenuOpen}
+          aria-label={isMenuOpen ? "Navigation schließen" : "Navigation öffnen"}
+        >
+          <span className={styles.menuIcon} aria-hidden>
+            <span />
+            <span />
+            <span />
+          </span>
+        </button>
+      </div>
+
+      <div
+        className={[styles.mobileMenu, isMenuOpen ? styles.mobileMenuOpen : null]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <nav className={styles.mobileMenuContent} aria-label="Mobile Navigation">
+          <div className={styles.mobileNavLinks}>
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} className={navLinkClassName} href={link.href}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div className={styles.mobileSocials}>
+            <Link
+              className={styles.mobileSocialLink}
+              href="https://www.instagram.com/ds_capture_portraits/"
+            >
+              Instagram
+            </Link>
+            <Link
+              className={styles.mobileSocialLink}
+              href="https://www.linkedin.com/in/dawid-chmielewski-860308209/"
+            >
+              LinkedIn
+            </Link>
+          </div>
+        </nav>
+      </div>
+    </header>
+  );
 }
