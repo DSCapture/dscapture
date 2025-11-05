@@ -99,8 +99,18 @@ export default function Header() {
         className={[styles.mobileMenu, isMenuOpen ? styles.mobileMenuOpen : null]
           .filter(Boolean)
           .join(" ")}
+        onClick={() => {
+          setIsMenuOpen(false);
+        }}
+        aria-hidden={!isMenuOpen}
       >
-        <nav className={styles.mobileMenuContent} aria-label="Mobile Navigation">
+        <nav
+          className={styles.mobileMenuContent}
+          aria-label="Mobile Navigation"
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
           <div className={styles.mobileNavLinks}>
             {NAV_LINKS.map((link) => (
               <Link key={link.href} className={navLinkClassName} href={link.href}>
