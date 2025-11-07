@@ -182,11 +182,11 @@ const ContactPageClient = () => {
           <ul className={styles.contactList}>
             <li>
               <span>E-Mail</span>
-              <a href="mailto:hello@dscapture.de">hello@dscapture.de</a>
+              <a href="mailto:fotografie@ds-capture.de">fotografie@ds-capture.de</a>
             </li>
             <li>
               <span>Telefon</span>
-              <a href="tel:+4900000000">+49 000 0000</a>
+              <a href="tel:+491724374609">0172 4374609</a>
             </li>
           </ul>
           <p className={styles.officeHours}>Wir sind montags bis freitags von 9 bis 18 Uhr für dich da.</p>
