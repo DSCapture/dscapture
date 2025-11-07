@@ -7,6 +7,12 @@
     margin: 0 auto;
 }
 
+.spotlightCardLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
 .spotlightCard {
     display: grid;
     gap: 2rem;
@@ -15,6 +21,13 @@
     overflow: hidden;
     color: #f9fafb;
     box-shadow: 0 24px 60px rgba(15, 30, 51, 0.25);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.spotlightCardLink:focus-visible .spotlightCard,
+.spotlightCardLink:hover .spotlightCard {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 70px rgba(15, 30, 51, 0.35);
 }
 
 .spotlightImage {
@@ -122,6 +135,12 @@
     gap: 2rem;
 }
 
+.blogCardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 .blogCard {
     background: #ffffff;
     border-radius: 18px;
@@ -130,6 +149,13 @@
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.blogCardLink:focus-visible .blogCard,
+.blogCardLink:hover .blogCard {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 55px rgba(15, 30, 51, 0.15);
 }
 
 .blogCardImage {
