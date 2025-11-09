@@ -168,6 +168,12 @@
   font-size: 1.35rem;
 }
 
+.projectSubtitle {
+  margin: 0.35rem 0 0;
+  font-size: 1.05rem;
+  color: rgba(32, 43, 72, 0.78);
+}
+
 .projectMeta {
   margin-top: 0.25rem;
   font-size: 0.9rem;
@@ -193,6 +199,11 @@
   gap: 1rem;
 }
 
+.coverImageWrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .coverImage {
   width: 160px;
   height: 220px;
@@ -215,6 +226,12 @@
   padding: 1rem;
 }
 
+.coverHint {
+  max-width: 320px;
+  font-size: 0.9rem;
+  color: rgba(32, 43, 72, 0.65);
+}
+
 .galleryList {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -231,12 +248,36 @@
   border: 1px solid rgba(32, 43, 72, 0.1);
 }
 
+.galleryItemCover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(32, 43, 72, 0.25);
+}
+
+.galleryImageWrapper {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
 .galleryImage {
   width: 100%;
   height: 140px;
   object-fit: cover;
   border-radius: 14px;
   border: 1px solid rgba(32, 43, 72, 0.12);
+}
+
+.coverBadge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  box-shadow: 0 12px 24px rgba(23, 30, 51, 0.18);
 }
 
 .galleryItem input {
@@ -259,6 +300,16 @@
   border-color: var(--primary);
   background: var(--bg-light);
   box-shadow: 0 0 0 3px rgba(32, 43, 72, 0.16);
+}
+
+.galleryActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.galleryActions button {
+  width: 100%;
 }
 
 .errorText {
