@@ -31,12 +31,9 @@ for each row execute function public.portfolio_settings_set_updated_at();
 create table if not exists public.portfolio_projects (
   id uuid primary key default uuid_generate_v4(),
   title text not null,
-  location text,
+  subtitle text,
   excerpt text,
   slug text unique,
-  cta_label text,
-  cta_url text,
-  cover_file_path text,
   cover_public_url text,
   display_order integer not null default 0,
   is_featured boolean not null default false,

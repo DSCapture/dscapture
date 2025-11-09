@@ -23,12 +23,8 @@ type PortfolioProject = {
   id: string;
   title: string;
   subtitle: string | null;
-  category: string | null;
   excerpt: string | null;
   slug: string | null;
-  cta_label: string | null;
-  cta_url: string | null;
-  cover_file_path: string | null;
   cover_public_url: string | null;
   display_order: number;
   is_featured: boolean;
@@ -46,11 +42,8 @@ type PortfolioProjectImage = {
 type ProjectFormState = {
   title: string;
   subtitle: string;
-  category: string;
   excerpt: string;
   slug: string;
-  ctaLabel: string;
-  ctaUrl: string;
   displayOrder: number;
   isFeatured: boolean;
 };
@@ -65,11 +58,8 @@ const galleryBucket = "portfolio-project-images";
 const defaultProjectForm: ProjectFormState = {
   title: "",
   subtitle: "",
-  category: "",
   excerpt: "",
   slug: "",
-  ctaLabel: "",
-  ctaUrl: "",
   displayOrder: 0,
   isFeatured: false,
 };
@@ -85,11 +75,8 @@ const sortProjects = (projects: PortfolioProject[]) =>
 const mapProjectToForm = (project: PortfolioProject): ProjectFormState => ({
   title: project.title,
   subtitle: project.subtitle ?? "",
-  category: project.category ?? "",
   excerpt: project.excerpt ?? "",
   slug: project.slug ?? "",
-  ctaLabel: project.cta_label ?? "",
-  ctaUrl: project.cta_url ?? "",
   displayOrder: project.display_order,
   isFeatured: project.is_featured,
 });
@@ -163,7 +150,7 @@ export default function AdminPortfolioPage() {
             supabase
               .from("portfolio_projects")
               .select(
-                "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+                "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
               )
               .order("display_order", { ascending: true })
               .order("created_at", { ascending: true }),
@@ -517,11 +504,8 @@ export default function AdminPortfolioPage() {
       const insertPayload = {
         title: newProjectForm.title.trim(),
         subtitle: newProjectForm.subtitle.trim() || null,
-        category: newProjectForm.category.trim() || null,
         excerpt: newProjectForm.excerpt.trim() || null,
         slug: newProjectForm.slug.trim() || null,
-        cta_label: newProjectForm.ctaLabel.trim() || null,
-        cta_url: newProjectForm.ctaUrl.trim() || null,
         display_order: Number.isFinite(newProjectForm.displayOrder)
           ? newProjectForm.displayOrder
           : 0,
@@ -532,7 +516,7 @@ export default function AdminPortfolioPage() {
         .from("portfolio_projects")
         .insert(insertPayload)
         .select(
-          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -614,11 +598,8 @@ export default function AdminPortfolioPage() {
       const updatePayload = {
         title: editProjectForm.title.trim(),
         subtitle: editProjectForm.subtitle.trim() || null,
-        category: editProjectForm.category.trim() || null,
         excerpt: editProjectForm.excerpt.trim() || null,
         slug: editProjectForm.slug.trim() || null,
-        cta_label: editProjectForm.ctaLabel.trim() || null,
-        cta_url: editProjectForm.ctaUrl.trim() || null,
         display_order: Number.isFinite(editProjectForm.displayOrder)
           ? editProjectForm.displayOrder
           : 0,
@@ -630,7 +611,7 @@ export default function AdminPortfolioPage() {
         .update(updatePayload)
         .eq("id", projectId)
         .select(
-          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -745,12 +726,11 @@ export default function AdminPortfolioPage() {
       const { data, error } = await supabase
         .from("portfolio_projects")
         .update({
-          cover_file_path: image.file_path,
           cover_public_url: image.public_url,
         })
         .eq("id", project.id)
         .select(
-          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -787,7 +767,7 @@ export default function AdminPortfolioPage() {
   };
 
   const handleRemoveCover = async (project: PortfolioProject) => {
-    if (!project.cover_file_path) {
+    if (!project.cover_public_url) {
       return;
     }
 
@@ -799,12 +779,11 @@ export default function AdminPortfolioPage() {
       const { data, error } = await supabase
         .from("portfolio_projects")
         .update({
-          cover_file_path: null,
           cover_public_url: null,
         })
         .eq("id", project.id)
         .select(
-          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -991,16 +970,15 @@ export default function AdminPortfolioPage() {
         (project) => project.id === image.project_id,
       );
 
-      if (projectForImage?.cover_file_path === image.file_path) {
+      if (projectForImage?.cover_public_url === image.public_url) {
         const { data: updatedProject, error: coverError } = await supabase
           .from("portfolio_projects")
           .update({
-            cover_file_path: null,
             cover_public_url: null,
           })
           .eq("id", image.project_id)
           .select(
-            "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+            "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
           )
           .single();
 
@@ -1307,18 +1285,6 @@ export default function AdminPortfolioPage() {
                 </div>
 
                 <div className={styles.fieldGroup}>
-                  <label htmlFor="new-category">Kategorie</label>
-                  <input
-                    id="new-category"
-                    name="category"
-                    type="text"
-                    value={newProjectForm.category}
-                    onChange={handleNewProjectChange}
-                    placeholder="Z. B. Outdoor"
-                  />
-                </div>
-
-                <div className={styles.fieldGroup}>
                   <label htmlFor="new-excerpt">Kurzbeschreibung</label>
                   <textarea
                     id="new-excerpt"
@@ -1338,30 +1304,6 @@ export default function AdminPortfolioPage() {
                     value={newProjectForm.slug}
                     onChange={handleNewProjectChange}
                     placeholder="portfolio-projekt"
-                  />
-                </div>
-
-                <div className={styles.fieldGroup}>
-                  <label htmlFor="new-ctaLabel">Button-Label</label>
-                  <input
-                    id="new-ctaLabel"
-                    name="ctaLabel"
-                    type="text"
-                    value={newProjectForm.ctaLabel}
-                    onChange={handleNewProjectChange}
-                    placeholder="Z. B. Projekt ansehen"
-                  />
-                </div>
-
-                <div className={styles.fieldGroup}>
-                  <label htmlFor="new-ctaUrl">Button-URL</label>
-                  <input
-                    id="new-ctaUrl"
-                    name="ctaUrl"
-                    type="url"
-                    value={newProjectForm.ctaUrl}
-                    onChange={handleNewProjectChange}
-                    placeholder="https://..."
                   />
                 </div>
 
@@ -1436,7 +1378,6 @@ export default function AdminPortfolioPage() {
                               </p>
                             ) : null}
                             <p className={styles.projectMeta}>
-                              {project.category ? `${project.category} • ` : ""}
                               Reihenfolge: {project.display_order}
                               {project.is_featured ? " • Highlight" : ""}
                             </p>
@@ -1537,20 +1478,6 @@ export default function AdminPortfolioPage() {
                             </div>
 
                             <div className={styles.fieldGroup}>
-                              <label htmlFor={`edit-category-${project.id}`}>
-                                Kategorie
-                              </label>
-                              <input
-                                id={`edit-category-${project.id}`}
-                                name="category"
-                                type="text"
-                                value={editProjectForm.category}
-                                onChange={handleEditProjectChange}
-                                placeholder="Kategorie"
-                              />
-                            </div>
-
-                            <div className={styles.fieldGroup}>
                               <label htmlFor={`edit-excerpt-${project.id}`}>
                                 Kurzbeschreibung
                               </label>
@@ -1572,34 +1499,6 @@ export default function AdminPortfolioPage() {
                                 value={editProjectForm.slug}
                                 onChange={handleEditProjectChange}
                                 placeholder="portfolio-projekt"
-                              />
-                            </div>
-
-                            <div className={styles.fieldGroup}>
-                              <label htmlFor={`edit-ctaLabel-${project.id}`}>
-                                Button-Label
-                              </label>
-                              <input
-                                id={`edit-ctaLabel-${project.id}`}
-                                name="ctaLabel"
-                                type="text"
-                                value={editProjectForm.ctaLabel}
-                                onChange={handleEditProjectChange}
-                                placeholder="Button-Beschriftung"
-                              />
-                            </div>
-
-                            <div className={styles.fieldGroup}>
-                              <label htmlFor={`edit-ctaUrl-${project.id}`}>
-                                Button-URL
-                              </label>
-                              <input
-                                id={`edit-ctaUrl-${project.id}`}
-                                name="ctaUrl"
-                                type="url"
-                                value={editProjectForm.ctaUrl}
-                                onChange={handleEditProjectChange}
-                                placeholder="https://..."
                               />
                             </div>
 
@@ -1668,7 +1567,7 @@ export default function AdminPortfolioPage() {
                             <div className={styles.galleryList}>
                               {projectGallery.map((image) => {
                                 const isCover =
-                                  project.cover_file_path === image.file_path;
+                                  project.cover_public_url === image.public_url;
 
                                 return (
                                   <div

@@ -33,11 +33,8 @@ type PortfolioProject = {
   id: string;
   title: string;
   subtitle: string | null;
-  category: string | null;
   excerpt: string | null;
   slug: string | null;
-  cta_label: string | null;
-  cta_url: string | null;
   cover_public_url: string | null;
   display_order: number;
   is_featured: boolean;
@@ -56,7 +53,7 @@ async function getPortfolioData() {
       supabase
         .from("portfolio_projects")
         .select(
-          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, excerpt, slug, cover_public_url, display_order, is_featured",
         )
         .order("display_order", { ascending: true })
         .order("created_at", { ascending: true }),
@@ -167,11 +164,6 @@ export default async function PortfolioPage() {
                     <div className={styles.projectBody}>
                       <span className={styles.projectIndex}>{orderNumber}</span>
                       <div className={styles.projectTexts}>
-                        {project.category && (
-                          <span className={styles.projectLocation}>
-                            {project.category}
-                          </span>
-                        )}
                         <h3 className={styles.projectTitle}>{project.title}</h3>
                         {project.subtitle && (
                           <p className={styles.projectSubtitle}>{project.subtitle}</p>
@@ -181,24 +173,14 @@ export default async function PortfolioPage() {
                         )}
                       </div>
 
-                      {(project.cta_label && project.cta_url) || project.slug ? (
+                      {project.slug ? (
                         <div className={styles.projectActions}>
-                          {project.cta_label && project.cta_url && (
-                            <a
-                              href={project.cta_url}
-                              className={styles.projectButton}
-                            >
-                              {project.cta_label}
-                            </a>
-                          )}
-                          {project.slug && (
-                            <a
-                              href={`/portfolio/${project.slug}`}
-                              className={styles.projectLink}
-                            >
-                              Details ansehen
-                            </a>
-                          )}
+                          <a
+                            href={`/portfolio/${project.slug}`}
+                            className={styles.projectLink}
+                          >
+                            Details ansehen
+                          </a>
                         </div>
                       ) : null}
                     </div>
