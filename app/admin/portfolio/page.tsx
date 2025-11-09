@@ -1220,6 +1220,7 @@ export default function AdminPortfolioPage() {
                     type="text"
                     value={newProjectForm.title}
                     onChange={handleNewProjectChange}
+                    placeholder="Z. B. Alpine Panorama"
                     required
                   />
                 </div>
@@ -1232,6 +1233,7 @@ export default function AdminPortfolioPage() {
                     type="text"
                     value={newProjectForm.location}
                     onChange={handleNewProjectChange}
+                    placeholder="Z. B. Schweiz"
                   />
                 </div>
 
@@ -1242,6 +1244,7 @@ export default function AdminPortfolioPage() {
                     name="excerpt"
                     value={newProjectForm.excerpt}
                     onChange={handleNewProjectChange}
+                    placeholder="Kurzer Teasertext zum Projekt"
                   />
                 </div>
 
@@ -1265,6 +1268,7 @@ export default function AdminPortfolioPage() {
                     type="text"
                     value={newProjectForm.ctaLabel}
                     onChange={handleNewProjectChange}
+                    placeholder="Z. B. Projekt ansehen"
                   />
                 </div>
 
@@ -1276,6 +1280,7 @@ export default function AdminPortfolioPage() {
                     type="url"
                     value={newProjectForm.ctaUrl}
                     onChange={handleNewProjectChange}
+                    placeholder="https://..."
                   />
                 </div>
 
@@ -1293,6 +1298,7 @@ export default function AdminPortfolioPage() {
                         displayOrder: Number(event.target.value) || 0,
                       }))
                     }
+                    placeholder="Z. B. 1"
                   />
                 </div>
 
@@ -1433,6 +1439,7 @@ export default function AdminPortfolioPage() {
                                 type="text"
                                 value={editProjectForm.title}
                                 onChange={handleEditProjectChange}
+                                placeholder="Titel des Projekts"
                                 required
                               />
                             </div>
@@ -1447,6 +1454,7 @@ export default function AdminPortfolioPage() {
                                 type="text"
                                 value={editProjectForm.location}
                                 onChange={handleEditProjectChange}
+                                placeholder="Ort oder Kategorie"
                               />
                             </div>
 
@@ -1459,6 +1467,7 @@ export default function AdminPortfolioPage() {
                                 name="excerpt"
                                 value={editProjectForm.excerpt}
                                 onChange={handleEditProjectChange}
+                                placeholder="Kurze Projektbeschreibung"
                               />
                             </div>
 
@@ -1470,6 +1479,7 @@ export default function AdminPortfolioPage() {
                                 type="text"
                                 value={editProjectForm.slug}
                                 onChange={handleEditProjectChange}
+                                placeholder="portfolio-projekt"
                               />
                             </div>
 
@@ -1483,6 +1493,7 @@ export default function AdminPortfolioPage() {
                                 type="text"
                                 value={editProjectForm.ctaLabel}
                                 onChange={handleEditProjectChange}
+                                placeholder="Button-Beschriftung"
                               />
                             </div>
 
@@ -1496,6 +1507,7 @@ export default function AdminPortfolioPage() {
                                 type="url"
                                 value={editProjectForm.ctaUrl}
                                 onChange={handleEditProjectChange}
+                                placeholder="https://..."
                               />
                             </div>
 
@@ -1515,6 +1527,7 @@ export default function AdminPortfolioPage() {
                                     displayOrder: Number(event.target.value) || 0,
                                   }))
                                 }
+                                placeholder="Z. B. 1"
                               />
                             </div>
 
