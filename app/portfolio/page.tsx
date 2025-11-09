@@ -32,7 +32,8 @@ type PortfolioSettings = {
 type PortfolioProject = {
   id: string;
   title: string;
-  location: string | null;
+  subtitle: string | null;
+  category: string | null;
   excerpt: string | null;
   slug: string | null;
   cta_label: string | null;
@@ -55,7 +56,7 @@ async function getPortfolioData() {
       supabase
         .from("portfolio_projects")
         .select(
-          "id, title, location, excerpt, slug, cta_label, cta_url, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_public_url, display_order, is_featured",
         )
         .order("display_order", { ascending: true })
         .order("created_at", { ascending: true }),
@@ -166,12 +167,15 @@ export default async function PortfolioPage() {
                     <div className={styles.projectBody}>
                       <span className={styles.projectIndex}>{orderNumber}</span>
                       <div className={styles.projectTexts}>
-                        {project.location && (
+                        {project.category && (
                           <span className={styles.projectLocation}>
-                            {project.location}
+                            {project.category}
                           </span>
                         )}
                         <h3 className={styles.projectTitle}>{project.title}</h3>
+                        {project.subtitle && (
+                          <p className={styles.projectSubtitle}>{project.subtitle}</p>
+                        )}
                         {project.excerpt && (
                           <p className={styles.projectExcerpt}>{project.excerpt}</p>
                         )}

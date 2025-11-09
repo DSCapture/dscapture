@@ -22,7 +22,8 @@ type PortfolioSettings = {
 type PortfolioProject = {
   id: string;
   title: string;
-  location: string | null;
+  subtitle: string | null;
+  category: string | null;
   excerpt: string | null;
   slug: string | null;
   cta_label: string | null;
@@ -44,7 +45,8 @@ type PortfolioProjectImage = {
 
 type ProjectFormState = {
   title: string;
-  location: string;
+  subtitle: string;
+  category: string;
   excerpt: string;
   slug: string;
   ctaLabel: string;
@@ -58,12 +60,12 @@ type CurrentUser = { id: string; email?: string | null };
 type InputEvent = ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
 
 const backgroundBucket = "portfolio-backgrounds";
-const coverBucket = "portfolio-covers";
 const galleryBucket = "portfolio-project-images";
 
 const defaultProjectForm: ProjectFormState = {
   title: "",
-  location: "",
+  subtitle: "",
+  category: "",
   excerpt: "",
   slug: "",
   ctaLabel: "",
@@ -82,7 +84,8 @@ const sortProjects = (projects: PortfolioProject[]) =>
 
 const mapProjectToForm = (project: PortfolioProject): ProjectFormState => ({
   title: project.title,
-  location: project.location ?? "",
+  subtitle: project.subtitle ?? "",
+  category: project.category ?? "",
   excerpt: project.excerpt ?? "",
   slug: project.slug ?? "",
   ctaLabel: project.cta_label ?? "",
@@ -128,13 +131,14 @@ export default function AdminPortfolioPage() {
     null,
   );
 
-  const [coverFiles, setCoverFiles] = useState<Record<string, File | null>>({});
-  const [uploadingCoverId, setUploadingCoverId] = useState<string | null>(null);
+  const [savingCoverProjectId, setSavingCoverProjectId] = useState<string | null>(
+    null,
+  );
 
   const [projectImages, setProjectImages] = useState<
     Record<string, PortfolioProjectImage[]>
   >({});
-  const [imageFiles, setImageFiles] = useState<Record<string, File | null>>({});
+  const [imageFiles, setImageFiles] = useState<Record<string, File[]>>({});
   const [imageCaptions, setImageCaptions] = useState<Record<string, string>>({});
   const [uploadingImageProjectId, setUploadingImageProjectId] = useState<
     string | null
@@ -159,7 +163,7 @@ export default function AdminPortfolioPage() {
             supabase
               .from("portfolio_projects")
               .select(
-                "id, title, location, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+                "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
               )
               .order("display_order", { ascending: true })
               .order("created_at", { ascending: true }),
@@ -512,7 +516,8 @@ export default function AdminPortfolioPage() {
 
       const insertPayload = {
         title: newProjectForm.title.trim(),
-        location: newProjectForm.location.trim() || null,
+        subtitle: newProjectForm.subtitle.trim() || null,
+        category: newProjectForm.category.trim() || null,
         excerpt: newProjectForm.excerpt.trim() || null,
         slug: newProjectForm.slug.trim() || null,
         cta_label: newProjectForm.ctaLabel.trim() || null,
@@ -527,7 +532,7 @@ export default function AdminPortfolioPage() {
         .from("portfolio_projects")
         .insert(insertPayload)
         .select(
-          "id, title, location, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -608,7 +613,8 @@ export default function AdminPortfolioPage() {
 
       const updatePayload = {
         title: editProjectForm.title.trim(),
-        location: editProjectForm.location.trim() || null,
+        subtitle: editProjectForm.subtitle.trim() || null,
+        category: editProjectForm.category.trim() || null,
         excerpt: editProjectForm.excerpt.trim() || null,
         slug: editProjectForm.slug.trim() || null,
         cta_label: editProjectForm.ctaLabel.trim() || null,
@@ -624,7 +630,7 @@ export default function AdminPortfolioPage() {
         .update(updatePayload)
         .eq("id", projectId)
         .select(
-          "id, title, location, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -721,62 +727,30 @@ export default function AdminPortfolioPage() {
     }
   };
 
-  const handleCoverSelection = (projectId: string, file: File | null) => {
-    setCoverFiles((previous) => ({ ...previous, [projectId]: file }));
+  const updateProjectState = (updated: PortfolioProject) => {
+    setProjects((previous) =>
+      sortProjects(previous.map((item) => (item.id === updated.id ? updated : item))),
+    );
   };
 
-  const handleCoverUpload = async (
-    event: FormEvent<HTMLFormElement>,
+  const handleSelectCoverFromGallery = async (
     project: PortfolioProject,
+    image: PortfolioProjectImage,
   ) => {
-    event.preventDefault();
-
-    const selectedFile = coverFiles[project.id];
-
-    if (!selectedFile) {
-      alert("Bitte wähle zuerst ein Cover-Bild aus.");
-      return;
-    }
-
-    setUploadingCoverId(project.id);
+    setSavingCoverProjectId(project.id);
 
     try {
       const currentUser = await fetchCurrentUser();
-      const fileExtension = selectedFile.name.split(".").pop();
-      const filePath = `${currentUser.id}/${project.id}/cover-${Date.now()}.${
-        fileExtension ?? "jpg"
-      }`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(coverBucket)
-        .upload(filePath, selectedFile, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from(coverBucket)
-        .getPublicUrl(uploadData?.path ?? filePath);
-
-      const publicUrl = publicUrlData?.publicUrl;
-
-      if (!publicUrl) {
-        throw new Error("Die öffentliche URL für das Cover-Bild fehlt.");
-      }
 
       const { data, error } = await supabase
         .from("portfolio_projects")
         .update({
-          cover_file_path: uploadData?.path ?? filePath,
-          cover_public_url: publicUrl,
+          cover_file_path: image.file_path,
+          cover_public_url: image.public_url,
         })
         .eq("id", project.id)
         .select(
-          "id, title, location, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
         )
         .single();
 
@@ -784,39 +758,92 @@ export default function AdminPortfolioPage() {
         throw error;
       }
 
-      setProjects((previous) =>
-        sortProjects(previous.map((item) => (item.id === project.id ? data : item))),
-      );
-      setCoverFiles((previous) => ({ ...previous, [project.id]: null }));
+      updateProjectState(data);
 
       await logUserAction({
-        action: "portfolio_project_cover_uploaded",
+        action: "portfolio_project_cover_selected",
         context: "admin",
         userId: currentUser.id,
         userEmail: currentUser.email ?? null,
         entityType: "portfolio_project",
         entityId: project.id,
         metadata: {
-          filePath: uploadData?.path ?? filePath,
-          publicUrl,
+          imageId: image.id,
+          filePath: image.file_path,
         },
       });
 
       alert("Cover-Bild wurde aktualisiert.");
     } catch (error) {
-      console.error("Fehler beim Hochladen des Cover-Bildes:", error);
+      console.error("Fehler beim Festlegen des Cover-Bildes:", error);
       alert(
         error instanceof Error
           ? error.message
-          : "Das Cover-Bild konnte nicht hochgeladen werden.",
+          : "Das Cover-Bild konnte nicht gespeichert werden.",
       );
     } finally {
-      setUploadingCoverId(null);
+      setSavingCoverProjectId(null);
     }
   };
 
-  const handleGallerySelection = (projectId: string, file: File | null) => {
-    setImageFiles((previous) => ({ ...previous, [projectId]: file }));
+  const handleRemoveCover = async (project: PortfolioProject) => {
+    if (!project.cover_file_path) {
+      return;
+    }
+
+    setSavingCoverProjectId(project.id);
+
+    try {
+      const currentUser = await fetchCurrentUser();
+
+      const { data, error } = await supabase
+        .from("portfolio_projects")
+        .update({
+          cover_file_path: null,
+          cover_public_url: null,
+        })
+        .eq("id", project.id)
+        .select(
+          "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+        )
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      updateProjectState(data);
+
+      await logUserAction({
+        action: "portfolio_project_cover_cleared",
+        context: "admin",
+        userId: currentUser.id,
+        userEmail: currentUser.email ?? null,
+        entityType: "portfolio_project",
+        entityId: project.id,
+      });
+
+      alert("Cover-Bild wurde entfernt.");
+    } catch (error) {
+      console.error("Fehler beim Entfernen des Cover-Bildes:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Das Cover-Bild konnte nicht entfernt werden.",
+      );
+    } finally {
+      setSavingCoverProjectId(null);
+    }
+  };
+
+  const handleGallerySelection = (
+    projectId: string,
+    files: FileList | null,
+  ) => {
+    setImageFiles((previous) => ({
+      ...previous,
+      [projectId]: files ? Array.from(files) : [],
+    }));
   };
 
   const handleGalleryUpload = async (
@@ -825,10 +852,10 @@ export default function AdminPortfolioPage() {
   ) => {
     event.preventDefault();
 
-    const selectedFile = imageFiles[project.id];
+    const selectedFiles = imageFiles[project.id] ?? [];
 
-    if (!selectedFile) {
-      alert("Bitte wähle zuerst ein Projektfoto aus.");
+    if (selectedFiles.length === 0) {
+      alert("Bitte wähle zuerst mindestens ein Projektfoto aus.");
       return;
     }
 
@@ -836,73 +863,87 @@ export default function AdminPortfolioPage() {
 
     try {
       const currentUser = await fetchCurrentUser();
-      const fileExtension = selectedFile.name.split(".").pop();
-      const filePath = `${currentUser.id}/${project.id}/gallery-${Date.now()}.${
-        fileExtension ?? "jpg"
-      }`;
+      const existingImages = projectImages[project.id] ?? [];
+      let nextDisplayOrder =
+        (existingImages[existingImages.length - 1]?.display_order ?? 0) + 1;
+      const newImages: PortfolioProjectImage[] = [];
+      const newCaptions: Record<string, string> = {};
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(galleryBucket)
-        .upload(filePath, selectedFile, {
-          cacheControl: "3600",
-          upsert: true,
+      for (const file of selectedFiles) {
+        const fileExtension = file.name.split(".").pop();
+        const filePath = `${currentUser.id}/${project.id}/gallery-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}.${fileExtension ?? "jpg"}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(galleryBucket)
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from(galleryBucket)
+          .getPublicUrl(uploadData?.path ?? filePath);
+
+        const publicUrl = publicUrlData?.publicUrl;
+
+        if (!publicUrl) {
+          throw new Error("Die öffentliche URL für das Projektfoto fehlt.");
+        }
+
+        const { data, error } = await supabase
+          .from("portfolio_project_images")
+          .insert({
+            project_id: project.id,
+            caption: null,
+            file_path: uploadData?.path ?? filePath,
+            public_url: publicUrl,
+            display_order: nextDisplayOrder,
+          })
+          .select(
+            "id, project_id, caption, file_path, public_url, display_order",
+          )
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        nextDisplayOrder += 1;
+        newImages.push(data);
+        newCaptions[data.id] = "";
+
+        await logUserAction({
+          action: "portfolio_project_image_uploaded",
+          context: "admin",
+          userId: currentUser.id,
+          userEmail: currentUser.email ?? null,
+          entityType: "portfolio_project_image",
+          entityId: data.id,
+          metadata: {
+            projectId: project.id,
+            filePath: uploadData?.path ?? filePath,
+          },
         });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from(galleryBucket)
-        .getPublicUrl(uploadData?.path ?? filePath);
-
-      const publicUrl = publicUrlData?.publicUrl;
-
-      if (!publicUrl) {
-        throw new Error("Die öffentliche URL für das Projektfoto fehlt.");
-      }
-
-      const { data, error } = await supabase
-        .from("portfolio_project_images")
-        .insert({
-          project_id: project.id,
-          caption: null,
-          file_path: uploadData?.path ?? filePath,
-          public_url: publicUrl,
-          display_order:
-            (projectImages[project.id]?.[projectImages[project.id].length - 1]
-              ?.display_order ?? 0) + 1,
-        })
-        .select(
-          "id, project_id, caption, file_path, public_url, display_order",
-        )
-        .single();
-
-      if (error) {
-        throw error;
       }
 
       setProjectImages((previous) => ({
         ...previous,
-        [project.id]: [...(previous[project.id] ?? []), data],
+        [project.id]: [...(previous[project.id] ?? []), ...newImages],
       }));
-      setImageFiles((previous) => ({ ...previous, [project.id]: null }));
-      setImageCaptions((previous) => ({ ...previous, [data.id]: "" }));
+      setImageFiles((previous) => ({ ...previous, [project.id]: [] }));
+      setImageCaptions((previous) => ({ ...previous, ...newCaptions }));
 
-      await logUserAction({
-        action: "portfolio_project_image_uploaded",
-        context: "admin",
-        userId: currentUser.id,
-        userEmail: currentUser.email ?? null,
-        entityType: "portfolio_project_image",
-        entityId: data.id,
-        metadata: {
-          projectId: project.id,
-          filePath: uploadData?.path ?? filePath,
-        },
-      });
-
-      alert("Projektfoto wurde hinzugefügt.");
+      alert(
+        newImages.length === 1
+          ? "Projektfoto wurde hinzugefügt."
+          : `${newImages.length} Projektfotos wurden hinzugefügt.`,
+      );
     } catch (error) {
       console.error("Fehler beim Hochladen des Projektfotos:", error);
       alert(
@@ -944,6 +985,33 @@ export default function AdminPortfolioPage() {
         throw error;
       }
 
+      let coverCleared = false;
+
+      const projectForImage = projects.find(
+        (project) => project.id === image.project_id,
+      );
+
+      if (projectForImage?.cover_file_path === image.file_path) {
+        const { data: updatedProject, error: coverError } = await supabase
+          .from("portfolio_projects")
+          .update({
+            cover_file_path: null,
+            cover_public_url: null,
+          })
+          .eq("id", image.project_id)
+          .select(
+            "id, title, subtitle, category, excerpt, slug, cta_label, cta_url, cover_file_path, cover_public_url, display_order, is_featured",
+          )
+          .single();
+
+        if (coverError) {
+          throw coverError;
+        }
+
+        updateProjectState(updatedProject);
+        coverCleared = true;
+      }
+
       setProjectImages((previous) => ({
         ...previous,
         [image.project_id]: (previous[image.project_id] ?? []).filter(
@@ -966,6 +1034,7 @@ export default function AdminPortfolioPage() {
         entityId: image.id,
         metadata: {
           projectId: image.project_id,
+          coverCleared,
         },
       });
 
@@ -1226,14 +1295,26 @@ export default function AdminPortfolioPage() {
                 </div>
 
                 <div className={styles.fieldGroup}>
-                  <label htmlFor="new-location">Ort / Kategorie</label>
+                  <label htmlFor="new-subtitle">Untertitel</label>
                   <input
-                    id="new-location"
-                    name="location"
+                    id="new-subtitle"
+                    name="subtitle"
                     type="text"
-                    value={newProjectForm.location}
+                    value={newProjectForm.subtitle}
                     onChange={handleNewProjectChange}
-                    placeholder="Z. B. Schweiz"
+                    placeholder="Zusätzliche Projektzeile"
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="new-category">Kategorie</label>
+                  <input
+                    id="new-category"
+                    name="category"
+                    type="text"
+                    value={newProjectForm.category}
+                    onChange={handleNewProjectChange}
+                    placeholder="Z. B. Outdoor"
                   />
                 </div>
 
@@ -1349,7 +1430,13 @@ export default function AdminPortfolioPage() {
                         <header className={styles.projectHeader}>
                           <div>
                             <h4>{project.title}</h4>
+                            {project.subtitle ? (
+                              <p className={styles.projectSubtitle}>
+                                {project.subtitle}
+                              </p>
+                            ) : null}
                             <p className={styles.projectMeta}>
+                              {project.category ? `${project.category} • ` : ""}
                               Reihenfolge: {project.display_order}
                               {project.is_featured ? " • Highlight" : ""}
                             </p>
@@ -1379,46 +1466,37 @@ export default function AdminPortfolioPage() {
                           <h5>Cover-Bild</h5>
                           <div className={styles.coverPreview}>
                             {project.cover_public_url ? (
-                              <Image
-                                src={project.cover_public_url}
-                                alt={`Cover von ${project.title}`}
-                                width={160}
-                                height={220}
-                                className={styles.coverImage}
-                              />
+                              <div className={styles.coverImageWrapper}>
+                                <Image
+                                  src={project.cover_public_url}
+                                  alt={`Cover von ${project.title}`}
+                                  width={160}
+                                  height={220}
+                                  className={styles.coverImage}
+                                />
+                              </div>
                             ) : (
                               <div className={styles.coverPlaceholder}>
-                                Kein Cover hinterlegt
+                                Kein Cover ausgewählt
                               </div>
                             )}
+                            <p className={styles.coverHint}>
+                              Wähle unten in den Projektfotos ein Bild aus, um es als Cover zu
+                              übernehmen.
+                            </p>
 
-                            <form
-                              className="admin-form"
-                              onSubmit={(event) => handleCoverUpload(event, project)}
-                            >
-                              <label className="admin-file-input">
-                                <span>Datei wählen</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(event) =>
-                                    handleCoverSelection(
-                                      project.id,
-                                      event.target.files?.[0] ?? null,
-                                    )
-                                  }
-                                />
-                              </label>
+                            {project.cover_public_url ? (
                               <button
-                                type="submit"
+                                type="button"
                                 className="adminButton"
-                                disabled={uploadingCoverId === project.id}
+                                onClick={() => handleRemoveCover(project)}
+                                disabled={savingCoverProjectId === project.id}
                               >
-                                {uploadingCoverId === project.id
-                                  ? "Lade hoch..."
-                                  : "Cover speichern"}
+                                {savingCoverProjectId === project.id
+                                  ? "Entferne..."
+                                  : "Cover entfernen"}
                               </button>
-                            </form>
+                            ) : null}
                           </div>
                         </div>
 
@@ -1445,16 +1523,30 @@ export default function AdminPortfolioPage() {
                             </div>
 
                             <div className={styles.fieldGroup}>
-                              <label htmlFor={`edit-location-${project.id}`}>
-                                Ort / Kategorie
+                              <label htmlFor={`edit-subtitle-${project.id}`}>
+                                Untertitel
                               </label>
                               <input
-                                id={`edit-location-${project.id}`}
-                                name="location"
+                                id={`edit-subtitle-${project.id}`}
+                                name="subtitle"
                                 type="text"
-                                value={editProjectForm.location}
+                                value={editProjectForm.subtitle}
                                 onChange={handleEditProjectChange}
-                                placeholder="Ort oder Kategorie"
+                                placeholder="Zusätzliche Projektzeile"
+                              />
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                              <label htmlFor={`edit-category-${project.id}`}>
+                                Kategorie
+                              </label>
+                              <input
+                                id={`edit-category-${project.id}`}
+                                name="category"
+                                type="text"
+                                value={editProjectForm.category}
+                                onChange={handleEditProjectChange}
+                                placeholder="Kategorie"
                               />
                             </div>
 
@@ -1574,50 +1666,81 @@ export default function AdminPortfolioPage() {
                             </p>
                           ) : (
                             <div className={styles.galleryList}>
-                              {projectGallery.map((image) => (
-                                <div key={image.id} className={styles.galleryItem}>
-                                  <Image
-                                    src={image.public_url}
-                                    alt={image.caption || project.title}
-                                    width={200}
-                                    height={140}
-                                    className={styles.galleryImage}
-                                  />
-                                  <input
-                                    type="text"
-                                    value={imageCaptions[image.id] ?? ""}
-                                    onChange={(event) =>
-                                      handleGalleryCaptionChange(
-                                        image.id,
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="Bildbeschreibung"
-                                  />
-                                  <div className={styles.formActions}>
-                                    <button
-                                      type="button"
-                                      className="adminButton"
-                                      onClick={() => handleGalleryCaptionSave(image)}
-                                      disabled={savingCaptionId === image.id}
-                                    >
-                                      {savingCaptionId === image.id
-                                        ? "Speichere..."
-                                        : "Beschreibung speichern"}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="adminButton"
-                                      onClick={() => handleGalleryImageDelete(image)}
-                                      disabled={deletingImageId === image.id}
-                                    >
-                                      {deletingImageId === image.id
-                                        ? "Lösche..."
-                                        : "Bild löschen"}
-                                    </button>
+                              {projectGallery.map((image) => {
+                                const isCover =
+                                  project.cover_file_path === image.file_path;
+
+                                return (
+                                  <div
+                                    key={image.id}
+                                    className={`${styles.galleryItem} ${
+                                      isCover ? styles.galleryItemCover : ""
+                                    }`}
+                                  >
+                                    <div className={styles.galleryImageWrapper}>
+                                      <Image
+                                        src={image.public_url}
+                                        alt={image.caption || project.title}
+                                        width={200}
+                                        height={140}
+                                        className={styles.galleryImage}
+                                      />
+                                      {isCover ? (
+                                        <span className={styles.coverBadge}>
+                                          Aktuelles Cover
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                    <input
+                                      type="text"
+                                      value={imageCaptions[image.id] ?? ""}
+                                      onChange={(event) =>
+                                        handleGalleryCaptionChange(
+                                          image.id,
+                                          event.target.value,
+                                        )
+                                      }
+                                      placeholder="Bildbeschreibung"
+                                    />
+                                    <div className={styles.galleryActions}>
+                                      <button
+                                        type="button"
+                                        className="adminButton"
+                                        onClick={() =>
+                                          handleSelectCoverFromGallery(project, image)
+                                        }
+                                        disabled={savingCoverProjectId === project.id}
+                                      >
+                                        {savingCoverProjectId === project.id
+                                          ? "Speichere..."
+                                          : isCover
+                                          ? "Als Cover gesetzt"
+                                          : "Als Cover wählen"}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="adminButton"
+                                        onClick={() => handleGalleryCaptionSave(image)}
+                                        disabled={savingCaptionId === image.id}
+                                      >
+                                        {savingCaptionId === image.id
+                                          ? "Speichere..."
+                                          : "Beschreibung speichern"}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="adminButton"
+                                        onClick={() => handleGalleryImageDelete(image)}
+                                        disabled={deletingImageId === image.id}
+                                      >
+                                        {deletingImageId === image.id
+                                          ? "Lösche..."
+                                          : "Bild löschen"}
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           )}
 
@@ -1630,12 +1753,14 @@ export default function AdminPortfolioPage() {
                               <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(event) =>
+                                multiple
+                                onChange={(event) => {
                                   handleGallerySelection(
                                     project.id,
-                                    event.target.files?.[0] ?? null,
-                                  )
-                                }
+                                    event.target.files,
+                                  );
+                                  event.target.value = "";
+                                }}
                               />
                             </label>
                             <button

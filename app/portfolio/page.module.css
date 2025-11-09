@@ -199,6 +199,13 @@
   text-transform: uppercase;
 }
 
+.projectSubtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .projectExcerpt {
   font-size: 0.95rem;
   line-height: 1.55;
