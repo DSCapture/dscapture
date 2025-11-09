@@ -91,6 +91,11 @@
     width: 100%;
 }
 
+.mobileLogoutBox {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
 @media (max-width: 900px) {
     .adminSidebar {
         width: min(20rem, 85vw);
@@ -122,6 +127,10 @@
 
     .logoutBox {
         margin-top: 2rem;
+    }
+
+    .mobileLogoutBox {
+        margin-top: 1.75rem;
     }
 }
 
