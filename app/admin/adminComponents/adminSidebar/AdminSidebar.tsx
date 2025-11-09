@@ -92,10 +92,74 @@ const AdminSidebar = () => {
     }, [isMobileMenuOpen]);
 
     const pathname = usePathname();
+    const navigationItems = useMemo(
+        () => [
+            {
+                href: "/admin",
+                icon: "bi-speedometer2",
+                label: "Admin Dashboard",
+                matchPath: (currentPath: string) => currentPath === "/admin",
+            },
+            {
+                href: "/admin/homepage",
+                icon: "bi-house",
+                label: "Homepage",
+            },
+            {
+                href: "/admin/portfolio",
+                icon: "bi-columns-gap",
+                label: "Portfolio Manager",
+            },
+            {
+                href: "/admin/blog",
+                icon: "bi-card-text",
+                label: "Blog Manager",
+                matchPath: (currentPath: string) => currentPath.startsWith("/admin/blog"),
+            },
+            {
+                href: "/admin/metadata",
+                icon: "bi-tags",
+                label: "Metadaten",
+            },
+            {
+                href: "/admin/logs",
+                icon: "bi-clipboard-data",
+                label: "Aktivitätslogs",
+            },
+        ],
+        [],
+    );
+
     const shouldShowPendingBadge = useMemo(() => {
-        const isContactPage = pathname === "/admin/contact";
+        const isContactPage = pathname.startsWith("/admin/contact");
         return !isContactPage && typeof pendingContacts === "number" && pendingContacts > 0;
     }, [pathname, pendingContacts]);
+
+    const isItemActive = useCallback(
+        (href: string, matchPath?: (currentPath: string) => boolean) => {
+            if (typeof matchPath === "function") {
+                return matchPath(pathname);
+            }
+
+            return pathname === href;
+        },
+        [pathname],
+    );
+
+    const isContactActive = isItemActive(
+        "/admin/contact",
+        (currentPath) => currentPath.startsWith("/admin/contact"),
+    );
+
+    const contactClassNames = useMemo(() => {
+        const classNames = [styles.adminNavLink];
+
+        if (isContactActive) {
+            classNames.push(styles.adminNavLinkActive);
+        }
+
+        return classNames;
+    }, [isContactActive]);
 
     const handleNavigation = useCallback(() => {
         if (isMobileViewport) {
@@ -147,36 +211,41 @@ const AdminSidebar = () => {
                     <h1 className={styles.sidebarHeadline}>Admin Panel</h1>
                 </div>
                 <nav className={styles.adminSidebarNavigation} id="admin-navigation">
-                    <Link className={styles.adminNavLink} href="/admin" onClick={handleNavigation}>
-                        <i className="bi bi-speedometer2"></i>
-                        Admin Dashboard
-                    </Link>
-                    <Link className={styles.adminNavLink} href="/admin/homepage" onClick={handleNavigation}>
-                        <i className="bi bi-house"></i>
-                        Homepage
-                    </Link>
-                    <Link className={styles.adminNavLink} href="/admin/portfolio" onClick={handleNavigation}>
-                        <i className="bi bi-columns-gap"></i>
-                        Portfolio Manager
-                    </Link>
-                    <Link className={styles.adminNavLink} href="/admin/blog" onClick={handleNavigation}>
-                        <i className="bi bi-card-text"></i>
-                        Blog Manager
-                    </Link>
-                    <Link className={styles.adminNavLink} href="/admin/metadata" onClick={handleNavigation}>
-                        <i className="bi bi-tags"></i>
-                        Metadaten
-                    </Link>
-                    <Link className={styles.adminNavLink} href="/admin/logs" onClick={handleNavigation}>
-                        <i className="bi bi-clipboard-data"></i>
-                        Aktivitätslogs
-                    </Link>
-                    <Link className={styles.adminNavLink} href="/admin/contact" onClick={handleNavigation}>
-                        <i className="bi bi-envelope"></i>
+                    {navigationItems.map(({ href, icon, label, matchPath }) => {
+                        const isActive = isItemActive(href, matchPath);
+                        const linkClassNames = [styles.adminNavLink];
+
+                        if (isActive) {
+                            linkClassNames.push(styles.adminNavLinkActive);
+                        }
+
+                        return (
+                            <Link
+                                key={href}
+                                className={linkClassNames.join(" ")}
+                                href={href}
+                                onClick={handleNavigation}
+                                aria-current={isActive ? "page" : undefined}
+                            >
+                                <i className={`bi ${icon}`} aria-hidden="true"></i>
+                                {label}
+                            </Link>
+                        );
+                    })}
+                    <Link
+                        className={contactClassNames.join(" ")}
+                        href="/admin/contact"
+                        onClick={handleNavigation}
+                        aria-current={isContactActive ? "page" : undefined}
+                    >
+                        <i className="bi bi-envelope" aria-hidden="true"></i>
                         <span className={styles.linkLabel}>
                             Kontaktanfragen
                             {shouldShowPendingBadge ? (
-                                <span className={styles.pendingBadge} aria-label={`${pendingContacts} Kontaktanfragen zu bearbeiten`}>
+                                <span
+                                    className={styles.pendingBadge}
+                                    aria-label={`${pendingContacts} Kontaktanfragen zu bearbeiten`}
+                                >
                                     {pendingContacts}
                                 </span>
                             ) : null}
