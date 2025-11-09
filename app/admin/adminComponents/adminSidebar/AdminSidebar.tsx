@@ -182,10 +182,17 @@ const AdminSidebar = () => {
                             ) : null}
                         </span>
                     </Link>
+                    {isMobileViewport ? (
+                        <div className={styles.mobileLogoutBox} onClick={handleNavigation}>
+                            <LogoutButton />
+                        </div>
+                    ) : null}
                 </nav>
-                <div className={styles.logoutBox} onClick={handleNavigation}>
-                    <LogoutButton />
-                </div>
+                {!isMobileViewport ? (
+                    <div className={styles.logoutBox} onClick={handleNavigation}>
+                        <LogoutButton />
+                    </div>
+                ) : null}
             </div>
         </>
     );
