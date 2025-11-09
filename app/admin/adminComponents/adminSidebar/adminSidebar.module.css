@@ -53,16 +53,44 @@
     align-items: center;
     gap: 1rem;
     font-size: 1.1rem;
-    color: var(--text-contrast);
+    color: rgba(255, 255, 255, 0.78);
     text-decoration: none;
     padding: .85rem 1rem;
     border-radius: 14px;
-    transition: background-color .2s ease, transform .2s ease;
+    font-weight: 500;
+    transition: background-color .2s ease, transform .2s ease, color .2s ease, box-shadow .2s ease;
 }
 
 .adminNavLink:hover {
     background-color: rgba(255, 255, 255, 0.08);
     transform: translateX(6px);
+}
+
+.adminNavLink:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.35);
+    outline-offset: 3px;
+}
+
+.adminNavLink i {
+    font-size: 1.25rem;
+    opacity: 0.8;
+    transition: color .2s ease, opacity .2s ease;
+}
+
+.adminNavLinkActive {
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--text-contrast);
+    box-shadow: 0 18px 40px rgba(9, 14, 32, 0.28);
+    transform: translateX(6px);
+}
+
+.adminNavLinkActive:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.adminNavLinkActive i {
+    opacity: 1;
+    color: inherit;
 }
 
 .linkLabel {
@@ -117,6 +145,14 @@
         width: 100%;
         gap: 0.75rem;
         font-size: 1rem;
+    }
+
+    .adminNavLink i {
+        font-size: 1.15rem;
+    }
+
+    .adminNavLinkActive {
+        box-shadow: 0 16px 36px rgba(9, 14, 32, 0.24);
     }
 
     .pendingBadge {
