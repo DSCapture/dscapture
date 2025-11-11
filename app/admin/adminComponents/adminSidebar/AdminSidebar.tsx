@@ -106,6 +106,11 @@ const AdminSidebar = () => {
                 label: "Homepage",
             },
             {
+                href: "/admin/reviews",
+                icon: "bi-chat-quote",
+                label: "Rezensionen",
+            },
+            {
                 href: "/admin/portfolio",
                 icon: "bi-columns-gap",
                 label: "Portfolio Manager",

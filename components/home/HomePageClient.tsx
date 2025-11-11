@@ -15,6 +15,14 @@ type UspItem = {
   description: string;
 };
 
+type Review = {
+  id: string;
+  author: string;
+  role: string;
+  quote: string;
+  rating: number;
+};
+
 const FALLBACK_USP_ITEMS: UspItem[] = [
   {
     title: "Ganzheitliche Markenstrategie",
@@ -33,30 +41,38 @@ const FALLBACK_USP_ITEMS: UspItem[] = [
   },
 ];
 
-const REVIEWS = [
+const FALLBACK_REVIEWS: Review[] = [
   {
+    id: "fallback-1",
     author: "Studio Blend",
     role: "Creative Director",
     quote:
       "DS_Capture hat unsere Marke mit einem konsistenten visuellen Leitbild gestärkt. Der Prozess war fokussiert und hocheffizient.",
+    rating: 5,
   },
   {
+    id: "fallback-2",
     author: "NXT Ventures",
     role: "Head of Marketing",
     quote:
       "Von der Strategie bis zur Umsetzung: Das Team hat komplexe Inhalte in klare, inspirierende Kampagnen übersetzt.",
+    rating: 5,
   },
   {
+    id: "fallback-3",
     author: "Urban Pulse",
     role: "CEO",
     quote:
       "Die Zusammenarbeit war partnerschaftlich und transparent. Unsere digitale Präsenz performt messbar besser.",
+    rating: 5,
   },
   {
+    id: "fallback-4",
     author: "Lumen Architects",
     role: "Managing Partner",
     quote:
       "Dank DS_Capture sprechen wir unsere Zielgruppe jetzt präzise an – visuell stark und inhaltlich auf den Punkt.",
+    rating: 5,
   },
 ];
 
@@ -88,6 +104,7 @@ const HomePageClient = () => {
   const [backgroundImageUrl, setBackgroundImageUrl] = useState<string | null>(null);
   const [overlayImageUrl, setOverlayImageUrl] = useState<string | null>(null);
   const [uspItems, setUspItems] = useState<UspItem[]>(FALLBACK_USP_ITEMS);
+  const [reviews, setReviews] = useState<Review[]>(FALLBACK_REVIEWS);
 
   const bgY = useTransform(scrollY, [0, 600], [0, 200]);
 
@@ -103,7 +120,16 @@ const HomePageClient = () => {
         .select("title, description, display_order")
         .order("display_order", { ascending: true });
 
-      const [imageResult, uspResult] = await Promise.all([imagePromise, uspPromise]);
+      const reviewsPromise = supabase
+        .from("homepage_reviews")
+        .select("id, author, role, quote, rating, display_order")
+        .order("display_order", { ascending: true });
+
+      const [imageResult, uspResult, reviewResult] = await Promise.all([
+        imagePromise,
+        uspPromise,
+        reviewsPromise,
+      ]);
 
       if (!isMounted) {
         return;
@@ -148,6 +174,30 @@ const HomePageClient = () => {
         });
 
         setUspItems(normalizedItems);
+      }
+      const { data: reviewData, error: reviewError } = reviewResult;
+
+      if (reviewError) {
+        console.error("Fehler beim Laden der Rezensionen:", reviewError.message);
+      } else if (reviewData && reviewData.length > 0) {
+        const normalizedReviews = reviewData
+          .map((record, index) => {
+            const ratingValue = typeof record.rating === "number" ? record.rating : 5;
+            const clampedRating = Math.min(5, Math.max(1, ratingValue));
+
+            return {
+              id: String(record.id ?? `review-${index}`),
+              author: record.author?.trim() ?? "",
+              role: record.role?.trim() ?? "",
+              quote: record.quote?.trim() ?? "",
+              rating: clampedRating,
+            } satisfies Review;
+          })
+          .filter((review) => review.author && review.quote);
+
+        if (normalizedReviews.length > 0) {
+          setReviews(normalizedReviews);
+        }
       }
     };
 
@@ -372,12 +422,34 @@ const HomePageClient = () => {
         <div className={styles.reviewsWrapper}>
           <h2 className={styles.reviewsHeading}>Kundenrezensionen</h2>
           <div className={styles.reviewsScroller} role="list">
-            {REVIEWS.map((review) => (
-              <article key={review.author} className={styles.reviewCard} role="listitem">
+            {reviews.map((review) => (
+              <article key={review.id} className={styles.reviewCard} role="listitem">
+                <div
+                  className={styles.reviewRating}
+                  aria-label={`${review.rating} von 5 Sternen`}
+                >
+                  <div className={styles.reviewStars} aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <span
+                        key={index}
+                        className={
+                          index < review.rating
+                            ? styles.reviewStarFilled
+                            : styles.reviewStarEmpty
+                        }
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <span className={styles.reviewRatingText}>{review.rating} / 5</span>
+                </div>
                 <p className={styles.reviewQuote}>“{review.quote}”</p>
                 <p className={styles.reviewAuthor}>
                   {review.author}
-                  <span className={styles.reviewRole}> · {review.role}</span>
+                  {review.role ? (
+                    <span className={styles.reviewRole}> · {review.role}</span>
+                  ) : null}
                 </p>
               </article>
             ))}
