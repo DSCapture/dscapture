@@ -201,6 +201,36 @@
   scroll-snap-align: start;
 }
 
+.reviewRating {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.reviewStars {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.reviewStarFilled,
+.reviewStarEmpty {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.reviewStarFilled {
+  color: #ffd66b;
+}
+
+.reviewStarEmpty {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.reviewRatingText {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .reviewQuote {
   margin: 0;
   font-size: 1rem;
