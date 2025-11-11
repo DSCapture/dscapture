@@ -10,7 +10,12 @@ import { supabase } from "@/lib/supabaseClient";
 const FALLBACK_BACKGROUND = "/DJI_0727.jpg";
 const FALLBACK_OVERLAY = "/dawid3Mask.png";
 
-const USP_ITEMS = [
+type UspItem = {
+  title: string;
+  description: string;
+};
+
+const FALLBACK_USP_ITEMS: UspItem[] = [
   {
     title: "Ganzheitliche Markenstrategie",
     description:
@@ -55,31 +60,75 @@ const HomePageClient = () => {
   const { scrollY } = useScroll();
   const [backgroundImageUrl, setBackgroundImageUrl] = useState<string | null>(null);
   const [overlayImageUrl, setOverlayImageUrl] = useState<string | null>(null);
+  const [uspItems, setUspItems] = useState<UspItem[]>(FALLBACK_USP_ITEMS);
 
   const bgY = useTransform(scrollY, [0, 600], [0, 200]);
 
   useEffect(() => {
-    const fetchHomepageImages = async () => {
-      const { data, error } = await supabase
+    let isMounted = true;
+
+    const fetchHomepageContent = async () => {
+      const imagePromise = supabase
         .from("homepage_images")
         .select("image_type, public_url");
+      const uspPromise = supabase
+        .from("homepage_usps")
+        .select("title, description, display_order")
+        .order("display_order", { ascending: true });
 
-      if (error) {
-        console.error("Fehler beim Laden der Homepage-Bilder:", error.message);
+      const [imageResult, uspResult] = await Promise.all([imagePromise, uspPromise]);
+
+      if (!isMounted) {
         return;
       }
 
-      data?.forEach((item) => {
-        if (item.image_type === "background") {
-          setBackgroundImageUrl(item.public_url);
-        }
-        if (item.image_type === "overlay") {
-          setOverlayImageUrl(item.public_url);
-        }
-      });
+      const { data: imageData, error: imageError } = imageResult;
+
+      if (imageError) {
+        console.error("Fehler beim Laden der Homepage-Bilder:", imageError.message);
+      } else {
+        imageData?.forEach((item) => {
+          if (item.image_type === "background") {
+            setBackgroundImageUrl(item.public_url);
+          }
+          if (item.image_type === "overlay") {
+            setOverlayImageUrl(item.public_url);
+          }
+        });
+      }
+
+      const { data: uspData, error: uspError } = uspResult;
+
+      if (uspError) {
+        console.error("Fehler beim Laden der USP-Punkte:", uspError.message);
+      } else if (uspData && uspData.length > 0) {
+        const itemsByOrder = new Map(
+          uspData.map((record) => [record.display_order, record]),
+        );
+
+        const normalizedItems = [1, 2, 3].map((order, index) => {
+          const record = itemsByOrder.get(order);
+          const fallback = FALLBACK_USP_ITEMS[index];
+
+          if (!record) {
+            return fallback;
+          }
+
+          return {
+            title: record.title ?? fallback.title,
+            description: record.description ?? fallback.description,
+          };
+        });
+
+        setUspItems(normalizedItems);
+      }
     };
 
-    void fetchHomepageImages();
+    void fetchHomepageContent();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const backgroundSrc = backgroundImageUrl ?? FALLBACK_BACKGROUND;
@@ -280,7 +329,7 @@ const HomePageClient = () => {
 
       <section className={styles.uspSection} aria-label="Unsere Alleinstellungsmerkmale">
         <div className={styles.uspContent}>
-          {USP_ITEMS.map((usp) => (
+          {uspItems.map((usp) => (
             <article key={usp.title} className={styles.uspItem}>
               <h3>{usp.title}</h3>
               <p>{usp.description}</p>

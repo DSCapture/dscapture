@@ -203,6 +203,40 @@ body {
   gap: 1rem;
 }
 
+.admin-usp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1 1 280px;
+}
+
+.admin-form-field label {
+  font-weight: 600;
+}
+
+.admin-form-field input,
+.admin-form-field textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(32, 43, 72, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.admin-form-field textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
 .admin-file-input {
   position: relative;
   display: inline-flex;
