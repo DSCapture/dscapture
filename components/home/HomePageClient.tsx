@@ -328,13 +328,16 @@ const HomePageClient = () => {
       </section>
 
       <section className={styles.uspSection} aria-label="Unsere Alleinstellungsmerkmale">
-        <div className={styles.uspContent}>
-          {uspItems.map((usp) => (
-            <article key={usp.title} className={styles.uspItem}>
-              <h3>{usp.title}</h3>
-              <p>{usp.description}</p>
-            </article>
-          ))}
+        <div className={styles.uspWrapper}>
+          <h2 className={styles.uspHeading}>Was uns auszeichnet</h2>
+          <div className={styles.uspContent}>
+            {uspItems.map((usp) => (
+              <article key={usp.title} className={styles.uspItem}>
+                <h3>{usp.title}</h3>
+                <p>{usp.description}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
