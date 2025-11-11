@@ -33,6 +33,33 @@ const FALLBACK_USP_ITEMS: UspItem[] = [
   },
 ];
 
+const REVIEWS = [
+  {
+    author: "Studio Blend",
+    role: "Creative Director",
+    quote:
+      "DS_Capture hat unsere Marke mit einem konsistenten visuellen Leitbild gestärkt. Der Prozess war fokussiert und hocheffizient.",
+  },
+  {
+    author: "NXT Ventures",
+    role: "Head of Marketing",
+    quote:
+      "Von der Strategie bis zur Umsetzung: Das Team hat komplexe Inhalte in klare, inspirierende Kampagnen übersetzt.",
+  },
+  {
+    author: "Urban Pulse",
+    role: "CEO",
+    quote:
+      "Die Zusammenarbeit war partnerschaftlich und transparent. Unsere digitale Präsenz performt messbar besser.",
+  },
+  {
+    author: "Lumen Architects",
+    role: "Managing Partner",
+    quote:
+      "Dank DS_Capture sprechen wir unsere Zielgruppe jetzt präzise an – visuell stark und inhaltlich auf den Punkt.",
+  },
+];
+
 const SERVICES = [
   {
     title: "Strategische Markenführung",
@@ -335,6 +362,23 @@ const HomePageClient = () => {
               <article key={usp.title} className={styles.uspItem}>
                 <h3>{usp.title}</h3>
                 <p>{usp.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.reviewsSection} aria-label="Kundenrezensionen">
+        <div className={styles.reviewsWrapper}>
+          <h2 className={styles.reviewsHeading}>Kundenrezensionen</h2>
+          <div className={styles.reviewsScroller} role="list">
+            {REVIEWS.map((review) => (
+              <article key={review.author} className={styles.reviewCard} role="listitem">
+                <p className={styles.reviewQuote}>“{review.quote}”</p>
+                <p className={styles.reviewAuthor}>
+                  {review.author}
+                  <span className={styles.reviewRole}> · {review.role}</span>
+                </p>
               </article>
             ))}
           </div>

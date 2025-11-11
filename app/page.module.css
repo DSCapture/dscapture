@@ -144,6 +144,82 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
+.reviewsSection {
+  background: linear-gradient(180deg, rgba(9, 14, 28, 0.92), rgba(9, 14, 28, 0.86));
+  color: white;
+  padding: 4rem 1.5rem;
+}
+
+.reviewsWrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.reviewsHeading {
+  margin: 0;
+  font-size: clamp(2rem, 2.4vw + 1rem, 2.5rem);
+  font-weight: 600;
+  text-align: center;
+}
+
+.reviewsScroller {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+}
+
+.reviewsScroller::-webkit-scrollbar {
+  height: 6px;
+}
+
+.reviewsScroller::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+
+.reviewsScroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reviewCard {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.75rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  scroll-snap-align: start;
+}
+
+.reviewQuote {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.reviewAuthor {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.reviewRole {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+}
+
 .servicesSection {
   background: radial-gradient(circle at top left, rgba(188, 227, 250, 0.35), transparent 60%),
     radial-gradient(circle at bottom right, rgba(32, 43, 72, 0.18), transparent 55%),
@@ -318,6 +394,18 @@
     gap: 1.5rem;
   }
 
+  .reviewsWrapper {
+    gap: 1.75rem;
+  }
+
+  .reviewsScroller {
+    gap: 1.25rem;
+  }
+
+  .reviewCard {
+    flex-basis: 280px;
+  }
+
   .ctaButton {
     width: 100%;
     max-width: 320px;
@@ -344,6 +432,14 @@
 
   .uspContent {
     grid-template-columns: 1fr;
+  }
+
+  .reviewsSection {
+    padding: 3rem 1rem;
+  }
+
+  .reviewsScroller {
+    scroll-snap-type: x mandatory;
   }
 
   .servicesSection {
@@ -386,6 +482,11 @@
   }
 
   .serviceCard {
+    padding: 1.5rem;
+  }
+
+  .reviewCard {
+    flex-basis: 240px;
     padding: 1.5rem;
   }
 
