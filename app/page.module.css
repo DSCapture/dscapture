@@ -89,6 +89,45 @@
   transform: translateY(-2px);
 }
 
+.uspSection {
+  background: rgba(8, 12, 24, 0.95);
+  color: white;
+  padding: 2.5rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.uspContent {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.uspItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+.uspItem h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.uspItem p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
 .servicesSection {
   background: radial-gradient(circle at top left, rgba(188, 227, 250, 0.35), transparent 60%),
     radial-gradient(circle at bottom right, rgba(32, 43, 72, 0.18), transparent 55%),
@@ -254,6 +293,11 @@
     max-width: 640px;
   }
 
+  .uspContent {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
   .ctaButton {
     width: 100%;
     max-width: 320px;
@@ -268,6 +312,14 @@
   .heroContent {
     padding: 7rem 2rem 5rem;
     flex-direction: column-reverse;
+  }
+
+  .uspSection {
+    padding: 2rem 1rem;
+  }
+
+  .uspContent {
+    grid-template-columns: 1fr;
   }
 
   .servicesSection {

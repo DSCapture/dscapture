@@ -10,6 +10,24 @@ import { supabase } from "@/lib/supabaseClient";
 const FALLBACK_BACKGROUND = "/DJI_0727.jpg";
 const FALLBACK_OVERLAY = "/dawid3Mask.png";
 
+const USP_ITEMS = [
+  {
+    title: "Ganzheitliche Markenstrategie",
+    description:
+      "Wir verbinden Analyse, Beratung und Umsetzung zu einer klaren Roadmap für Ihre Markenentwicklung.",
+  },
+  {
+    title: "Premium Visual Storytelling",
+    description:
+      "Inszenierungen, die Emotionen wecken: Von Fotografie bis Film entsteht ein konsistentes Markenerlebnis.",
+  },
+  {
+    title: "Messbare digitale Ergebnisse",
+    description:
+      "Kreationen, die performen – wir gestalten digitale Experiences mit klaren KPIs und spürbarer Wirkung.",
+  },
+];
+
 const SERVICES = [
   {
     title: "Strategische Markenführung",
@@ -257,6 +275,17 @@ const HomePageClient = () => {
               <button className={styles.ctaButton}>Mehr erfahren</button>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className={styles.uspSection} aria-label="Unsere Alleinstellungsmerkmale">
+        <div className={styles.uspContent}>
+          {USP_ITEMS.map((usp) => (
+            <article key={usp.title} className={styles.uspItem}>
+              <h3>{usp.title}</h3>
+              <p>{usp.description}</p>
+            </article>
+          ))}
         </div>
       </section>
 
