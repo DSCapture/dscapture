@@ -140,9 +140,7 @@ export default async function PortfolioPage() {
             </p>
           ) : (
             <div className={styles.projectsGrid}>
-              {projects.map((project, index) => {
-                const orderNumber = (index + 1).toString().padStart(2, "0");
-
+              {projects.map((project) => {
                 return (
                   <article key={project.id} className={styles.projectCard}>
                     <div className={styles.projectCoverWrapper}>
@@ -159,30 +157,24 @@ export default async function PortfolioPage() {
                           <span>{project.title}</span>
                         </div>
                       )}
-                    </div>
 
-                    <div className={styles.projectBody}>
-                      <span className={styles.projectIndex}>{orderNumber}</span>
-                      <div className={styles.projectTexts}>
-                        <h3 className={styles.projectTitle}>{project.title}</h3>
-                        {project.subtitle && (
-                          <p className={styles.projectSubtitle}>{project.subtitle}</p>
-                        )}
-                        {project.excerpt && (
-                          <p className={styles.projectExcerpt}>{project.excerpt}</p>
-                        )}
-                      </div>
+                      <div className={styles.projectOverlay}>
+                        <div className={styles.projectTexts}>
+                          <h3 className={styles.projectTitle}>{project.title}</h3>
+                          {project.excerpt && (
+                            <p className={styles.projectExcerpt}>{project.excerpt}</p>
+                          )}
+                        </div>
 
-                      {project.slug ? (
-                        <div className={styles.projectActions}>
+                        {project.slug ? (
                           <a
                             href={`/portfolio/${project.slug}`}
                             className={styles.projectLink}
                           >
-                            Details ansehen
+                            Ansehen
                           </a>
-                        </div>
-                      ) : null}
+                        ) : null}
+                      </div>
                     </div>
 
                     {project.is_featured && (
