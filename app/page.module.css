@@ -250,143 +250,6 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
-.servicesSection {
-  background: radial-gradient(circle at top left, rgba(188, 227, 250, 0.35), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(32, 43, 72, 0.18), transparent 55%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(247, 247, 247, 0.9));
-  color: var(--primary);
-  padding: 6rem 1.5rem;
-}
-
-.servicesContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-}
-
-.servicesHeader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.servicesHeader h2 {
-  font-size: 2.5rem;
-  margin: 0;
-  text-align: center;
-  color: var(--primary);
-}
-
-.servicesNavigation {
-  display: flex;
-  gap: 1rem;
-}
-
-.navButton {
-  background: rgba(32, 43, 72, 0.08);
-  color: var(--primary);
-  border: 1px solid rgba(32, 43, 72, 0.15);
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.navButton:hover,
-.navButton:focus-visible {
-  background: var(--primary);
-  color: white;
-  border-color: transparent;
-  outline: none;
-}
-
-.servicesCarousel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.servicesViewport {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  gap: 1.5rem;
-  padding: 0 0.75rem;
-}
-
-.servicesViewport::-webkit-scrollbar {
-  display: none;
-}
-
-.serviceSlide {
-  flex: 0 0 100%;
-  scroll-snap-align: center;
-  box-sizing: border-box;
-}
-
-.servicesSwiper :global(.swiper-slide) {
-  width: 100%;
-}
-
-.serviceCard {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  padding: clamp(1.5rem, 2vw + 1rem, 2.5rem);
-  min-height: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  box-shadow: 0 25px 60px rgba(23, 30, 51, 0.18);
-  backdrop-filter: blur(12px);
-}
-
-.serviceCard h3 {
-  font-size: 1.5rem;
-  margin: 0;
-  color: var(--primary);
-}
-
-.serviceCard p {
-  font-size: 1rem;
-  line-height: 1.6;
-  margin: 0;
-  color: rgba(32, 43, 72, 0.75);
-}
-
-.servicesPagination {
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-}
-
-.paginationBullet {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(32, 43, 72, 0.25);
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.paginationBullet:hover,
-.paginationBullet:focus-visible {
-  background: rgba(32, 43, 72, 0.45);
-  outline: none;
-}
-
-.paginationBulletActive {
-  background: var(--primary);
-  transform: scale(1.1);
-}
 
 @media (max-width: 1200px) {
   .heroContent {
@@ -472,23 +335,6 @@
     scroll-snap-type: x mandatory;
   }
 
-  .servicesSection {
-    padding: 4.5rem 1.25rem;
-  }
-
-  .servicesNavigation {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .navButton {
-    flex: 1;
-  }
-
-  .serviceCard {
-    min-height: auto;
-    text-align: left;
-  }
 }
 
 @media (max-width: 600px) {
@@ -496,23 +342,6 @@
     padding: 6.5rem 1.5rem 4.5rem;
     flex-direction: column-reverse;
     gap: 5rem !important;
-  }
-
-  .servicesContent {
-    gap: 2rem;
-  }
-
-  .servicesHeader h2 {
-    font-size: 2.1rem;
-  }
-
-  .servicesViewport {
-    gap: 1rem;
-    padding: 0 0.25rem;
-  }
-
-  .serviceCard {
-    padding: 1.5rem;
   }
 
   .reviewCard {
@@ -523,12 +352,4 @@
   .ctaButton {
     max-width: none;
   }
-}
-
-.navButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: rgba(32, 43, 72, 0.05);
-  border-color: rgba(32, 43, 72, 0.08);
-  color: rgba(32, 43, 72, 0.45);
 }
