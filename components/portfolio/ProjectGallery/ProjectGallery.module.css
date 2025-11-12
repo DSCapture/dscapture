@@ -31,7 +31,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.06);
   box-shadow: 0 18px 35px rgba(5, 10, 22, 0.35);
@@ -169,10 +169,6 @@
 }
 
 @media (max-width: 600px) {
-  .thumbnailInner {
-    border-radius: 18px;
-  }
-
   .lightboxContent {
     padding: 1.5rem;
   }
