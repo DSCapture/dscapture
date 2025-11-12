@@ -162,8 +162,8 @@ export default async function PortfolioPage() {
                       <div className={styles.projectOverlay}>
                         <div className={styles.projectTexts}>
                           <h3 className={styles.projectTitle}>{project.title}</h3>
-                          {project.excerpt && (
-                            <p className={styles.projectExcerpt}>{project.excerpt}</p>
+                          {project.subtitle && (
+                            <p className={styles.projectExcerpt}>{project.subtitle}</p>
                           )}
                         </div>
 
