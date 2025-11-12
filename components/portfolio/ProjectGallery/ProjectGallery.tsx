@@ -18,6 +18,7 @@ type ProjectGalleryProps = {
 
 export default function ProjectGallery({ images, projectTitle }: ProjectGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [imageRatios, setImageRatios] = useState<Record<string, number>>({});
 
   const hasMultipleImages = images.length > 1;
 
@@ -94,13 +95,32 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
             onClick={() => openLightbox(index)}
             aria-label={`Bild ${index + 1} in Großansicht öffnen`}
           >
-            <span className={styles.thumbnailInner}>
+            <span
+              className={styles.thumbnailInner}
+              style={{
+                aspectRatio: imageRatios[image.id] ?? 4 / 3,
+              }}
+            >
               <Image
                 src={image.public_url}
                 alt={image.caption ?? projectTitle}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 320px"
                 className={styles.thumbnailImage}
+                onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+                  if (naturalWidth && naturalHeight) {
+                    setImageRatios((previous) => {
+                      if (previous[image.id]) {
+                        return previous;
+                      }
+
+                      return {
+                        ...previous,
+                        [image.id]: naturalWidth / naturalHeight,
+                      };
+                    });
+                  }
+                }}
               />
             </span>
             {image.caption ? <span className={styles.thumbnailCaption}>{image.caption}</span> : null}

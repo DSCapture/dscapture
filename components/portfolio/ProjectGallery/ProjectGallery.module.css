@@ -5,27 +5,30 @@
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: clamp(1rem, 3vw, 1.75rem);
+  column-width: 260px;
+  column-gap: clamp(1rem, 3vw, 1.75rem);
 }
 
 .thumbnailButton {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: block;
+  width: 100%;
   border: none;
   background: transparent;
   padding: 0;
   text-align: left;
   color: inherit;
   cursor: pointer;
+  break-inside: avoid;
+  margin: 0 0 clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.thumbnailButton > * + * {
+  margin-top: 0.75rem;
 }
 
 .thumbnailInner {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -49,6 +52,18 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    column-width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    column-width: 100%;
+  }
 }
 
 .lightbox {
