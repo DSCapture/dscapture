@@ -126,6 +126,9 @@ export default function AdminPortfolioPage() {
     Record<string, PortfolioProjectImage[]>
   >({});
   const [imageFiles, setImageFiles] = useState<Record<string, File[]>>({});
+  const [fileInputResetKeys, setFileInputResetKeys] = useState<
+    Record<string, number>
+  >({});
   const [imageCaptions, setImageCaptions] = useState<Record<string, string>>({});
   const [uploadingImageProjectId, setUploadingImageProjectId] = useState<
     string | null
@@ -816,10 +819,29 @@ export default function AdminPortfolioPage() {
   };
 
   const handleGallerySelection = (projectId: string, files: File[]) => {
-    setImageFiles((previous) => ({
-      ...previous,
-      [projectId]: files,
-    }));
+    setImageFiles((previous) => {
+      if (files.length === 0) {
+        if (!previous[projectId]) {
+          return previous;
+        }
+
+        const updated = { ...previous };
+        delete updated[projectId];
+        return updated;
+      }
+
+      return {
+        ...previous,
+        [projectId]: files,
+      };
+    });
+
+    if (files.length > 0) {
+      setFileInputResetKeys((previous) => ({
+        ...previous,
+        [projectId]: (previous[projectId] ?? 0) + 1,
+      }));
+    }
   };
 
   const handleGalleryUpload = async (
@@ -828,7 +850,17 @@ export default function AdminPortfolioPage() {
   ) => {
     event.preventDefault();
 
-    const selectedFiles = imageFiles[project.id] ?? [];
+    let selectedFiles = imageFiles[project.id] ?? [];
+
+    if (selectedFiles.length === 0) {
+      const fileInput = event.currentTarget.querySelector<HTMLInputElement>(
+        "input[type='file']",
+      );
+
+      if (fileInput?.files?.length) {
+        selectedFiles = Array.from(fileInput.files);
+      }
+    }
 
     if (selectedFiles.length === 0) {
       alert("Bitte wähle zuerst mindestens ein Projektfoto aus.");
@@ -912,7 +944,15 @@ export default function AdminPortfolioPage() {
         ...previous,
         [project.id]: [...(previous[project.id] ?? []), ...newImages],
       }));
-      setImageFiles((previous) => ({ ...previous, [project.id]: [] }));
+      setImageFiles((previous) => {
+        if (!previous[project.id]) {
+          return previous;
+        }
+
+        const updated = { ...previous };
+        delete updated[project.id];
+        return updated;
+      });
       setImageCaptions((previous) => ({ ...previous, ...newCaptions }));
 
       alert(
@@ -1647,6 +1687,7 @@ export default function AdminPortfolioPage() {
                             <label className="admin-file-input">
                               <span>Datei wählen</span>
                               <input
+                                key={fileInputResetKeys[project.id] ?? 0}
                                 type="file"
                                 accept="image/*"
                                 multiple
@@ -1655,7 +1696,6 @@ export default function AdminPortfolioPage() {
                                     ? Array.from(event.target.files)
                                     : [];
                                   handleGallerySelection(project.id, files);
-                                  event.target.value = "";
                                 }}
                               />
                             </label>
