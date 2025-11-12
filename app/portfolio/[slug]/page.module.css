@@ -1,0 +1,111 @@
+.projectPage {
+  min-height: 100vh;
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 7vw, 6rem) clamp(5rem, 10vw, 7rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 7vw, 5rem);
+  background: radial-gradient(circle at top right, rgba(24, 45, 83, 0.28), rgba(7, 14, 32, 0.92) 60%),
+    #050b17;
+  color: #ffffff;
+  font-family: var(--font-sans, "Inter", system-ui, -apple-system);
+}
+
+.heroSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(2rem, 6vw, 4rem);
+  align-items: center;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 640px;
+}
+
+.backLink {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.backLink:hover {
+  color: #ffffff;
+  transform: translateX(-4px);
+}
+
+.projectTitle {
+  margin: 0;
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.projectSubtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.projectExcerpt {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.heroImageWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 3 / 4;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 28px 55px rgba(6, 14, 32, 0.55);
+}
+
+.heroImage {
+  object-fit: cover;
+}
+
+.gallerySection {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.galleryHeading {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.emptyState {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 768px) {
+  .projectPage {
+    padding-top: clamp(2.5rem, 10vw, 3.5rem);
+  }
+
+  .projectTitle {
+    letter-spacing: 0.08em;
+  }
+
+  .projectSubtitle {
+    letter-spacing: 0.25em;
+  }
+}
