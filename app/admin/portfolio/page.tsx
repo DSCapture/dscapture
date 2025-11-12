@@ -815,13 +815,10 @@ export default function AdminPortfolioPage() {
     }
   };
 
-  const handleGallerySelection = (
-    projectId: string,
-    files: FileList | null,
-  ) => {
+  const handleGallerySelection = (projectId: string, files: File[]) => {
     setImageFiles((previous) => ({
       ...previous,
-      [projectId]: files ? Array.from(files) : [],
+      [projectId]: files,
     }));
   };
 
@@ -1654,10 +1651,10 @@ export default function AdminPortfolioPage() {
                                 accept="image/*"
                                 multiple
                                 onChange={(event) => {
-                                  handleGallerySelection(
-                                    project.id,
-                                    event.target.files,
-                                  );
+                                  const files = event.target.files
+                                    ? Array.from(event.target.files)
+                                    : [];
+                                  handleGallerySelection(project.id, files);
                                   event.target.value = "";
                                 }}
                               />
