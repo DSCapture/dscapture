@@ -667,6 +667,43 @@ export default function AdminPortfolioPage() {
     try {
       const currentUser = await fetchCurrentUser();
 
+      const { data: existingImages, error: fetchImagesError } = await supabase
+        .from("portfolio_project_images")
+        .select("id, file_path")
+        .eq("project_id", project.id);
+
+      if (fetchImagesError) {
+        throw fetchImagesError;
+      }
+
+      const filePaths = (existingImages ?? [])
+        .map((image) => image.file_path)
+        .filter((filePath): filePath is string => Boolean(filePath));
+
+      if (filePaths.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from(galleryBucket)
+          .remove(filePaths);
+
+        if (
+          storageError &&
+          !storageError.message?.toLowerCase().includes("not found")
+        ) {
+          throw storageError;
+        }
+      }
+
+      if ((existingImages?.length ?? 0) > 0) {
+        const { error: deleteImagesError } = await supabase
+          .from("portfolio_project_images")
+          .delete()
+          .eq("project_id", project.id);
+
+        if (deleteImagesError) {
+          throw deleteImagesError;
+        }
+      }
+
       const { error } = await supabase
         .from("portfolio_projects")
         .delete()
@@ -686,6 +723,16 @@ export default function AdminPortfolioPage() {
         return updated;
       });
 
+      if (existingImages?.length) {
+        setImageCaptions((previous) => {
+          const updated = { ...previous };
+          for (const image of existingImages) {
+            delete updated[image.id];
+          }
+          return updated;
+        });
+      }
+
       await logUserAction({
         action: "portfolio_project_deleted",
         context: "admin",
@@ -695,6 +742,7 @@ export default function AdminPortfolioPage() {
         entityId: project.id,
         metadata: {
           title: project.title,
+          deletedImages: existingImages?.length ?? 0,
         },
       });
 

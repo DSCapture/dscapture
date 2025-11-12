@@ -17,6 +17,35 @@ import "../../adminComponents/adminPageHader.css";
 
 type PostStatus = "draft" | "published" | "archived";
 
+const blogCoverBucket = "blog-cover-images";
+
+function getBlogCoverFilePath(publicUrl: string): string | null {
+  if (!publicUrl) {
+    return null;
+  }
+
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return null;
+    }
+
+    const parsedUrl = new URL(publicUrl);
+    const marker = `/storage/v1/object/public/${blogCoverBucket}/`;
+    const pathname = decodeURIComponent(parsedUrl.pathname);
+    const markerIndex = pathname.indexOf(marker);
+
+    if (markerIndex === -1) {
+      return null;
+    }
+
+    const filePath = pathname.slice(markerIndex + marker.length);
+    return filePath || null;
+  } catch (error) {
+    console.warn("Konnte den Dateipfad für das Blog-Cover nicht bestimmen:", error);
+    return null;
+  }
+}
+
 export default function BlogEditPage() {
   const { loading: verifying } = useVerifyAdminAccess();
   const router = useRouter();
@@ -193,8 +222,6 @@ export default function BlogEditPage() {
       return;
     }
 
-    const bucketName = "blog-cover-images";
-
     let coverImageUrl = coverImage.trim() ? coverImage.trim() : null;
 
     if (coverImageFile) {
@@ -212,7 +239,7 @@ export default function BlogEditPage() {
       const filePath = `${userId}/${fileName}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(bucketName)
+        .from(blogCoverBucket)
         .upload(filePath, coverImageFile, {
           cacheControl: "3600",
           upsert: false,
@@ -234,7 +261,7 @@ export default function BlogEditPage() {
       }
 
       const { data: publicUrlData } = supabase.storage
-        .from(bucketName)
+        .from(blogCoverBucket)
         .getPublicUrl(uploadData?.path ?? filePath);
 
       coverImageUrl = publicUrlData?.publicUrl ?? null;
@@ -338,6 +365,32 @@ export default function BlogEditPage() {
 
     const { data: authData } = await supabase.auth.getUser();
     const activeUser = authData?.user ?? null;
+
+    const coverFilePath = coverImage ? getBlogCoverFilePath(coverImage) : null;
+
+    if (coverFilePath) {
+      const { error: coverDeleteError } = await supabase.storage
+        .from(blogCoverBucket)
+        .remove([coverFilePath]);
+
+      if (
+        coverDeleteError &&
+        !coverDeleteError.message?.toLowerCase().includes("not found")
+      ) {
+        alert("Fehler beim Entfernen des Cover-Bildes: " + coverDeleteError.message);
+        await logUserAction({
+          action: "blog_post_cover_delete_failed",
+          context: "admin",
+          userId: activeUser?.id ?? userId,
+          userEmail: activeUser?.email ?? null,
+          entityType: "blog_post",
+          entityId: postId,
+          metadata: { slug, error: coverDeleteError.message },
+        });
+        setDeleting(false);
+        return;
+      }
+    }
 
     const { error } = await supabase.from("posts").delete().eq("id", postId);
 
