@@ -123,7 +123,7 @@
 
 .projectsGrid {
   display: grid;
-  --project-card-min-width: clamp(220px, 28vw, 320px);
+  --project-card-min-width: clamp(200px, 24vw, 280px);
   grid-template-columns: repeat(auto-fit, minmax(var(--project-card-min-width), 1fr));
   gap: clamp(1rem, 2.5vw, 1.75rem);
 }
@@ -140,7 +140,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: var(--project-card-aspect-ratio);
-  min-height: clamp(260px, 45vw, 420px);
+  min-height: clamp(240px, 40vw, 360px);
   overflow: hidden;
 }
 

@@ -149,7 +149,7 @@ export default async function PortfolioPage() {
                           src={project.cover_public_url}
                           alt={project.title}
                           fill
-                          sizes="(max-width: 768px) 50vw, 320px"
+                          sizes="(max-width: 768px) 50vw, 280px"
                           className={styles.projectCover}
                         />
                       ) : (
