@@ -129,14 +129,9 @@
 
 .projectCard {
   position: relative;
-  display: flex;
-  flex-direction: column;
   border-radius: 28px;
   overflow: hidden;
-  background: rgba(9, 16, 33, 0.58);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 28px 55px rgba(5, 10, 22, 0.45);
+  box-shadow: 0 24px 45px rgba(5, 10, 22, 0.4);
 }
 
 .projectCoverWrapper {
@@ -157,39 +152,17 @@
   place-items: center;
   padding: 1.5rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.25) 0%, rgba(20, 26, 39, 0.9) 100%);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.projectBody {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-}
-
-.projectIndex {
-  align-self: flex-end;
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.5);
-}
-
 .projectTexts {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-}
-
-.projectLocation {
-  font-size: 0.85rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  gap: 0.5rem;
 }
 
 .projectTitle {
@@ -199,26 +172,12 @@
   text-transform: uppercase;
 }
 
-.projectSubtitle {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.72);
-}
-
 .projectExcerpt {
   font-size: 0.95rem;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.projectActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.projectButton,
 .projectLink {
   display: inline-flex;
   align-items: center;
@@ -232,23 +191,28 @@
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.projectButton {
+.projectLink {
+  align-self: flex-start;
+  border: none;
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
-}
-
-.projectButton:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-
-.projectLink {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.82);
 }
 
 .projectLink:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.28);
   color: #ffffff;
+}
+
+.projectOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  padding: 1.75rem;
+  background: linear-gradient(180deg, rgba(6, 9, 17, 0.05) 20%, rgba(6, 9, 17, 0.75) 70%, rgba(6, 9, 17, 0.9) 100%);
+  z-index: 1;
 }
 
 .featuredBadge {
