@@ -10,6 +10,7 @@ import { logUserAction } from "@/lib/logger";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
 import { createSlug } from "@/lib/slug";
 import type { BlogCategory } from "@/lib/blogCategories";
+import { useToast } from "@/components/toast/ToastProvider";
 
 import AdminSidebar from "../../adminComponents/adminSidebar/AdminSidebar";
 import styles from "../neuer-artikel/page.module.css";
@@ -48,6 +49,7 @@ function getBlogCoverFilePath(publicUrl: string): string | null {
 
 export default function BlogEditPage() {
   const { loading: verifying } = useVerifyAdminAccess();
+  const { showToast } = useToast();
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const userId = Cookies.get("userId");
@@ -206,9 +208,11 @@ export default function BlogEditPage() {
     const activeUser = authData?.user ?? null;
 
     if (!userId) {
-      alert(
-        "Fehler beim Hochladen des Cover-Bildes: Benutzerinformation nicht gefunden. Bitte erneut anmelden.",
-      );
+      showToast({
+        message:
+          "Fehler beim Hochladen des Cover-Bildes: Benutzerinformation nicht gefunden. Bitte erneut anmelden.",
+        type: "error",
+      });
       await logUserAction({
         action: "blog_post_update_missing_user",
         context: "admin",
@@ -246,7 +250,10 @@ export default function BlogEditPage() {
         });
 
       if (uploadError) {
-        alert("Fehler beim Hochladen des Cover-Bildes: " + uploadError.message);
+        showToast({
+          message: "Fehler beim Hochladen des Cover-Bildes: " + uploadError.message,
+          type: "error",
+        });
         await logUserAction({
           action: "blog_post_cover_upload_failed",
           context: "admin",
@@ -267,7 +274,10 @@ export default function BlogEditPage() {
       coverImageUrl = publicUrlData?.publicUrl ?? null;
 
       if (!coverImageUrl) {
-        alert("Fehler beim Ermitteln der öffentlichen Bild-URL.");
+        showToast({
+          message: "Fehler beim Ermitteln der öffentlichen Bild-URL.",
+          type: "error",
+        });
         await logUserAction({
           action: "blog_post_cover_url_failed",
           context: "admin",
@@ -314,7 +324,10 @@ export default function BlogEditPage() {
     const { error } = await supabase.from("posts").update(updates).eq("id", postId);
 
     if (error) {
-      alert("Fehler beim Speichern des Artikels: " + error.message);
+      showToast({
+        message: "Fehler beim Speichern des Artikels: " + error.message,
+        type: "error",
+      });
       await logUserAction({
         action: "blog_post_update_failed",
         context: "admin",
@@ -343,7 +356,10 @@ export default function BlogEditPage() {
       },
     });
 
-    alert("Artikel erfolgreich aktualisiert!");
+    showToast({
+      message: "Artikel erfolgreich aktualisiert!",
+      type: "success",
+    });
     setPublishedAt(updates.published_at ?? null);
     setSaving(false);
   }
@@ -377,7 +393,11 @@ export default function BlogEditPage() {
         coverDeleteError &&
         !coverDeleteError.message?.toLowerCase().includes("not found")
       ) {
-        alert("Fehler beim Entfernen des Cover-Bildes: " + coverDeleteError.message);
+        showToast({
+          message:
+            "Fehler beim Entfernen des Cover-Bildes: " + coverDeleteError.message,
+          type: "error",
+        });
         await logUserAction({
           action: "blog_post_cover_delete_failed",
           context: "admin",
@@ -395,7 +415,10 @@ export default function BlogEditPage() {
     const { error } = await supabase.from("posts").delete().eq("id", postId);
 
     if (error) {
-      alert("Fehler beim Löschen des Artikels: " + error.message);
+      showToast({
+        message: "Fehler beim Löschen des Artikels: " + error.message,
+        type: "error",
+      });
       await logUserAction({
         action: "blog_post_delete_failed",
         context: "admin",
@@ -419,7 +442,10 @@ export default function BlogEditPage() {
       metadata: { slug },
     });
 
-    alert("Artikel erfolgreich gelöscht.");
+    showToast({
+      message: "Artikel erfolgreich gelöscht.",
+      type: "success",
+    });
     setDeleting(false);
     router.push("/admin/blog");
   }

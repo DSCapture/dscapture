@@ -9,6 +9,7 @@ import "../adminComponents/adminPageHader.css";
 import { supabase } from "@/lib/supabaseClient";
 import { logUserAction } from "@/lib/logger";
 import type { BlogCategory } from "@/lib/blogCategories";
+import { useToast } from "@/components/toast/ToastProvider";
 
 function isBlogCategory(value: unknown): value is BlogCategory {
   if (!value || typeof value !== "object") {
@@ -52,6 +53,7 @@ interface BlogPostPreview {
 
 export default function BlogManager() {
   const { loading } = useVerifyAdminAccess();
+  const { showToast } = useToast();
   const [publishedPosts, setPublishedPosts] = useState<BlogPostPreview[]>([]);
   const [draftPosts, setDraftPosts] = useState<BlogPostPreview[]>([]);
   const [fetchingPublished, setFetchingPublished] = useState(true);
@@ -254,9 +256,11 @@ export default function BlogManager() {
       }
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Spotlight-Status:", error);
-      alert(
-        "Der Spotlight-Status konnte nicht aktualisiert werden. Bitte später erneut versuchen.",
-      );
+      showToast({
+        message:
+          "Der Spotlight-Status konnte nicht aktualisiert werden. Bitte später erneut versuchen.",
+        type: "error",
+      });
       const message = error instanceof Error ? error.message : String(error);
       const { data: authData } = await supabase.auth.getUser();
       await logUserAction({

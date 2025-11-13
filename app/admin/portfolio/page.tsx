@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { logUserAction } from "@/lib/logger";
 import styles from "./page.module.css";
 import { createSlug } from "@/lib/slug";
+import { useToast } from "@/components/toast/ToastProvider";
 
 type PortfolioSettings = {
   id: string;
@@ -91,6 +92,7 @@ const mapProjectToForm = (project: PortfolioProject): ProjectFormState => ({
 
 export default function AdminPortfolioPage() {
   const { loading: verifying } = useVerifyAdminAccess();
+  const { showToast } = useToast();
 
   const [settings, setSettings] = useState<PortfolioSettings | null>(null);
   const [settingsForm, setSettingsForm] = useState({
@@ -365,14 +367,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Portfolio Einstellungen wurden gespeichert.");
+      showToast({
+        message: "Portfolio Einstellungen wurden gespeichert.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Speichern der Portfolio-Einstellungen:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Die Portfolio-Einstellungen konnten nicht gespeichert werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Die Portfolio-Einstellungen konnten nicht gespeichert werden.",
+        type: "error",
+      });
     } finally {
       setSavingSettings(false);
     }
@@ -384,7 +391,10 @@ export default function AdminPortfolioPage() {
     event.preventDefault();
 
     if (!backgroundFile) {
-      alert("Bitte wähle zuerst ein Hintergrundbild aus.");
+      showToast({
+        message: "Bitte wähle zuerst ein Hintergrundbild aus.",
+        type: "error",
+      });
       return;
     }
 
@@ -458,14 +468,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Hintergrundbild erfolgreich aktualisiert.");
+      showToast({
+        message: "Hintergrundbild erfolgreich aktualisiert.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Hochladen des Hintergrundbildes:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Hintergrundbild konnte nicht hochgeladen werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Hintergrundbild konnte nicht hochgeladen werden.",
+        type: "error",
+      });
     } finally {
       setUploadingBackground(false);
     }
@@ -524,14 +539,19 @@ export default function AdminPortfolioPage() {
         entityId: data.id,
       });
 
-      alert("Hintergrundbild wurde entfernt.");
+      showToast({
+        message: "Hintergrundbild wurde entfernt.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Löschen des Hintergrundbildes:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Hintergrundbild konnte nicht gelöscht werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Hintergrundbild konnte nicht gelöscht werden.",
+        type: "error",
+      });
     } finally {
       setDeletingBackground(false);
     }
@@ -594,7 +614,10 @@ export default function AdminPortfolioPage() {
     event.preventDefault();
 
     if (!newProjectForm.title.trim()) {
-      alert("Bitte gib einen Projekttitel ein.");
+      showToast({
+        message: "Bitte gib einen Projekttitel ein.",
+        type: "error",
+      });
       return;
     }
 
@@ -652,14 +675,20 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Projekt wurde angelegt. Du kannst nun ein Cover und Bilder hinzufügen.");
+      showToast({
+        message:
+          "Projekt wurde angelegt. Du kannst nun ein Cover und Bilder hinzufügen.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Anlegen eines Projekts:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Projekt konnte nicht angelegt werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Projekt konnte nicht angelegt werden.",
+        type: "error",
+      });
     } finally {
       setCreatingProject(false);
     }
@@ -695,7 +724,10 @@ export default function AdminPortfolioPage() {
     event.preventDefault();
 
     if (!editProjectForm.title.trim()) {
-      alert("Bitte gib einen Projekttitel ein.");
+      showToast({
+        message: "Bitte gib einen Projekttitel ein.",
+        type: "error",
+      });
       return;
     }
 
@@ -746,14 +778,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Projekt wurde aktualisiert.");
+      showToast({
+        message: "Projekt wurde aktualisiert.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Projekts:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Projekt konnte nicht aktualisiert werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Projekt konnte nicht aktualisiert werden.",
+        type: "error",
+      });
     } finally {
       setUpdatingProjectId(null);
     }
@@ -852,14 +889,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Projekt wurde gelöscht.");
+      showToast({
+        message: "Projekt wurde gelöscht.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Löschen des Projekts:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Projekt konnte nicht gelöscht werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Projekt konnte nicht gelöscht werden.",
+        type: "error",
+      });
     } finally {
       setDeletingProjectId(null);
     }
@@ -910,14 +952,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Cover-Bild wurde aktualisiert.");
+      showToast({
+        message: "Cover-Bild wurde aktualisiert.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Festlegen des Cover-Bildes:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Cover-Bild konnte nicht gespeichert werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Cover-Bild konnte nicht gespeichert werden.",
+        type: "error",
+      });
     } finally {
       setSavingCoverProjectId(null);
     }
@@ -959,14 +1006,19 @@ export default function AdminPortfolioPage() {
         entityId: project.id,
       });
 
-      alert("Cover-Bild wurde entfernt.");
+      showToast({
+        message: "Cover-Bild wurde entfernt.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Entfernen des Cover-Bildes:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Cover-Bild konnte nicht entfernt werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Cover-Bild konnte nicht entfernt werden.",
+        type: "error",
+      });
     } finally {
       setSavingCoverProjectId(null);
     }
@@ -1017,7 +1069,10 @@ export default function AdminPortfolioPage() {
     }
 
     if (selectedFiles.length === 0) {
-      alert("Bitte wähle zuerst mindestens ein Projektfoto aus.");
+      showToast({
+        message: "Bitte wähle zuerst mindestens ein Projektfoto aus.",
+        type: "error",
+      });
       return;
     }
 
@@ -1109,18 +1164,22 @@ export default function AdminPortfolioPage() {
       });
       setImageCaptions((previous) => ({ ...previous, ...newCaptions }));
 
-      alert(
-        newImages.length === 1
-          ? "Projektfoto wurde hinzugefügt."
-          : `${newImages.length} Projektfotos wurden hinzugefügt.`,
-      );
+      showToast({
+        message:
+          newImages.length === 1
+            ? "Projektfoto wurde hinzugefügt."
+            : `${newImages.length} Projektfotos wurden hinzugefügt.`,
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Hochladen des Projektfotos:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Projektfoto konnte nicht hochgeladen werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Projektfoto konnte nicht hochgeladen werden.",
+        type: "error",
+      });
     } finally {
       setUploadingImageProjectId(null);
     }
@@ -1207,14 +1266,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Projektfoto wurde gelöscht.");
+      showToast({
+        message: "Projektfoto wurde gelöscht.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Löschen des Projektfotos:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Das Projektfoto konnte nicht gelöscht werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Das Projektfoto konnte nicht gelöscht werden.",
+        type: "error",
+      });
     } finally {
       setDeletingImageId(null);
     }
@@ -1267,14 +1331,19 @@ export default function AdminPortfolioPage() {
         },
       });
 
-      alert("Bildbeschreibung wurde gespeichert.");
+      showToast({
+        message: "Bildbeschreibung wurde gespeichert.",
+        type: "success",
+      });
     } catch (error) {
       console.error("Fehler beim Speichern der Bildbeschreibung:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Die Bildbeschreibung konnte nicht gespeichert werden.",
-      );
+      showToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Die Bildbeschreibung konnte nicht gespeichert werden.",
+        type: "error",
+      });
     } finally {
       setSavingCaptionId(null);
     }

@@ -6,6 +6,7 @@ import AdminSidebar from "../adminComponents/adminSidebar/AdminSidebar";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
 import { supabase } from "@/lib/supabaseClient";
 import { logUserAction } from "@/lib/logger";
+import { useToast } from "@/components/toast/ToastProvider";
 
 type HomepageImageType = "background" | "overlay";
 
@@ -39,6 +40,7 @@ const INITIAL_USP_ITEMS: HomepageUspFormItem[] = [
 
 export default function AdminHomepagePage() {
   const { loading: verifying } = useVerifyAdminAccess();
+  const { showToast } = useToast();
   const [backgroundImage, setBackgroundImage] = useState<HomepageImage | null>(
     null,
   );
@@ -159,7 +161,10 @@ export default function AdminHomepagePage() {
     const trimmedDescription = formItem.description.trim();
 
     if (!trimmedTitle || !trimmedDescription) {
-      alert("Bitte fülle Titel und Beschreibung aus.");
+      showToast({
+        message: "Bitte fülle Titel und Beschreibung aus.",
+        type: "error",
+      });
       return;
     }
 
@@ -232,7 +237,10 @@ export default function AdminHomepagePage() {
         },
       });
 
-      alert("USP erfolgreich gespeichert!");
+      showToast({
+        message: "USP erfolgreich gespeichert!",
+        type: "success",
+      });
     } catch (error) {
       const message =
         error instanceof Error
@@ -241,7 +249,10 @@ export default function AdminHomepagePage() {
 
       console.error("Fehler beim Speichern des USP:", message);
       setUspError("Der USP konnte nicht gespeichert werden.");
-      alert(`Fehler beim Speichern: ${message}`);
+      showToast({
+        message: `Fehler beim Speichern: ${message}`,
+        type: "error",
+      });
 
       await logUserAction({
         action: "homepage_usp_save_failed",
@@ -269,7 +280,10 @@ export default function AdminHomepagePage() {
     const file = type === "background" ? backgroundFile : overlayFile;
 
     if (!file) {
-      alert("Bitte wähle zuerst eine Datei aus.");
+      showToast({
+        message: "Bitte wähle zuerst eine Datei aus.",
+        type: "error",
+      });
       return;
     }
 
@@ -360,14 +374,20 @@ export default function AdminHomepagePage() {
         },
       });
 
-      alert("Bild erfolgreich hochgeladen!");
+      showToast({
+        message: "Bild erfolgreich hochgeladen!",
+        type: "success",
+      });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
           : "Unbekannter Fehler beim Hochladen.";
       console.error(message);
-      alert(`Fehler beim Hochladen: ${message}`);
+      showToast({
+        message: `Fehler beim Hochladen: ${message}`,
+        type: "error",
+      });
       await logUserAction({
         action: "homepage_image_upload_failed",
         context: "admin",
@@ -388,7 +408,10 @@ export default function AdminHomepagePage() {
     const image = type === "background" ? backgroundImage : overlayImage;
 
     if (!image?.file_path) {
-      alert("Es wurde kein Bild zum Löschen gefunden.");
+      showToast({
+        message: "Es wurde kein Bild zum Löschen gefunden.",
+        type: "error",
+      });
       return;
     }
 
@@ -454,14 +477,20 @@ export default function AdminHomepagePage() {
         },
       });
 
-      alert("Bild erfolgreich gelöscht!");
+      showToast({
+        message: "Bild erfolgreich gelöscht!",
+        type: "success",
+      });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
           : "Unbekannter Fehler beim Löschen.";
       console.error(message);
-      alert(`Fehler beim Löschen: ${message}`);
+      showToast({
+        message: `Fehler beim Löschen: ${message}`,
+        type: "error",
+      });
       await logUserAction({
         action: "homepage_image_delete_failed",
         context: "admin",

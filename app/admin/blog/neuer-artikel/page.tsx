@@ -12,9 +12,11 @@ import "../../adminComponents/adminPageHader.css";
 import Cookies from "js-cookie";
 import { createSlug } from "@/lib/slug";
 import type { BlogCategory } from "@/lib/blogCategories";
+import { useToast } from "@/components/toast/ToastProvider";
 
 export default function BlogCreatePage() {
   const { loading: verifying } = useVerifyAdminAccess();
+  const { showToast } = useToast();
   const userId = Cookies.get("userId");
   const router = useRouter();
 
@@ -89,9 +91,11 @@ export default function BlogCreatePage() {
     const activeUser = authData?.user ?? null;
 
     if (!userId) {
-      alert(
-        "Fehler beim Hochladen des Cover-Bildes: Benutzerinformation nicht gefunden. Bitte erneut anmelden.",
-      );
+      showToast({
+        message:
+          "Fehler beim Hochladen des Cover-Bildes: Benutzerinformation nicht gefunden. Bitte erneut anmelden.",
+        type: "error",
+      });
       await logUserAction({
         action: "blog_post_create_missing_user",
         context: "admin",
@@ -131,9 +135,10 @@ export default function BlogCreatePage() {
         });
 
       if (uploadError) {
-        alert(
-          "Fehler beim Hochladen des Cover-Bildes: " + uploadError.message,
-        );
+        showToast({
+          message: "Fehler beim Hochladen des Cover-Bildes: " + uploadError.message,
+          type: "error",
+        });
         await logUserAction({
           action: "blog_post_cover_upload_failed",
           context: "admin",
@@ -156,7 +161,10 @@ export default function BlogCreatePage() {
       if (coverImageUrl) {
         setCoverImage(coverImageUrl);
       } else {
-        alert("Fehler beim Ermitteln der öffentlichen Bild-URL.");
+        showToast({
+          message: "Fehler beim Ermitteln der öffentlichen Bild-URL.",
+          type: "error",
+        });
         await logUserAction({
           action: "blog_post_cover_url_failed",
           context: "admin",
@@ -186,7 +194,10 @@ export default function BlogCreatePage() {
     ]);
 
     if (error) {
-      alert("Fehler beim Erstellen des Artikels: " + error.message);
+      showToast({
+        message: "Fehler beim Erstellen des Artikels: " + error.message,
+        type: "error",
+      });
       await logUserAction({
         action: "blog_post_create_failed",
         context: "admin",
@@ -214,7 +225,10 @@ export default function BlogCreatePage() {
       },
     });
 
-    alert("Artikel erfolgreich erstellt!");
+    showToast({
+      message: "Artikel erfolgreich erstellt!",
+      type: "success",
+    });
     setLoading(false);
     setCoverImageFile(null);
     router.push("/admin/blog");

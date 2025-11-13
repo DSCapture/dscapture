@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
+import { ToastProvider } from "@/components/toast/ToastProvider";
 import "bootstrap-icons/font/bootstrap-icons.css"
 import "./globals.css";
 
@@ -34,11 +35,13 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={`${roboto.className}`}>
-        <div className="siteLayout">
-          <Header />
-          <main className="siteContent">{children}</main>
-          <Footer />
-        </div>
+        <ToastProvider>
+          <div className="siteLayout">
+            <Header />
+            <main className="siteContent">{children}</main>
+            <Footer />
+          </div>
+        </ToastProvider>
       </body>
     </html>
   );
