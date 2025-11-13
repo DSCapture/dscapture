@@ -202,10 +202,11 @@
   text-transform: uppercase;
 }
 
-.projectExcerpt {
+.projectSubtitle {
   font-size: 0.95rem;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .projectLink {
