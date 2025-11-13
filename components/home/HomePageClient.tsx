@@ -209,12 +209,11 @@ const HomePageClient = () => {
 
       <section className={styles.uspSection} aria-label="Unsere Alleinstellungsmerkmale">
         <div className={styles.uspWrapper}>
-          <h2 className={styles.uspHeading}>Was mich auszeichnet</h2>
           <div className={styles.uspContent}>
             {uspItems.map((usp) => (
               <article key={usp.title} className={styles.uspItem}>
-                <h3>{usp.title}</h3>
-                <p>{usp.description}</p>
+                <span className={styles.checkIcon}><i className="bi bi-check"></i></span>
+                <p>{usp.title}</p>
               </article>
             ))}
           </div>
