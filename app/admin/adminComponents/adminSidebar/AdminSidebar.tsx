@@ -7,6 +7,25 @@ import LogoutButton from "@/components/logoutButton/LogoutButton";
 import styles from "./adminSidebar.module.css";
 import { supabase } from "@/lib/supabaseClient";
 
+type NavigationMatch = (currentPath: string) => boolean;
+
+type NavigationLinkItem = {
+    href: string;
+    icon: string;
+    label: string;
+    matchPath?: NavigationMatch;
+};
+
+type NavigationItem =
+    | ({ type: "link" } & NavigationLinkItem)
+    | {
+          type: "group";
+          id: string;
+          icon: string;
+          label: string;
+          items: NavigationLinkItem[];
+      };
+
 const AdminSidebar = () => {
     const [pendingContacts, setPendingContacts] = useState<number | null>(null);
     const [isMobileViewport, setIsMobileViewport] = useState(false);
@@ -92,49 +111,76 @@ const AdminSidebar = () => {
     }, [isMobileMenuOpen]);
 
     const pathname = usePathname();
-    const navigationItems = useMemo(
+    const navigationItems = useMemo<NavigationItem[]>(
         () => [
             {
+                type: "link",
                 href: "/admin",
                 icon: "bi-speedometer2",
-                label: "Admin Dashboard",
+                label: "Dashboard",
                 matchPath: (currentPath: string) => currentPath === "/admin",
             },
             {
-                href: "/admin/homepage",
+                type: "group",
+                id: "homepage",
                 icon: "bi-house",
                 label: "Homepage",
+                items: [
+                    {
+                        href: "/admin/homepage",
+                        icon: "bi-image",
+                        label: "Homepage Hero Manager",
+                    },
+                    {
+                        href: "/admin/photographer-intro",
+                        icon: "bi-person-badge",
+                        label: "Fotografenvorstellung",
+                    },
+                    {
+                        href: "/admin/reviews",
+                        icon: "bi-chat-quote",
+                        label: "Rezensionen",
+                    },
+                ],
             },
             {
-                href: "/admin/photographer-intro",
-                icon: "bi-person-badge",
-                label: "Fotografen-Vorstellung",
-            },
-            {
-                href: "/admin/reviews",
-                icon: "bi-chat-quote",
-                label: "Rezensionen",
-            },
-            {
+                type: "link",
                 href: "/admin/portfolio",
                 icon: "bi-columns-gap",
                 label: "Portfolio Manager",
             },
             {
+                type: "link",
                 href: "/admin/blog",
                 icon: "bi-card-text",
                 label: "Blog Manager",
                 matchPath: (currentPath: string) => currentPath.startsWith("/admin/blog"),
             },
             {
+                type: "link",
                 href: "/admin/metadata",
                 icon: "bi-tags",
                 label: "Metadaten",
             },
             {
-                href: "/admin/logs",
-                icon: "bi-clipboard-data",
-                label: "Aktivitätslogs",
+                type: "link",
+                href: "/admin/contact",
+                icon: "bi-envelope",
+                label: "Kontaktanfragen",
+                matchPath: (currentPath: string) => currentPath.startsWith("/admin/contact"),
+            },
+            {
+                type: "group",
+                id: "development",
+                icon: "bi-gear",
+                label: "Development",
+                items: [
+                    {
+                        href: "/admin/logs",
+                        icon: "bi-clipboard-data",
+                        label: "Aktivitäts Log",
+                    },
+                ],
             },
         ],
         [],
@@ -146,7 +192,7 @@ const AdminSidebar = () => {
     }, [pathname, pendingContacts]);
 
     const isItemActive = useCallback(
-        (href: string, matchPath?: (currentPath: string) => boolean) => {
+        (href: string, matchPath?: NavigationMatch) => {
             if (typeof matchPath === "function") {
                 return matchPath(pathname);
             }
@@ -156,20 +202,31 @@ const AdminSidebar = () => {
         [pathname],
     );
 
-    const isContactActive = isItemActive(
-        "/admin/contact",
-        (currentPath) => currentPath.startsWith("/admin/contact"),
-    );
+    const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-    const contactClassNames = useMemo(() => {
-        const classNames = [styles.adminNavLink];
+    useEffect(() => {
+        setOpenGroups((previousState) => {
+            const nextState = { ...previousState };
+            let hasUpdates = false;
 
-        if (isContactActive) {
-            classNames.push(styles.adminNavLinkActive);
-        }
+            navigationItems.forEach((item) => {
+                if (item.type !== "group") {
+                    return;
+                }
 
-        return classNames;
-    }, [isContactActive]);
+                const hasActiveChild = item.items.some(({ href, matchPath }) =>
+                    isItemActive(href, matchPath),
+                );
+
+                if (hasActiveChild && !nextState[item.id]) {
+                    nextState[item.id] = true;
+                    hasUpdates = true;
+                }
+            });
+
+            return hasUpdates ? nextState : previousState;
+        });
+    }, [navigationItems, isItemActive]);
 
     const handleNavigation = useCallback(() => {
         if (isMobileViewport) {
@@ -179,6 +236,13 @@ const AdminSidebar = () => {
 
     const handleToggleMobileMenu = useCallback(() => {
         setIsMobileMenuOpen((previousState) => !previousState);
+    }, []);
+
+    const handleToggleGroup = useCallback((groupId: string) => {
+        setOpenGroups((previousState) => ({
+            ...previousState,
+            [groupId]: !previousState[groupId],
+        }));
     }, []);
 
     const mobileToggleLabel = isMobileMenuOpen ? "Menü schließen" : "Menü öffnen";
@@ -221,46 +285,113 @@ const AdminSidebar = () => {
                     <h1 className={styles.sidebarHeadline}>Admin Panel</h1>
                 </div>
                 <nav className={styles.adminSidebarNavigation} id="admin-navigation">
-                    {navigationItems.map(({ href, icon, label, matchPath }) => {
-                        const isActive = isItemActive(href, matchPath);
-                        const linkClassNames = [styles.adminNavLink];
+                    {navigationItems.map((item) => {
+                        if (item.type === "link") {
+                            const isActive = isItemActive(item.href, item.matchPath);
+                            const linkClassNames = [styles.adminNavLink];
 
-                        if (isActive) {
-                            linkClassNames.push(styles.adminNavLinkActive);
+                            if (isActive) {
+                                linkClassNames.push(styles.adminNavLinkActive);
+                            }
+
+                            const isContactLink = item.href === "/admin/contact";
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    className={linkClassNames.join(" ")}
+                                    href={item.href}
+                                    onClick={handleNavigation}
+                                    aria-current={isActive ? "page" : undefined}
+                                >
+                                    <i className={`bi ${item.icon}`} aria-hidden="true"></i>
+                                    {isContactLink ? (
+                                        <span className={styles.linkLabel}>
+                                            {item.label}
+                                            {shouldShowPendingBadge ? (
+                                                <span
+                                                    className={styles.pendingBadge}
+                                                    aria-label={`${pendingContacts} Kontaktanfragen zu bearbeiten`}
+                                                >
+                                                    {pendingContacts}
+                                                </span>
+                                            ) : null}
+                                        </span>
+                                    ) : (
+                                        item.label
+                                    )}
+                                </Link>
+                            );
+                        }
+
+                        const isGroupOpen = openGroups[item.id] ?? false;
+                        const hasActiveChild = item.items.some(({ href, matchPath }) =>
+                            isItemActive(href, matchPath),
+                        );
+                        const triggerClassNames = [styles.adminNavLink, styles.adminNavLinkButton];
+
+                        if (hasActiveChild) {
+                            triggerClassNames.push(styles.adminNavLinkActive);
                         }
 
                         return (
-                            <Link
-                                key={href}
-                                className={linkClassNames.join(" ")}
-                                href={href}
-                                onClick={handleNavigation}
-                                aria-current={isActive ? "page" : undefined}
-                            >
-                                <i className={`bi ${icon}`} aria-hidden="true"></i>
-                                {label}
-                            </Link>
+                            <div key={item.id} className={styles.adminAccordion}>
+                                <button
+                                    type="button"
+                                    className={triggerClassNames.join(" ")}
+                                    onClick={() => handleToggleGroup(item.id)}
+                                    aria-expanded={isGroupOpen}
+                                    aria-controls={`admin-accordion-${item.id}`}
+                                >
+                                    <span className={styles.adminAccordionLabel}>
+                                        <i className={`bi ${item.icon}`} aria-hidden="true"></i>
+                                        {item.label}
+                                    </span>
+                                    <i
+                                        className={`bi ${
+                                            isGroupOpen ? "bi-chevron-up" : "bi-chevron-down"
+                                        } ${styles.adminAccordionCaret} ${
+                                            isGroupOpen ? styles.adminAccordionCaretOpen : ""
+                                        }`.trim()}
+                                        aria-hidden="true"
+                                    ></i>
+                                </button>
+                                <div
+                                    id={`admin-accordion-${item.id}`}
+                                    className={`${styles.adminAccordionPanel} ${
+                                        isGroupOpen ? styles.adminAccordionPanelOpen : ""
+                                    }`.trim()}
+                                    hidden={!isGroupOpen}
+                                    aria-hidden={!isGroupOpen}
+                                >
+                                    {item.items.map(({ href, icon, label, matchPath }) => {
+                                        const isActive = isItemActive(href, matchPath);
+                                        const subLinkClassNames = [
+                                            styles.adminNavLink,
+                                            styles.adminSubNavLink,
+                                        ];
+
+                                        if (isActive) {
+                                            subLinkClassNames.push(styles.adminNavLinkActive);
+                                        }
+
+                                        return (
+                                            <Link
+                                                key={href}
+                                                className={subLinkClassNames.join(" ")}
+                                                href={href}
+                                                onClick={handleNavigation}
+                                                aria-current={isActive ? "page" : undefined}
+                                            >
+                                                <i className={`bi ${icon}`} aria-hidden="true"></i>
+                                                {label}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </div>
                         );
                     })}
-                    <Link
-                        className={contactClassNames.join(" ")}
-                        href="/admin/contact"
-                        onClick={handleNavigation}
-                        aria-current={isContactActive ? "page" : undefined}
-                    >
-                        <i className="bi bi-envelope" aria-hidden="true"></i>
-                        <span className={styles.linkLabel}>
-                            Kontaktanfragen
-                            {shouldShowPendingBadge ? (
-                                <span
-                                    className={styles.pendingBadge}
-                                    aria-label={`${pendingContacts} Kontaktanfragen zu bearbeiten`}
-                                >
-                                    {pendingContacts}
-                                </span>
-                            ) : null}
-                        </span>
-                    </Link>
                     {isMobileViewport ? (
                         <div className={styles.mobileLogoutBox} onClick={handleNavigation}>
                             <LogoutButton />
