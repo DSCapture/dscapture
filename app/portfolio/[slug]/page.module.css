@@ -97,7 +97,7 @@
 .heroImageWrapper {
   position: relative;
   width: 100%;
-  max-width: 480px;
+  max-width: 370px;
   aspect-ratio: 3 / 4;
   border-radius: 32px;
   overflow: hidden;

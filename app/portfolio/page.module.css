@@ -125,7 +125,6 @@
   display: grid;
   --project-card-min-width: clamp(220px, 22vw, 320px);
   grid-template-columns: repeat(3, minmax(var(--project-card-min-width), 1fr));
-  gap: clamp(1rem, 2.5vw, 1.75rem);
 }
 
 .projectCardLink,
@@ -145,6 +144,7 @@
 }
 
 .projectCard {
+  max-width: 250px;
   position: relative;
   border-radius: 28px;
   overflow: hidden;
