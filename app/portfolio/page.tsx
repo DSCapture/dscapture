@@ -142,6 +142,9 @@ export default async function PortfolioPage() {
           ) : (
             <div className={styles.projectsGrid}>
               {projects.map((project) => {
+                const slug = project.slug?.trim() ?? "";
+                const hasSlug = slug.length > 0;
+
                 const cardContent = (
                   <article className={styles.projectCard}>
                     <div className={styles.projectCoverWrapper}>
@@ -167,7 +170,7 @@ export default async function PortfolioPage() {
                           )}
                         </div>
 
-                        {project.slug ? (
+                        {hasSlug ? (
                           <span className={styles.projectLink}>Ansehen</span>
                         ) : null}
                       </div>
@@ -179,10 +182,13 @@ export default async function PortfolioPage() {
                   </article>
                 );
 
-                if (project.slug) {
+                if (hasSlug) {
                   return (
                     <Link
-                      href={`/portfolio/${project.slug}`}
+                      href={{
+                        pathname: "/portfolio/[slug]",
+                        params: { slug },
+                      }}
                       key={project.id}
                       className={styles.projectCardLink}
                       aria-label={`${project.title} ansehen`}
