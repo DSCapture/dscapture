@@ -145,51 +145,40 @@ export default async function PortfolioPage() {
                 const slug = project.slug?.trim() ?? "";
                 const hasSlug = slug.length > 0;
 
-                return (
-                  <div key={project.id} className={styles.projectCardWrapper}>
-                    <article className={styles.projectCard}>
-                      <div className={styles.projectCoverWrapper}>
-                        {project.cover_public_url ? (
-                          <Image
-                            src={project.cover_public_url}
-                            alt={project.title}
-                            fill
-                            sizes="(max-width: 768px) 80vw, 360px"
-                            className={styles.projectCover}
-                          />
-                        ) : (
-                          <div className={styles.projectCoverPlaceholder}>
-                            <span>{project.title}</span>
-                          </div>
-                        )}
+                const cardContent = (
+                  <article className={styles.projectCard}>
+                    <div className={styles.projectCoverWrapper}>
+                      {project.cover_public_url ? (
+                        <Image
+                          src={project.cover_public_url}
+                          alt={project.title}
+                          fill
+                          sizes="(max-width: 768px) 80vw, 360px"
+                          className={styles.projectCover}
+                        />
+                      ) : (
+                        <div className={styles.projectCoverPlaceholder}>
+                          <span>{project.title}</span>
+                        </div>
+                      )}
 
-                        <div className={styles.projectOverlay}>
-                          <div className={styles.projectTexts}>
-                            <h3 className={styles.projectTitle}>{project.title}</h3>
-                            {project.subtitle && (
-                              <p className={styles.projectSubtitle}>{project.subtitle}</p>
-                            )}
-                          </div>
-
-                          {hasSlug ? (
-                            <Link
-                              href={{
-                                pathname: "/portfolio/[slug]",
-                                params: { slug },
-                              }}
-                              className={styles.projectLink}
-                              aria-label={`${project.title} ansehen`}
-                              title={`Projekt ${project.title} öffnen`}
-                            >
-                              Projekt ansehen
-                            </Link>
-                          ) : null}
+                      <div className={styles.projectOverlay}>
+                        <div className={styles.projectTexts}>
+                          <h3 className={styles.projectTitle}>{project.title}</h3>
+                          {project.subtitle && (
+                            <p className={styles.projectSubtitle}>{project.subtitle}</p>
+                          )}
                         </div>
 
                         {hasSlug ? (
-                          <span className={styles.projectButton}>Projekt ansehen</span>
+                          <span className={styles.projectLinkLabel}>Projekt ansehen</span>
                         ) : null}
                       </div>
+
+                      {hasSlug ? (
+                        <span className={styles.projectButton}>Projekt ansehen</span>
+                      ) : null}
+                    </div>
 
                     {project.is_featured && (
                       <span className={styles.featuredBadge}>Highlight</span>

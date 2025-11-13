@@ -242,6 +242,14 @@
   z-index: 1;
 }
 
+.projectLinkLabel {
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .featuredBadge {
   position: absolute;
   top: 1rem;
