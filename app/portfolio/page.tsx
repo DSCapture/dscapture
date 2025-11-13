@@ -144,9 +144,16 @@ export default async function PortfolioPage() {
               {projects.map((project) => {
                 const slug = project.slug?.trim() ?? "";
                 const hasSlug = slug.length > 0;
+                const href = hasSlug ? `/portfolio/${slug}` : "#";
 
-                const cardContent = (
-                  <article className={styles.projectCard}>
+                return (
+                  <Link
+                    key={project.id}
+                    href={href}
+                    className={styles.projectCard}
+                    aria-label={hasSlug ? `${project.title} ansehen` : undefined}
+                    title={hasSlug ? `Projekt ${project.title} öffnen` : undefined}
+                  >
                     <div className={styles.projectCoverWrapper}>
                       {project.cover_public_url ? (
                         <Image
@@ -169,42 +176,13 @@ export default async function PortfolioPage() {
                             <p className={styles.projectSubtitle}>{project.subtitle}</p>
                           )}
                         </div>
-
-                        {hasSlug ? (
-                          <span className={styles.projectLinkLabel}>Projekt ansehen</span>
-                        ) : null}
                       </div>
-
-                      {hasSlug ? (
-                        <span className={styles.projectButton}>Projekt ansehen</span>
-                      ) : null}
                     </div>
 
                     {project.is_featured && (
                       <span className={styles.featuredBadge}>Highlight</span>
                     )}
-                  </article>
-                );
-
-                if (!hasSlug) {
-                  return (
-                    <div key={project.id} className={styles.projectCardWrapper}>
-                      {cardContent}
-                    </div>
-                  );
-                }
-
-                return (
-                  <div key={project.id} className={styles.projectCardWrapper}>
-                    <Link
-                      href={`/portfolio/${slug}`}
-                      className={styles.projectCardLink}
-                      aria-label={`${project.title} ansehen`}
-                      title={`Projekt ${project.title} öffnen`}
-                    >
-                      {cardContent}
-                    </Link>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

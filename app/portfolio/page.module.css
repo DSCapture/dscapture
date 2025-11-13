@@ -146,7 +146,7 @@
 }
 
 .projectCard {
-  max-width: 250px;
+  max-width: 290px;
   width: 100%;
   height: 100%;
   position: relative;
@@ -155,6 +155,7 @@
   box-shadow: 0 24px 45px rgba(5, 10, 22, 0.4);
   --project-card-aspect-ratio: 3 / 4;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  color: white;
 }
 
 .projectCardWrapper:hover .projectCard,
