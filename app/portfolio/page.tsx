@@ -185,12 +185,35 @@ export default async function PortfolioPage() {
                             </Link>
                           ) : null}
                         </div>
+
+                        {hasSlug ? (
+                          <span className={styles.projectButton}>Projekt ansehen</span>
+                        ) : null}
                       </div>
 
-                      {project.is_featured && (
-                        <span className={styles.featuredBadge}>Highlight</span>
-                      )}
-                    </article>
+                    {project.is_featured && (
+                      <span className={styles.featuredBadge}>Highlight</span>
+                    )}
+                  </article>
+                );
+
+                return (
+                  <div key={project.id} className={styles.projectCardWrapper}>
+                    {hasSlug ? (
+                      <Link
+                        href={{
+                          pathname: "/portfolio/[slug]",
+                          params: { slug },
+                        }}
+                        className={styles.projectCardLink}
+                        aria-label={`${project.title} ansehen`}
+                        title={`Projekt ${project.title} öffnen`}
+                      >
+                        {cardContent}
+                      </Link>
+                    ) : (
+                      cardContent
+                    )}
                   </div>
                 );
               })}

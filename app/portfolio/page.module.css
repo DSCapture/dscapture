@@ -128,6 +128,11 @@
 }
 
 .projectCardWrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.projectCardLink {
   display: block;
   text-decoration: none;
   color: inherit;
@@ -157,9 +162,9 @@
   box-shadow: 0 28px 55px rgba(5, 10, 22, 0.55);
 }
 
-.projectCardWrapper:hover .projectLink,
-.projectCardWrapper:focus-within .projectLink,
-.projectLink:focus-visible {
+.projectCardWrapper:hover .projectButton,
+.projectCardWrapper:focus-within .projectButton,
+.projectButton:focus-visible {
   background: rgba(255, 255, 255, 0.28);
 }
 
@@ -209,7 +214,7 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
-.projectLink {
+.projectButton {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
