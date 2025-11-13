@@ -145,63 +145,52 @@ export default async function PortfolioPage() {
                 const slug = project.slug?.trim() ?? "";
                 const hasSlug = slug.length > 0;
 
-                const cardContent = (
-                  <article className={styles.projectCard}>
-                    <div className={styles.projectCoverWrapper}>
-                      {project.cover_public_url ? (
-                        <Image
-                          src={project.cover_public_url}
-                          alt={project.title}
-                          fill
-                          sizes="(max-width: 768px) 80vw, 360px"
-                          className={styles.projectCover}
-                        />
-                      ) : (
-                        <div className={styles.projectCoverPlaceholder}>
-                          <span>{project.title}</span>
-                        </div>
-                      )}
-
-                      <div className={styles.projectOverlay}>
-                        <div className={styles.projectTexts}>
-                          <h3 className={styles.projectTitle}>{project.title}</h3>
-                          {project.subtitle && (
-                            <p className={styles.projectSubtitle}>{project.subtitle}</p>
-                          )}
-                        </div>
-
-                        {hasSlug ? (
-                          <span className={styles.projectLink}>Ansehen</span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {project.is_featured && (
-                      <span className={styles.featuredBadge}>Highlight</span>
-                    )}
-                  </article>
-                );
-
-                if (hasSlug) {
-                  return (
-                    <Link
-                      href={{
-                        pathname: "/portfolio/[slug]",
-                        params: { slug },
-                      }}
-                      key={project.id}
-                      className={styles.projectCardLink}
-                      aria-label={`${project.title} ansehen`}
-                      title={project.title}
-                    >
-                      {cardContent}
-                    </Link>
-                  );
-                }
-
                 return (
                   <div key={project.id} className={styles.projectCardWrapper}>
-                    {cardContent}
+                    <article className={styles.projectCard}>
+                      <div className={styles.projectCoverWrapper}>
+                        {project.cover_public_url ? (
+                          <Image
+                            src={project.cover_public_url}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 768px) 80vw, 360px"
+                            className={styles.projectCover}
+                          />
+                        ) : (
+                          <div className={styles.projectCoverPlaceholder}>
+                            <span>{project.title}</span>
+                          </div>
+                        )}
+
+                        <div className={styles.projectOverlay}>
+                          <div className={styles.projectTexts}>
+                            <h3 className={styles.projectTitle}>{project.title}</h3>
+                            {project.subtitle && (
+                              <p className={styles.projectSubtitle}>{project.subtitle}</p>
+                            )}
+                          </div>
+
+                          {hasSlug ? (
+                            <Link
+                              href={{
+                                pathname: "/portfolio/[slug]",
+                                params: { slug },
+                              }}
+                              className={styles.projectLink}
+                              aria-label={`${project.title} ansehen`}
+                              title={`Projekt ${project.title} öffnen`}
+                            >
+                              Projekt ansehen
+                            </Link>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      {project.is_featured && (
+                        <span className={styles.featuredBadge}>Highlight</span>
+                      )}
+                    </article>
                   </div>
                 );
               })}

@@ -127,7 +127,6 @@
   grid-template-columns: repeat(3, minmax(var(--project-card-min-width), 1fr));
 }
 
-.projectCardLink,
 .projectCardWrapper {
   display: block;
   text-decoration: none;
@@ -136,12 +135,8 @@
   height: 100%;
 }
 
-.projectCardLink {
-  cursor: pointer;
-}
-
-.projectCardLink:focus-visible .projectCard,
-.projectCardLink:hover .projectCard {
+.projectCardWrapper:focus-within .projectCard,
+.projectCardWrapper:hover .projectCard {
   transform: translateY(-6px);
 }
 
@@ -157,13 +152,14 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.projectCardLink:hover .projectCard,
-.projectCardLink:focus-visible .projectCard {
+.projectCardWrapper:hover .projectCard,
+.projectCardWrapper:focus-within .projectCard {
   box-shadow: 0 28px 55px rgba(5, 10, 22, 0.55);
 }
 
-.projectCardLink:hover .projectLink,
-.projectCardLink:focus-visible .projectLink {
+.projectCardWrapper:hover .projectLink,
+.projectCardWrapper:focus-within .projectLink,
+.projectLink:focus-visible {
   background: rgba(255, 255, 255, 0.28);
 }
 
