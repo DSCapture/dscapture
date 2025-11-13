@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import styles from "@/app/page.module.css";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 
 const FALLBACK_BACKGROUND = "/DJI_0727.jpg";
 const FALLBACK_OVERLAY = "/dawid3Mask.png";
@@ -283,6 +284,7 @@ const HomePageClient = () => {
                   <p key={`photographer-paragraph-${index}`}>{paragraph}</p>
                 ))}
             </div>
+            <Link className="contactButton" href="/kontakt">Jetzt Kontaktieren <i className="bi bi-arrow-right"></i></Link>
           </div>
         </div>
       </section>

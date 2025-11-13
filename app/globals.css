@@ -39,6 +39,26 @@ body {
   height: 100%;
 }
 
+.contactButton {
+  width: 14rem;
+  height: 3rem;
+  background-color: var(--secondary);
+  border: none;
+  border-radius: 5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  transition: .4s ease-in-out;
+  cursor: pointer;
+}
+
+.contactButton:hover {
+  background-color: var(--secondary-dark);
+}
+
 .siteLayout {
   min-height: 100vh;
   display: flex;
