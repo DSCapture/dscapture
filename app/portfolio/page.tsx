@@ -171,7 +171,7 @@ export default async function PortfolioPage() {
                         </div>
 
                         {hasSlug ? (
-                          <span className={styles.projectLink}>Ansehen</span>
+                          <span className={styles.projectButton}>Projekt ansehen</span>
                         ) : null}
                       </div>
                     </div>
@@ -182,26 +182,23 @@ export default async function PortfolioPage() {
                   </article>
                 );
 
-                if (hasSlug) {
-                  return (
-                    <Link
-                      href={{
-                        pathname: "/portfolio/[slug]",
-                        params: { slug },
-                      }}
-                      key={project.id}
-                      className={styles.projectCardLink}
-                      aria-label={`${project.title} ansehen`}
-                      title={project.title}
-                    >
-                      {cardContent}
-                    </Link>
-                  );
-                }
-
                 return (
                   <div key={project.id} className={styles.projectCardWrapper}>
-                    {cardContent}
+                    {hasSlug ? (
+                      <Link
+                        href={{
+                          pathname: "/portfolio/[slug]",
+                          params: { slug },
+                        }}
+                        className={styles.projectCardLink}
+                        aria-label={`${project.title} ansehen`}
+                        title={`Projekt ${project.title} öffnen`}
+                      >
+                        {cardContent}
+                      </Link>
+                    ) : (
+                      cardContent
+                    )}
                   </div>
                 );
               })}
