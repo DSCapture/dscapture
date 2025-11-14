@@ -20,6 +20,8 @@ type PortfolioProject = {
 type PortfolioProjectImage = {
   id: string;
   caption: string | null;
+  alt_text: string | null;
+  meta_tags: string[] | null;
   public_url: string;
   display_order: number;
 };
@@ -46,7 +48,7 @@ const getProjectBySlug = cache(async (slug: string): Promise<ProjectWithImages> 
 
   const { data: images, error: imagesError } = await supabase
     .from("portfolio_project_images")
-    .select("id, caption, public_url, display_order")
+    .select("id, caption, alt_text, meta_tags, public_url, display_order")
     .eq("project_id", project.id)
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
@@ -89,7 +91,7 @@ type GenerateMetadataProps = {
 };
 
 export async function generateMetadata({ params }: GenerateMetadataProps): Promise<Metadata> {
-  const { project } = await getProjectBySlug(params.slug);
+  const { project, images } = await getProjectBySlug(params.slug);
 
   if (!project) {
     return {
@@ -101,10 +103,23 @@ export async function generateMetadata({ params }: GenerateMetadataProps): Promi
   const description =
     project.excerpt ??
     `Entdecke das Projekt "${project.title}" von DS_Capture mit ausgewählten Fotografien.`;
+  const coverImage = images.find((image) => image.public_url === project.cover_public_url);
+  const coverAltText = coverImage?.alt_text?.trim() || project.title;
+  const keywordSet = new Set<string>();
+  for (const image of images) {
+    for (const tag of image.meta_tags ?? []) {
+      const trimmedTag = tag.trim();
+      if (trimmedTag) {
+        keywordSet.add(trimmedTag);
+      }
+    }
+  }
+  const keywords = keywordSet.size > 0 ? Array.from(keywordSet) : undefined;
 
   return {
     title: `${project.title} | DS_Capture`,
     description,
+    keywords,
     openGraph: {
       title: `${project.title} | DS_Capture`,
       description,
@@ -116,7 +131,7 @@ export async function generateMetadata({ params }: GenerateMetadataProps): Promi
         ? [
             {
               url: project.cover_public_url,
-              alt: project.title,
+              alt: coverAltText,
             },
           ]
         : undefined,
@@ -139,6 +154,8 @@ export default async function PortfolioProjectPage({ params }: ProjectPageProps)
   }
 
   const heroImage = project.cover_public_url ?? null;
+  const heroCoverImage = images.find((image) => image.public_url === heroImage) ?? null;
+  const heroAltText = heroCoverImage?.alt_text?.trim() || project.title;
   const backgroundImageUrl = images[0]?.public_url ?? heroImage;
   const pageStyle = backgroundImageUrl
     ? ({
@@ -162,7 +179,7 @@ export default async function PortfolioProjectPage({ params }: ProjectPageProps)
           <div className={styles.heroImageWrapper}>
             <Image
               src={heroImage}
-              alt={project.title}
+              alt={heroAltText}
               fill
               priority
               sizes="(max-width: 768px) 100vw, 480px"

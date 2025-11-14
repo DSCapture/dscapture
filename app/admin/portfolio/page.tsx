@@ -43,6 +43,8 @@ type PortfolioProjectImage = {
   id: string;
   project_id: string;
   caption: string | null;
+  alt_text: string | null;
+  meta_tags: string[] | null;
   file_path: string;
   public_url: string;
   display_order: number;
@@ -142,10 +144,12 @@ export default function AdminPortfolioPage() {
     Record<string, number>
   >({});
   const [imageCaptions, setImageCaptions] = useState<Record<string, string>>({});
+  const [imageAltTexts, setImageAltTexts] = useState<Record<string, string>>({});
+  const [imageMetaTags, setImageMetaTags] = useState<Record<string, string>>({});
   const [uploadingImageProjectId, setUploadingImageProjectId] = useState<
     string | null
   >(null);
-  const [savingCaptionId, setSavingCaptionId] = useState<string | null>(null);
+  const [savingMetadataId, setSavingMetadataId] = useState<string | null>(null);
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
 
   const existingProjectSlugs = useMemo(
@@ -223,7 +227,7 @@ export default function AdminPortfolioPage() {
             supabase
               .from("portfolio_project_images")
               .select(
-                "id, project_id, caption, file_path, public_url, display_order",
+                "id, project_id, caption, alt_text, meta_tags, file_path, public_url, display_order",
               )
               .order("display_order", { ascending: true })
               .order("created_at", { ascending: true }),
@@ -284,7 +288,23 @@ export default function AdminPortfolioPage() {
           },
           {},
         );
+        const altTextMap = (imagesData ?? []).reduce<Record<string, string>>(
+          (accumulator, image) => {
+            accumulator[image.id] = image.alt_text ?? "";
+            return accumulator;
+          },
+          {},
+        );
+        const metaTagsMap = (imagesData ?? []).reduce<Record<string, string>>(
+          (accumulator, image) => {
+            accumulator[image.id] = (image.meta_tags ?? []).join(", ");
+            return accumulator;
+          },
+          {},
+        );
         setImageCaptions(captionMap);
+        setImageAltTexts(altTextMap);
+        setImageMetaTags(metaTagsMap);
       } catch (error) {
         console.error("Fehler beim Laden der Portfolio-Daten:", error);
         setProjectsError(
@@ -1085,6 +1105,8 @@ export default function AdminPortfolioPage() {
         (existingImages[existingImages.length - 1]?.display_order ?? 0) + 1;
       const newImages: PortfolioProjectImage[] = [];
       const newCaptions: Record<string, string> = {};
+      const newAltTexts: Record<string, string> = {};
+      const newMetaTags: Record<string, string> = {};
 
       for (const file of selectedFiles) {
         const fileExtension = file.name.split(".").pop();
@@ -1118,12 +1140,14 @@ export default function AdminPortfolioPage() {
           .insert({
             project_id: project.id,
             caption: null,
+            alt_text: null,
+            meta_tags: null,
             file_path: uploadData?.path ?? filePath,
             public_url: publicUrl,
             display_order: nextDisplayOrder,
           })
           .select(
-            "id, project_id, caption, file_path, public_url, display_order",
+            "id, project_id, caption, alt_text, meta_tags, file_path, public_url, display_order",
           )
           .single();
 
@@ -1134,6 +1158,8 @@ export default function AdminPortfolioPage() {
         nextDisplayOrder += 1;
         newImages.push(data);
         newCaptions[data.id] = "";
+        newAltTexts[data.id] = "";
+        newMetaTags[data.id] = "";
 
         await logUserAction({
           action: "portfolio_project_image_uploaded",
@@ -1163,6 +1189,8 @@ export default function AdminPortfolioPage() {
         return updated;
       });
       setImageCaptions((previous) => ({ ...previous, ...newCaptions }));
+      setImageAltTexts((previous) => ({ ...previous, ...newAltTexts }));
+      setImageMetaTags((previous) => ({ ...previous, ...newMetaTags }));
 
       showToast({
         message:
@@ -1252,6 +1280,16 @@ export default function AdminPortfolioPage() {
         delete updated[image.id];
         return updated;
       });
+      setImageAltTexts((previous) => {
+        const updated = { ...previous };
+        delete updated[image.id];
+        return updated;
+      });
+      setImageMetaTags((previous) => {
+        const updated = { ...previous };
+        delete updated[image.id];
+        return updated;
+      });
 
       await logUserAction({
         action: "portfolio_project_image_deleted",
@@ -1291,19 +1329,34 @@ export default function AdminPortfolioPage() {
     setImageCaptions((previous) => ({ ...previous, [imageId]: caption }));
   };
 
-  const handleGalleryCaptionSave = async (image: PortfolioProjectImage) => {
-    setSavingCaptionId(image.id);
+  const handleGalleryAltTextChange = (imageId: string, altText: string) => {
+    setImageAltTexts((previous) => ({ ...previous, [imageId]: altText }));
+  };
+
+  const handleGalleryMetaTagsChange = (imageId: string, tags: string) => {
+    setImageMetaTags((previous) => ({ ...previous, [imageId]: tags }));
+  };
+
+  const handleGalleryMetadataSave = async (image: PortfolioProjectImage) => {
+    setSavingMetadataId(image.id);
 
     try {
       const currentUser = await fetchCurrentUser();
       const caption = imageCaptions[image.id]?.trim() || null;
+      const altText = imageAltTexts[image.id]?.trim() || null;
+      const metaTagsInput = imageMetaTags[image.id] ?? "";
+      const metaTagsArray = metaTagsInput
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+      const metaTags = metaTagsArray.length > 0 ? metaTagsArray : null;
 
       const { data, error } = await supabase
         .from("portfolio_project_images")
-        .update({ caption })
+        .update({ caption, alt_text: altText, meta_tags })
         .eq("id", image.id)
         .select(
-          "id, project_id, caption, file_path, public_url, display_order",
+          "id, project_id, caption, alt_text, meta_tags, file_path, public_url, display_order",
         )
         .single();
 
@@ -1317,9 +1370,21 @@ export default function AdminPortfolioPage() {
           item.id === image.id ? data : item,
         ),
       }));
+      setImageCaptions((previous) => ({
+        ...previous,
+        [image.id]: data.caption ?? "",
+      }));
+      setImageAltTexts((previous) => ({
+        ...previous,
+        [image.id]: data.alt_text ?? "",
+      }));
+      setImageMetaTags((previous) => ({
+        ...previous,
+        [image.id]: (data.meta_tags ?? []).join(", "),
+      }));
 
       await logUserAction({
-        action: "portfolio_project_image_caption_saved",
+        action: "portfolio_project_image_metadata_saved",
         context: "admin",
         userId: currentUser.id,
         userEmail: currentUser.email ?? null,
@@ -1328,24 +1393,26 @@ export default function AdminPortfolioPage() {
         metadata: {
           projectId: image.project_id,
           caption,
+          altText,
+          metaTags: metaTags ?? [],
         },
       });
 
       showToast({
-        message: "Bildbeschreibung wurde gespeichert.",
+        message: "Bildmetadaten wurden gespeichert.",
         type: "success",
       });
     } catch (error) {
-      console.error("Fehler beim Speichern der Bildbeschreibung:", error);
+      console.error("Fehler beim Speichern der Bildmetadaten:", error);
       showToast({
         message:
           error instanceof Error
             ? error.message
-            : "Die Bildbeschreibung konnte nicht gespeichert werden.",
+            : "Die Bildmetadaten konnten nicht gespeichert werden.",
         type: "error",
       });
     } finally {
-      setSavingCaptionId(null);
+      setSavingMetadataId(null);
     }
   };
 
@@ -1839,7 +1906,11 @@ export default function AdminPortfolioPage() {
                                     <div className={styles.galleryImageWrapper}>
                                       <Image
                                         src={image.public_url}
-                                        alt={image.caption || project.title}
+                                        alt={
+                                          image.alt_text ||
+                                          image.caption ||
+                                          project.title
+                                        }
                                         width={200}
                                         height={140}
                                         className={styles.galleryImage}
@@ -1850,17 +1921,60 @@ export default function AdminPortfolioPage() {
                                         </span>
                                       ) : null}
                                     </div>
-                                    <input
-                                      type="text"
-                                      value={imageCaptions[image.id] ?? ""}
-                                      onChange={(event) =>
-                                        handleGalleryCaptionChange(
-                                          image.id,
-                                          event.target.value,
-                                        )
-                                      }
-                                      placeholder="Bildbeschreibung"
-                                    />
+                                    <div className={styles.galleryField}>
+                                      <label htmlFor={`image-caption-${image.id}`}>
+                                        Bildbeschreibung
+                                      </label>
+                                      <input
+                                        id={`image-caption-${image.id}`}
+                                        type="text"
+                                        value={imageCaptions[image.id] ?? ""}
+                                        onChange={(event) =>
+                                          handleGalleryCaptionChange(
+                                            image.id,
+                                            event.target.value,
+                                          )
+                                        }
+                                        placeholder="z. B. Sonnenaufgang über den Alpen"
+                                      />
+                                    </div>
+                                    <div className={styles.galleryField}>
+                                      <label htmlFor={`image-alt-${image.id}`}>
+                                        Alt-Text
+                                      </label>
+                                      <input
+                                        id={`image-alt-${image.id}`}
+                                        type="text"
+                                        value={imageAltTexts[image.id] ?? ""}
+                                        onChange={(event) =>
+                                          handleGalleryAltTextChange(
+                                            image.id,
+                                            event.target.value,
+                                          )
+                                        }
+                                        placeholder="z. B. Bergsteiger bei Sonnenaufgang"
+                                      />
+                                    </div>
+                                    <div className={styles.galleryField}>
+                                      <label htmlFor={`image-meta-${image.id}`}>
+                                        Meta-Tags
+                                      </label>
+                                      <input
+                                        id={`image-meta-${image.id}`}
+                                        type="text"
+                                        value={imageMetaTags[image.id] ?? ""}
+                                        onChange={(event) =>
+                                          handleGalleryMetaTagsChange(
+                                            image.id,
+                                            event.target.value,
+                                          )
+                                        }
+                                        placeholder="z. B. Alpen, Sonnenaufgang, Bergtour"
+                                      />
+                                      <span className={styles.galleryHint}>
+                                        Mehrere Begriffe mit Komma trennen.
+                                      </span>
+                                    </div>
                                     <div className={styles.galleryActions}>
                                       <button
                                         type="button"
@@ -1879,12 +1993,12 @@ export default function AdminPortfolioPage() {
                                       <button
                                         type="button"
                                         className="adminButton"
-                                        onClick={() => handleGalleryCaptionSave(image)}
-                                        disabled={savingCaptionId === image.id}
+                                        onClick={() => handleGalleryMetadataSave(image)}
+                                        disabled={savingMetadataId === image.id}
                                       >
-                                        {savingCaptionId === image.id
+                                        {savingMetadataId === image.id
                                           ? "Speichere..."
-                                          : "Beschreibung speichern"}
+                                          : "Metadaten speichern"}
                                       </button>
                                       <button
                                         type="button"
