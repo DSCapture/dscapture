@@ -184,6 +184,94 @@
   background-color: var(--primary);
 }
 
+.benefitsSection {
+  background: linear-gradient(180deg, #f7f8fb 0%, #eef1f7 100%);
+  color: var(--primary);
+  padding: clamp(3.5rem, 8vw, 6rem) 1.5rem clamp(4rem, 9vw, 7rem);
+  display: flex;
+  justify-content: center;
+}
+
+.benefitsWrapper {
+  width: min(1100px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+.benefitsHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  text-align: center;
+  max-width: 760px;
+}
+
+.benefitsEyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: rgba(32, 43, 72, 0.55);
+}
+
+.benefitsHeading {
+  margin: 0;
+  font-size: clamp(2rem, 2.6vw + 1rem, 2.8rem);
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.benefitsIntro {
+  margin: 0;
+  color: rgba(32, 43, 72, 0.7);
+  line-height: 1.7;
+  font-size: clamp(1rem, 1.2vw + 0.6rem, 1.2rem);
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  width: 100%;
+}
+
+.benefitCard {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  box-shadow: 0 24px 48px rgba(32, 43, 72, 0.08);
+  border: 1px solid rgba(32, 43, 72, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.benefitIndex {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(32, 43, 72, 0.4);
+}
+
+.benefitTitle {
+  margin: 0;
+  font-size: clamp(1.2rem, 1.4vw + 0.7rem, 1.6rem);
+  color: var(--primary);
+}
+
+.benefitDescription {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(32, 43, 72, 0.72);
+}
+
 .reviewsWrapper {
   position: relative;
   left: -2rem;
@@ -328,6 +416,10 @@
     gap: 1.5rem;
   }
 
+  .benefitsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .reviewsWrapper {
     gap: 1.75rem;
   }
@@ -372,6 +464,22 @@
     grid-template-columns: 1fr;
   }
 
+  .benefitsSection {
+    padding: 3.25rem 1.25rem 4rem;
+  }
+
+  .benefitsWrapper {
+    gap: 2.5rem;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefitCard {
+    padding: 1.75rem;
+  }
+
   .reviewsSection {
     padding: 3rem 1rem;
   }
@@ -392,6 +500,10 @@
   .reviewCard {
     flex-basis: 240px;
     padding: 1.5rem;
+  }
+
+  .benefitCard {
+    padding: 1.6rem;
   }
 
   .ctaButton {

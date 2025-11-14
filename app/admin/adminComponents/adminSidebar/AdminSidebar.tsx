@@ -132,6 +132,13 @@ const AdminSidebar = () => {
                         label: "Homepage Hero Manager",
                     },
                     {
+                        href: "/admin/homepage/benefits",
+                        icon: "bi-gift",
+                        label: "Homepage Benefits",
+                        matchPath: (currentPath: string) =>
+                            currentPath.startsWith("/admin/homepage/benefits"),
+                    },
+                    {
                         href: "/admin/photographer-intro",
                         icon: "bi-person-badge",
                         label: "Fotografenvorstellung",

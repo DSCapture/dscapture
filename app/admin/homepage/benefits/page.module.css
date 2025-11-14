@@ -1,0 +1,84 @@
+.benefitsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2rem 0 3rem;
+}
+
+.header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.header p {
+  margin: 0;
+  max-width: 680px;
+  color: rgba(32, 43, 72, 0.7);
+  line-height: 1.6;
+}
+
+.sectionHeader h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.4rem;
+  color: var(--primary);
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: rgba(32, 43, 72, 0.6);
+}
+
+.errorMessage {
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(214, 69, 69, 0.12);
+  color: #a02323;
+  border: 1px solid rgba(214, 69, 69, 0.18);
+}
+
+.benefitList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.benefitList .admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  background: rgba(249, 250, 251, 0.9);
+  border: 1px solid rgba(32, 43, 72, 0.08);
+}
+
+.benefitList .admin-form-field label {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.benefitList .admin-form-field textarea {
+  min-height: 160px;
+}
+
+@media (max-width: 960px) {
+  .benefitList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .benefitsContent {
+    padding: 1.5rem 0 2.5rem;
+  }
+
+  .benefitList {
+    grid-template-columns: 1fr;
+  }
+
+  .benefitList .admin-form {
+    padding: 1.25rem;
+  }
+}

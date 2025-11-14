@@ -16,6 +16,11 @@ type UspItem = {
   description: string;
 };
 
+type BenefitItem = {
+  title: string;
+  description: string;
+};
+
 type Review = {
   id: string;
   author: string;
@@ -45,6 +50,24 @@ const FALLBACK_USP_ITEMS: UspItem[] = [
     title: "Messbare digitale Ergebnisse",
     description:
       "Kreationen, die performen – wir gestalten digitale Experiences mit klaren KPIs und spürbarer Wirkung.",
+  },
+];
+
+const FALLBACK_BENEFITS: BenefitItem[] = [
+  {
+    title: "Strategie & Kreation aus einer Hand",
+    description:
+      "Wir begleiten Ihr Team von der Markenpositionierung bis zur finalen Produktion und sorgen für konsistente Botschaften in jedem Kanal.",
+  },
+  {
+    title: "Prozesse mit messbarem Impact",
+    description:
+      "Transparente Workflows, klare KPIs und regelmäßige Reportings stellen sicher, dass jede Produktion Ihr Business-Ziel unterstützt.",
+  },
+  {
+    title: "Premium Experience für Ihre Zielgruppe",
+    description:
+      "Wir kombinieren High-End-Visuals mit intuitiven digitalen Touchpoints, damit sich Ihre Marke unverwechselbar anfühlt.",
   },
 ];
 
@@ -98,6 +121,7 @@ const HomePageClient = () => {
   const [reviews, setReviews] = useState<Review[]>(FALLBACK_REVIEWS);
   const [photographerIntro, setPhotographerIntro] =
     useState<PhotographerIntro>(FALLBACK_PHOTOGRAPHER_INTRO);
+  const [benefits, setBenefits] = useState<BenefitItem[]>(FALLBACK_BENEFITS);
 
   const bgY = useTransform(scrollY, [0, 600], [0, 200]);
 
@@ -118,18 +142,29 @@ const HomePageClient = () => {
         .select("id, author, role, quote, rating, display_order")
         .order("display_order", { ascending: true });
 
+      const benefitsPromise = supabase
+        .from("homepage_benefits")
+        .select("title, description, display_order")
+        .order("display_order", { ascending: true });
+
       const photographerIntroPromise = supabase
         .from("homepage_photographer_intro")
         .select("heading, subheading, body")
         .maybeSingle();
 
-      const [imageResult, uspResult, reviewResult, photographerIntroResult] =
-        await Promise.all([
-          imagePromise,
-          uspPromise,
-          reviewsPromise,
-          photographerIntroPromise,
-        ]);
+      const [
+        imageResult,
+        uspResult,
+        reviewResult,
+        photographerIntroResult,
+        benefitsResult,
+      ] = await Promise.all([
+        imagePromise,
+        uspPromise,
+        reviewsPromise,
+        photographerIntroPromise,
+        benefitsPromise,
+      ]);
 
       if (!isMounted) {
         return;
@@ -198,6 +233,32 @@ const HomePageClient = () => {
         if (normalizedReviews.length > 0) {
           setReviews(normalizedReviews);
         }
+      }
+
+      const { data: benefitsData, error: benefitsError } = benefitsResult;
+
+      if (benefitsError) {
+        console.error("Fehler beim Laden der Benefits:", benefitsError.message);
+      } else if (benefitsData && benefitsData.length > 0) {
+        const benefitsByOrder = new Map(
+          benefitsData.map((record) => [record.display_order, record]),
+        );
+
+        const normalizedBenefits = [1, 2, 3].map((order, index) => {
+          const record = benefitsByOrder.get(order);
+          const fallback = FALLBACK_BENEFITS[index];
+
+          if (!record) {
+            return fallback;
+          }
+
+          return {
+            title: record.title?.trim() || fallback.title,
+            description: record.description?.trim() || fallback.description,
+          } satisfies BenefitItem;
+        });
+
+        setBenefits(normalizedBenefits);
       }
 
       const { data: photographerIntroData, error: photographerIntroError } =
@@ -327,7 +388,32 @@ const HomePageClient = () => {
               </article>
             ))}
           </div>
-          
+
+        </div>
+      </section>
+
+      <section className={styles.benefitsSection} aria-label="Ihre Vorteile mit DS_Capture">
+        <div className={styles.benefitsWrapper}>
+          <div className={styles.benefitsHeader}>
+            <p className={styles.benefitsEyebrow}>Ihre Vorteile</p>
+            <h2 className={styles.benefitsHeading}>
+              Warum DS_Capture Ihr Markenauftritt voranbringt
+            </h2>
+            <p className={styles.benefitsIntro}>
+              Drei klar strukturierte Leistungen, die Strategie, Kreation und Wirkung verbinden –
+              damit Ihr Auftritt nachhaltig im Gedächtnis bleibt.
+            </p>
+          </div>
+
+          <div className={styles.benefitsGrid}>
+            {benefits.map((benefit, index) => (
+              <article key={`${benefit.title}-${index}`} className={styles.benefitCard}>
+                <span className={styles.benefitIndex}>{String(index + 1).padStart(2, "0")}</span>
+                <h3 className={styles.benefitTitle}>{benefit.title}</h3>
+                <p className={styles.benefitDescription}>{benefit.description}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
