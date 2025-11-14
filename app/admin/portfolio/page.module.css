@@ -248,6 +248,18 @@
   border: 1px solid rgba(32, 43, 72, 0.1);
 }
 
+.galleryField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.galleryField label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
 .galleryItemCover {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(32, 43, 72, 0.25);
@@ -300,6 +312,11 @@
   border-color: var(--primary);
   background: var(--bg-light);
   box-shadow: 0 0 0 3px rgba(32, 43, 72, 0.16);
+}
+
+.galleryHint {
+  font-size: 0.75rem;
+  color: rgba(32, 43, 72, 0.6);
 }
 
 .galleryActions {
