@@ -50,6 +50,9 @@
     flex-direction: column;
     gap: .5rem;
     margin-top: 0;
+    max-height: calc(100vh - 15rem);
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .adminAccordion {
