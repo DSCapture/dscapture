@@ -35,6 +35,7 @@ export default function ServicesView({ services }: ServicesViewProps) {
   }
 
   const activeService = services[activeIndex];
+  const offsetPercentage = (activeIndex / services.length) * 100;
 
   const handlePrev = () => {
     setActiveIndex((index) => (index === 0 ? services.length - 1 : index - 1));
@@ -50,7 +51,7 @@ export default function ServicesView({ services }: ServicesViewProps) {
         <div className={styles.carousel}>
           <div
             className={styles.track}
-            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            style={{ transform: `translateX(-${offsetPercentage}%)` }}
           >
             {services.map((service, index) => (
               <article

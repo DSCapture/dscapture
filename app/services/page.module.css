@@ -43,6 +43,7 @@
 }
 
 .slide {
+  flex: 0 0 100%;
   min-width: 100%;
   min-height: 100%;
   padding: clamp(3rem, 5vw, 5rem);
