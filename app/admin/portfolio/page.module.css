@@ -329,6 +329,28 @@
   width: 100%;
 }
 
+.metadataSummary {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  background: rgba(32, 43, 72, 0.05);
+  border: 1px solid rgba(32, 43, 72, 0.1);
+  font-size: 0.85rem;
+  color: rgba(32, 43, 72, 0.78);
+}
+
+.metadataSummary div {
+  display: flex;
+  gap: 0.35rem;
+  line-height: 1.35;
+}
+
+.metadataLabel {
+  font-weight: 600;
+  color: var(--primary);
+}
+
 .errorText {
   color: #d9534f;
 }
@@ -345,6 +367,135 @@
 
   .coverPreview {
     flex-direction: column;
+  }
+}
+
+.metadataModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 30, 51, 0.55);
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  z-index: 1000;
+}
+
+.metadataModal {
+  width: min(720px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 32px 64px rgba(23, 30, 51, 0.28);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.metadataModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(32, 43, 72, 0.08);
+}
+
+.metadataModalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.metadataModalClose {
+  border: none;
+  background: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(32, 43, 72, 0.75);
+}
+
+.metadataModalBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.metadataModalPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.metadataModalImage {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 1px solid rgba(32, 43, 72, 0.12);
+  box-shadow: 0 20px 40px rgba(23, 30, 51, 0.18);
+}
+
+.metadataModalCaption {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(32, 43, 72, 0.7);
+}
+
+.metadataModalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metadataModalForm label {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.metadataModalForm input,
+.metadataModalForm textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(32, 43, 72, 0.16);
+  background: var(--bg);
+  font: inherit;
+  color: var(--primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metadataModalForm textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.metadataModalForm input:focus,
+.metadataModalForm textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(32, 43, 72, 0.16);
+}
+
+.metadataModalHint {
+  font-size: 0.8rem;
+  color: rgba(32, 43, 72, 0.6);
+}
+
+.metadataModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .metadataModalBody {
+    grid-template-columns: 1fr;
+  }
+
+  .metadataModalPreview {
+    align-items: stretch;
   }
 }
 

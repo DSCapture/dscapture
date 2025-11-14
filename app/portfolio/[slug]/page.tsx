@@ -21,7 +21,9 @@ type PortfolioProjectImage = {
   id: string;
   caption: string | null;
   alt_text: string | null;
-  meta_tags: string[] | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_keywords: string | null;
   public_url: string;
   display_order: number;
 };
@@ -48,7 +50,9 @@ const getProjectBySlug = cache(async (slug: string): Promise<ProjectWithImages> 
 
   const { data: images, error: imagesError } = await supabase
     .from("portfolio_project_images")
-    .select("id, caption, alt_text, meta_tags, public_url, display_order")
+    .select(
+      "id, caption, alt_text, meta_title, meta_description, meta_keywords, public_url, display_order",
+    )
     .eq("project_id", project.id)
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
@@ -100,28 +104,35 @@ export async function generateMetadata({ params }: GenerateMetadataProps): Promi
   }
 
   const canonicalUrl = `https://ds-capture.de/portfolio/${project.slug}`;
-  const description =
+  const defaultDescription =
     project.excerpt ??
     `Entdecke das Projekt "${project.title}" von DS_Capture mit ausgewählten Fotografien.`;
   const coverImage = images.find((image) => image.public_url === project.cover_public_url);
   const coverAltText = coverImage?.alt_text?.trim() || project.title;
+  const coverMetaTitle = coverImage?.meta_title?.trim();
+  const coverMetaDescription = coverImage?.meta_description?.trim();
   const keywordSet = new Set<string>();
+
   for (const image of images) {
-    for (const tag of image.meta_tags ?? []) {
-      const trimmedTag = tag.trim();
-      if (trimmedTag) {
-        keywordSet.add(trimmedTag);
-      }
+    const keywords = (image.meta_keywords ?? "")
+      .split(",")
+      .map((keyword) => keyword.trim())
+      .filter((keyword) => keyword.length > 0);
+
+    for (const keyword of keywords) {
+      keywordSet.add(keyword);
     }
   }
+
   const keywords = keywordSet.size > 0 ? Array.from(keywordSet) : undefined;
+  const description = coverMetaDescription ?? defaultDescription;
 
   return {
-    title: `${project.title} | DS_Capture`,
+    title: `${coverMetaTitle ?? project.title} | DS_Capture`,
     description,
     keywords,
     openGraph: {
-      title: `${project.title} | DS_Capture`,
+      title: `${coverMetaTitle ?? project.title} | DS_Capture`,
       description,
       type: "article",
       url: canonicalUrl,

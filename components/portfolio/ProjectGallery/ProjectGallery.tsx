@@ -8,7 +8,9 @@ type GalleryImage = {
   id: string;
   caption: string | null;
   alt_text: string | null;
-  meta_tags: string[] | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_keywords: string | null;
   public_url: string;
   display_order: number;
 };
@@ -94,7 +96,19 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
             image.alt_text?.trim() ||
             image.caption?.trim() ||
             projectTitle;
-          const metaTagsAttribute = image.meta_tags?.join(",") ?? undefined;
+          const metaTitle =
+            image.meta_title?.trim() ||
+            image.caption?.trim() ||
+            projectTitle;
+          const metaDescription =
+            image.meta_description?.trim() ||
+            image.caption?.trim() ||
+            projectTitle;
+          const metaKeywords = (image.meta_keywords ?? "")
+            .split(",")
+            .map((keyword) => keyword.trim())
+            .filter((keyword) => keyword.length > 0)
+            .join(", ");
 
           return (
             <button
@@ -103,13 +117,18 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
               className={styles.thumbnailButton}
               onClick={() => openLightbox(index)}
               aria-label={`Bild ${index + 1} in Großansicht öffnen`}
-              data-meta-tags={metaTagsAttribute}
+              data-meta-title={metaTitle}
+              data-meta-description={metaDescription}
+              data-meta-keywords={metaKeywords || undefined}
             >
               <span
                 className={styles.thumbnailInner}
                 style={{
                   aspectRatio: imageRatios[image.id] ?? 4 / 3,
                 }}
+                itemProp="associatedMedia"
+                itemScope
+                itemType="https://schema.org/ImageObject"
               >
                 <Image
                   src={image.public_url}
@@ -117,6 +136,7 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 320px"
                   className={styles.thumbnailImage}
+                  itemProp="contentUrl"
                   onLoadingComplete={({ naturalWidth, naturalHeight }) => {
                     if (naturalWidth && naturalHeight) {
                       setImageRatios((previous) => {
@@ -132,6 +152,11 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
                     }
                   }}
                 />
+                <meta itemProp="name" content={metaTitle} />
+                <meta itemProp="description" content={metaDescription} />
+                {metaKeywords ? (
+                  <meta itemProp="keywords" content={metaKeywords} />
+                ) : null}
               </span>
               {image.caption ? (
                 <span className={styles.thumbnailCaption}>{image.caption}</span>
@@ -158,7 +183,11 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
               &times;
             </button>
 
-            <div className={styles.lightboxImageWrapper}>
+            <div
+              className={styles.lightboxImageWrapper}
+              itemScope
+              itemType="https://schema.org/ImageObject"
+            >
               <Image
                 src={activeImage.public_url}
                 alt={
@@ -169,7 +198,34 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
                 fill
                 sizes="100vw"
                 className={styles.lightboxImage}
+                itemProp="contentUrl"
               />
+              <meta
+                itemProp="name"
+                content={
+                  activeImage.meta_title?.trim() ||
+                  activeImage.caption?.trim() ||
+                  projectTitle
+                }
+              />
+              <meta
+                itemProp="description"
+                content={
+                  activeImage.meta_description?.trim() ||
+                  activeImage.caption?.trim() ||
+                  projectTitle
+                }
+              />
+              {(() => {
+                const keywords = (activeImage.meta_keywords ?? "")
+                  .split(",")
+                  .map((keyword) => keyword.trim())
+                  .filter((keyword) => keyword.length > 0)
+                  .join(", ");
+                return keywords ? (
+                  <meta itemProp="keywords" content={keywords} />
+                ) : null;
+              })()}
             </div>
 
             {activeImage.caption ? (
