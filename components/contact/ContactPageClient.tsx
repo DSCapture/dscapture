@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { logUserAction } from "@/lib/logger";
+import { sendContactNotification } from "@/lib/email/sendContactNotification";
 import styles from "@/app/kontakt/contact.module.css";
 
 const ContactPageClient = () => {
@@ -35,27 +36,32 @@ const ContactPageClient = () => {
     setError(null);
     setFeedback(null);
 
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedSubject = subject.trim();
+    const trimmedPhone = phone.trim();
+    const trimmedMessage = message.trim();
+
     const { error: insertError } = await supabase.from("contact_messages").insert({
-      name: name.trim(),
-      email: email.trim(),
-      subject: subject.trim() || null,
-      phone: phone.trim() || null,
-      message: message.trim(),
+      name: trimmedName,
+      email: trimmedEmail,
+      subject: trimmedSubject || null,
+      phone: trimmedPhone || null,
+      message: trimmedMessage,
     });
 
-    setIsSubmitting(false);
-
     if (insertError) {
+      setIsSubmitting(false);
       setError("Etwas ist schiefgelaufen. Bitte versuche es erneut.");
       await logUserAction({
         action: "contact_message_failed",
         context: "public",
-        userEmail: email.trim(),
+        userEmail: trimmedEmail,
         description: "Kontaktformular konnte nicht gespeichert werden.",
         metadata: {
           error: insertError.message,
-          hasSubject: Boolean(subject.trim()),
-          hasPhone: Boolean(phone.trim()),
+          hasSubject: Boolean(trimmedSubject),
+          hasPhone: Boolean(trimmedPhone),
         },
       });
       return;
@@ -64,13 +70,46 @@ const ContactPageClient = () => {
     await logUserAction({
       action: "contact_message_submitted",
       context: "public",
-      userEmail: email.trim(),
+      userEmail: trimmedEmail,
       description: "Kontaktformular wurde erfolgreich abgesendet.",
       metadata: {
-        hasSubject: Boolean(subject.trim()),
-        hasPhone: Boolean(phone.trim()),
+        hasSubject: Boolean(trimmedSubject),
+        hasPhone: Boolean(trimmedPhone),
       },
     });
+
+    try {
+      await sendContactNotification({
+        name: trimmedName,
+        email: trimmedEmail,
+        subject: trimmedSubject,
+        phone: trimmedPhone,
+        message: trimmedMessage,
+        hasAcceptedPrivacy,
+        submittedAt: new Date().toISOString(),
+      });
+    } catch (notificationError) {
+      console.error("Fehler beim Versenden der Kontaktbenachrichtigung:", notificationError);
+      await logUserAction({
+        action: "contact_notification_failed",
+        context: "public",
+        userEmail: trimmedEmail,
+        description: "Kontaktformular wurde gespeichert, aber die E-Mail-Benachrichtigung ist fehlgeschlagen.",
+        metadata: {
+          error:
+            notificationError instanceof Error ? notificationError.message : String(notificationError),
+          hasSubject: Boolean(trimmedSubject),
+          hasPhone: Boolean(trimmedPhone),
+        },
+      });
+      setIsSubmitting(false);
+      setError(
+        "Deine Nachricht wurde gespeichert, aber die E-Mail-Benachrichtigung konnte nicht versendet werden. Bitte kontaktiere uns direkt per E-Mail.",
+      );
+      return;
+    }
+
+    setIsSubmitting(false);
 
     setFeedback("Danke für deine Nachricht! Wir melden uns zeitnah bei dir.");
     setName("");
