@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import type { Swiper as SwiperInstance } from "swiper";
 
 import type { ServiceSwiperProps } from "./types";
 
@@ -25,10 +24,18 @@ export default function ServiceSwiper({ services }: ServiceSwiperProps) {
 
   const activeService = useMemo(() => services[activeIndex] ?? null, [activeIndex, services]);
 
-  const handleSlideChange = useCallback((swiper: SwiperInstance) => {
-    const newIndex = typeof swiper.realIndex === "number" ? swiper.realIndex : swiper.activeIndex;
-    setActiveIndex(newIndex ?? 0);
-  }, []);
+  const handleSlideChange = useCallback(
+    (index: number) => {
+      if (!Number.isFinite(index) || services.length === 0) {
+        return;
+      }
+
+      const maxIndex = services.length - 1;
+      const boundedIndex = Math.min(Math.max(Math.trunc(index), 0), maxIndex);
+      setActiveIndex(boundedIndex);
+    },
+    [services.length],
+  );
 
   if (services.length === 0) {
     return null;

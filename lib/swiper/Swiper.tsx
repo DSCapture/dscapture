@@ -29,6 +29,7 @@ interface SwiperProps {
   slidesPerView?: number;
   breakpoints?: Record<number, SwiperBreakpointOptions>;
   navigation?: boolean | SwiperNavigationOptions;
+  onSlideChange?: (activeIndex: number) => void;
 }
 
 interface SwiperSlideProps {
@@ -63,6 +64,7 @@ const Swiper = ({
   slidesPerView = 1,
   breakpoints = {},
   navigation = false,
+  onSlideChange,
 }: SwiperProps) => {
   const slides = useMemo(() => {
     return (Array.isArray(children) ? children : [children]).filter(Boolean) as ReactNode[];
@@ -70,6 +72,10 @@ const Swiper = ({
 
   const [currentSlidesPerView, setCurrentSlidesPerView] = useState(slidesPerView);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    onSlideChange?.(activeIndex);
+  }, [activeIndex, onSlideChange]);
 
   useEffect(() => {
     const updateSlidesPerView = () => {
