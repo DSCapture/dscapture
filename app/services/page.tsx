@@ -84,8 +84,11 @@ async function fetchServices(): Promise<ServiceDefinition[]> {
     process.env.NEXT_PUBLIC_SUPABASE_SERVICE_BUCKET ?? "service-carousel";
 
   return data.map((service) => {
-    const primaryImage = (service.service_slide_images ?? [])
-      .slice()
+    const slideImages = Array.isArray(service.service_slide_images)
+      ? [...service.service_slide_images]
+      : [];
+
+    const primaryImage = slideImages
       .sort(
         (a, b) =>
           new Date(b.created_at).getTime() -
