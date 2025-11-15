@@ -2,8 +2,12 @@
 
 import dynamic from "next/dynamic";
 
-const ServiceSwiper = dynamic(() => import("./ServiceSwiper"), {
+import type { ServiceSwiperProps } from "./types";
+
+const ServiceSwiper = dynamic<ServiceSwiperProps>(() => import("./ServiceSwiper"), {
   ssr: false,
 });
 
-export default ServiceSwiper;
+export default function ServiceSwiperClient(props: ServiceSwiperProps) {
+  return <ServiceSwiper {...props} />;
+}

@@ -1,81 +1,47 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Image from "next/image";
+import type { Swiper as SwiperInstance } from "swiper";
 
-// Styles laden
+import type { ServiceSwiperProps } from "./types";
+
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-type SlideProject = {
-  label: string;
-  url: string;
-};
+const FALLBACK_GRADIENT_START = "#111827";
+const FALLBACK_GRADIENT_END = "#1f2937";
 
-type Slide = {
-  id: number;
-  title: string;
-  description: string;
-  imageSrc: string;
-  projects: SlideProject[];
-};
+export default function ServiceSwiper({ services }: ServiceSwiperProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
 
-const SLIDES: Slide[] = [
-  {
-    id: 1,
-    title: "Brand & Webdesign",
-    description:
-      "Klarer, konsistenter Markenauftritt – vom ersten Eindruck bis zum letzten Pixel.",
-    imageSrc: "/images/service-brand-webdesign.jpg",
-    projects: [
-      { label: "Projekt Alpha", url: "/portfolio/projekt-alpha" },
-      { label: "Projekt Beta", url: "/portfolio/projekt-beta" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Fotografie & Art Direction",
-    description:
-      "Bildwelten, die deine Story transportieren und deine Zielgruppe emotional abholen.",
-    imageSrc: "/images/service-photography.jpg",
-    projects: [
-      { label: "Studio Portraits", url: "/portfolio/studio-portraits" },
-      { label: "On-Location Shoot", url: "/portfolio/location-shoot" },
-    ],
-  },
-  {
-    id: 3,
-    title: "Content-Produktion",
-    description:
-      "Social-, Website- und Kampagnen-Content aus einem Guss – effizient produziert.",
-    imageSrc: "/images/service-content.jpg",
-    projects: [
-      { label: "Campaign X", url: "/portfolio/campaign-x" },
-      { label: "Shortform Reels", url: "/portfolio/reels" },
-    ],
-  },
-  {
-    id: 4,
-    title: "Strategie & Begleitung",
-    description:
-      "Gemeinsamer Sparringspartner für Positionierung, Funnel-Logik und Markenaufbau.",
-    imageSrc: "/images/service-strategy.jpg",
-    projects: [
-      { label: "Brand Sprint", url: "/portfolio/brand-sprint" },
-      { label: "Relaunch DS_Capture", url: "/portfolio/ds-capture" },
-    ],
-  },
-];
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [services]);
 
-export default function ServiceSwiper() {
+  const activeService = useMemo(() => services[activeIndex] ?? null, [activeIndex, services]);
+
+  const handleSlideChange = useCallback((swiper: SwiperInstance) => {
+    const newIndex = typeof swiper.realIndex === "number" ? swiper.realIndex : swiper.activeIndex;
+    setActiveIndex(newIndex ?? 0);
+  }, []);
+
+  if (services.length === 0) {
+    return null;
+  }
+
   return (
     <div className="swiper-wrapper-container">
-      
-      {/* Buttons */}
-      <button className="nav-btn nav-btn-prev">prev</button>
-      <button className="nav-btn nav-btn-next">next</button>
+      <button className="nav-btn nav-btn-prev" aria-label="Vorheriger Service">
+        ‹
+      </button>
+      <button className="nav-btn nav-btn-next" aria-label="Nächster Service">
+        ›
+      </button>
 
       <Swiper
         modules={[Navigation, Pagination]}
@@ -89,159 +55,259 @@ export default function ServiceSwiper() {
           el: ".swiper-pagination",
           clickable: true,
         }}
+        onSlideChange={handleSlideChange}
       >
-        {SLIDES.map((slide) => (
-          <SwiperSlide key={slide.id}>
-            <div className="slide">
-              {/* Hexagon Image */}
-              <div className="slide-left">
-                <div className="hexagon">
-                  <Image
-                    src={slide.imageSrc}
-                    alt={slide.title}
-                    fill
-                    style={{ objectFit: "cover" }}
-                  />
+        {services.map((service) => {
+          const gradientStart = service.gradientStart || FALLBACK_GRADIENT_START;
+          const gradientEnd = service.gradientEnd || FALLBACK_GRADIENT_END;
+          return (
+            <SwiperSlide key={service.id}>
+              <div
+                className="slide"
+                style={{
+                  background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                }}
+              >
+                <div className="slide-left">
+                  <div className={`hexagon${service.imageUrl ? "" : " hexagon-placeholder"}`}>
+                    {service.imageUrl ? (
+                      <Image src={service.imageUrl} alt={service.imageAlt} fill sizes="(max-width: 768px) 60vw, 320px" />
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="slide-right">
+                  <span className="slide-label">{service.label}</span>
+                  <h2>{service.headline}</h2>
+                  <p>{service.subline}</p>
+
+                  <Link href="/kontakt" className="contact-btn">
+                    Jetzt anfragen
+                  </Link>
+
+                  {service.projects.length > 0 && (
+                    <div className="projects">
+                      <span className="projects-label">Ausgewählte Projekte:</span>
+                      <ul>
+                        {service.projects.map((project) => {
+                          const slug = project.slug?.trim();
+                          const href = slug ? `/portfolio/${slug}` : undefined;
+                          return (
+                            <li key={project.id}>
+                              {href ? (
+                                <Link href={href}>{project.title}</Link>
+                              ) : (
+                                <span>{project.title}</span>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Textcontent */}
-              <div className="slide-right">
-                <h2>{slide.title}</h2>
-                <p>{slide.description}</p>
-
-                <button className="contact-btn">Jetzt anfragen</button>
-
-                {slide.projects.length > 0 && (
-                  <div className="projects">
-                    <span className="projects-label">Ausgewählte Projekte:</span>
-                    <ul>
-                      {slide.projects.map((project) => (
-                        <li key={project.url}>
-                          <a href={project.url}>{project.label}</a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
 
-      {/* Pagination */}
-      <div className="swiper-pagination"></div>
+      <div className="swiper-pagination" />
 
-      {/* Styles */}
+      {activeService && (
+        <section className="service-info" aria-live="polite">
+          <header className="info-header">
+            {activeService.infoTitle ? <h3>{activeService.infoTitle}</h3> : <h3>{activeService.headline}</h3>}
+            <p>{activeService.subline}</p>
+          </header>
+
+          <div className="info-content">
+            {activeService.infoParagraphs.length > 0 && (
+              <div className="info-text">
+                {activeService.infoParagraphs.map((paragraph, index) => (
+                  <p key={`${activeService.id}-paragraph-${index}`}>{paragraph}</p>
+                ))}
+              </div>
+            )}
+
+            {activeService.infoBulletPoints.length > 0 && (
+              <ul className="info-list">
+                {activeService.infoBulletPoints.map((item, index) => (
+                  <li key={`${activeService.id}-bullet-${index}`}>{item}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+      )}
+
       <style jsx>{`
         .swiper-wrapper-container {
           position: relative;
           width: 100%;
           margin: 0 auto;
           padding: 2rem 0 3rem;
+          display: grid;
+          gap: 2.5rem;
+          max-width: 1100px;
         }
 
         .slide {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-          gap: 2rem;
+          grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr);
+          gap: clamp(1.5rem, 4vw, 3rem);
           align-items: center;
+          border-radius: 28px;
+          padding: clamp(2rem, 5vw, 3rem);
+          color: #f8fafc;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 28px 60px rgba(15, 23, 42, 0.35);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
           .slide {
             grid-template-columns: 1fr;
+            text-align: center;
+          }
+
+          .slide-right {
+            align-items: center;
           }
         }
 
         .slide-left {
           display: flex;
           justify-content: center;
+          align-items: center;
         }
 
         .hexagon {
           position: relative;
-          width: 260px;
+          width: clamp(220px, 30vw, 300px);
           aspect-ratio: 1/1;
           clip-path: polygon(
-            25% 5%,
-            75% 5%,
+            25% 6%,
+            75% 6%,
             100% 50%,
-            75% 95%,
-            25% 95%,
+            75% 94%,
+            25% 94%,
             0% 50%
           );
           overflow: hidden;
+          background: rgba(15, 23, 42, 0.35);
+        }
+
+        .hexagon :global(img) {
+          object-fit: cover;
+        }
+
+        .hexagon-placeholder {
+          background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(30, 41, 59, 0.6));
+        }
+
+        .slide-right {
+          display: grid;
+          gap: 1.25rem;
+          align-items: start;
+        }
+
+        .slide-label {
+          display: inline-block;
+          font-size: 0.85rem;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          font-weight: 600;
+          opacity: 0.85;
         }
 
         .slide-right h2 {
-          font-size: 1.8rem;
-          margin-bottom: 0.75rem;
+          font-size: clamp(2rem, 4vw, 2.75rem);
+          margin: 0;
         }
 
         .slide-right p {
-          margin-bottom: 1.5rem;
+          margin: 0;
           line-height: 1.6;
-          color: #4b5563;
+          color: rgba(248, 250, 252, 0.85);
+          font-size: clamp(1rem, 2.2vw, 1.2rem);
         }
 
         .contact-btn {
-          padding: 0.75rem 1.5rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.85rem 1.75rem;
           border-radius: 999px;
-          border: none;
-          cursor: pointer;
           font-weight: 600;
-          background: linear-gradient(135deg, #111827, #1f2937);
-          color: #f9fafb;
-          margin-bottom: 1rem;
+          text-decoration: none;
+          background: rgba(15, 23, 42, 0.95);
+          color: #f8fafc;
+          transition: transform 0.3s ease, background 0.3s ease;
         }
 
-        .contact-btn:hover {
-          opacity: 0.9;
+        .contact-btn:hover,
+        .contact-btn:focus-visible {
+          background: rgba(15, 23, 42, 0.8);
+          transform: translateY(-1px);
         }
 
         .projects {
-          font-size: 0.9rem;
+          font-size: 0.95rem;
+          display: grid;
+          gap: 0.75rem;
         }
 
         .projects-label {
-          display: block;
-          margin-bottom: 0.25rem;
           font-weight: 600;
+          opacity: 0.9;
         }
 
         .projects ul {
           list-style: none;
           padding: 0;
+          margin: 0;
           display: flex;
-          gap: 0.5rem 1rem;
           flex-wrap: wrap;
+          gap: 0.75rem 1.25rem;
         }
 
         .projects a {
+          color: #f8fafc;
           text-decoration: none;
-          color: #111827;
-          border-bottom: 1px solid rgba(15, 23, 42, 0.2);
+          border-bottom: 1px solid rgba(248, 250, 252, 0.45);
+          padding-bottom: 0.1rem;
         }
 
-        .projects a:hover {
-          border-bottom-color: #111827;
+        .projects a:hover,
+        .projects a:focus-visible {
+          border-bottom-color: #f8fafc;
         }
 
-        /* Navigation Buttons */
+        .projects span {
+          color: rgba(248, 250, 252, 0.7);
+        }
+
         .nav-btn {
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
           z-index: 10;
-          background: rgba(15, 23, 42, 0.9);
-          color: white;
+          background: rgba(15, 23, 42, 0.55);
+          color: #f8fafc;
           border: none;
           border-radius: 999px;
-          padding: 0.5rem 1rem;
+          padding: 0.6rem 0.9rem;
           cursor: pointer;
-          font-weight: 600;
+          font-size: 1.5rem;
+          font-weight: 500;
+          transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .nav-btn:hover,
+        .nav-btn:focus-visible {
+          background: rgba(15, 23, 42, 0.85);
+          transform: translateY(-50%) scale(1.05);
         }
 
         .nav-btn-prev {
@@ -261,20 +327,86 @@ export default function ServiceSwiper() {
           }
         }
 
-        /* Pagination */
         :global(.swiper-pagination) {
-          bottom: 0 !important;
+          bottom: -0.5rem !important;
         }
 
         :global(.swiper-pagination-bullet) {
           width: 10px;
           height: 10px;
-          background: #d1d5db;
+          background: rgba(15, 23, 42, 0.25);
           opacity: 1;
         }
 
         :global(.swiper-pagination-bullet-active) {
-          background: #111827;
+          background: rgba(15, 23, 42, 0.75);
+        }
+
+        .service-info {
+          background: #ffffff;
+          border-radius: 28px;
+          padding: clamp(2rem, 4vw, 3rem);
+          box-shadow: 0 22px 55px rgba(15, 23, 42, 0.15);
+          display: grid;
+          gap: 1.75rem;
+          color: #0f172a;
+        }
+
+        .info-header h3 {
+          font-size: clamp(1.75rem, 3vw, 2.25rem);
+          margin: 0 0 0.5rem;
+        }
+
+        .info-header p {
+          margin: 0;
+          color: #475467;
+          font-size: 1.05rem;
+        }
+
+        .info-content {
+          display: grid;
+          gap: clamp(1.5rem, 3vw, 2.5rem);
+        }
+
+        @media (min-width: 900px) {
+          .info-content {
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: start;
+          }
+        }
+
+        .info-text {
+          display: grid;
+          gap: 1rem;
+          line-height: 1.7;
+          font-size: 1.05rem;
+        }
+
+        .info-text p {
+          margin: 0;
+        }
+
+        .info-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          gap: 0.75rem;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .info-list li::before {
+          content: "•";
+          color: #2563eb;
+          margin-right: 0.5rem;
+        }
+
+        .info-list li {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          line-height: 1.5;
         }
       `}</style>
     </div>
