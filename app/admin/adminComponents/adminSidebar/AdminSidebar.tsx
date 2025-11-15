@@ -187,7 +187,9 @@ const AdminSidebar = () => {
                 href: "/admin/contact",
                 icon: "bi-envelope",
                 label: "Kontaktanfragen",
-                matchPath: (currentPath: string) => currentPath.startsWith("/admin/contact"),
+                matchPath: (currentPath: string) =>
+                    currentPath.startsWith("/admin/contact") &&
+                    !currentPath.startsWith("/admin/contact/dsgvo-loeschung"),
             },
             {
                 type: "group",
@@ -201,6 +203,14 @@ const AdminSidebar = () => {
                         label: "Aktivitäts Log",
                     },
                 ],
+            },
+            {
+                type: "link",
+                href: "/admin/contact/dsgvo-loeschung",
+                icon: "bi-shield-lock",
+                label: "DSGVO-Löschung",
+                matchPath: (currentPath: string) =>
+                    currentPath.startsWith("/admin/contact/dsgvo-loeschung"),
             },
         ],
         [],

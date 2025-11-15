@@ -1,0 +1,197 @@
+.gdprContent {
+  gap: 3rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.header p {
+  color: rgba(32, 43, 72, 0.7);
+  max-width: 720px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.deleteAllButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #d7263d, #f46036);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 15px 35px rgba(247, 96, 54, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.deleteAllButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 40px rgba(247, 96, 54, 0.45);
+}
+
+.deleteAllButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.infoBox {
+  background: rgba(247, 96, 54, 0.08);
+  border: 1px solid rgba(247, 96, 54, 0.25);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.infoBox strong {
+  display: block;
+  font-size: 1rem;
+  color: #c5371d;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.messageCard {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(32, 43, 72, 0.08);
+  padding: 1.5rem;
+  box-shadow: 0 15px 35px rgba(23, 30, 51, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cardTitle h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.cardTitle a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cardTitle a:hover {
+  text-decoration: underline;
+}
+
+.cardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: rgba(32, 43, 72, 0.75);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.5rem 1rem;
+  font-size: 0.95rem;
+  color: rgba(32, 43, 72, 0.75);
+}
+
+.messageBody {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(32, 43, 72, 0.9);
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.deleteButton {
+  border: 1px solid rgba(215, 38, 61, 0.3);
+  background: transparent;
+  color: #d7263d;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: rgba(215, 38, 61, 0.08);
+}
+
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.emptyState,
+.errorMessage {
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid rgba(32, 43, 72, 0.1);
+  background: rgba(32, 43, 72, 0.03);
+}
+
+.errorMessage {
+  border-color: rgba(215, 38, 61, 0.4);
+  background: rgba(215, 38, 61, 0.08);
+  color: #b81b34;
+}
+
+.statsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-weight: 600;
+  color: rgba(32, 43, 72, 0.9);
+}
+
+.statsBar span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.loadingState {
+  color: rgba(32, 43, 72, 0.7);
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
