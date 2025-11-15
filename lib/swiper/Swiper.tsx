@@ -111,7 +111,9 @@ const Swiper = ({
       <div
         className="swiper-wrapper"
         style={{
+          display: "flex",
           gap: `${spaceBetween}px`,
+          transition: "transform 0.3s ease",
           transform: `translateX(-${translatePercentage}%)`,
         }}
       >
@@ -119,7 +121,11 @@ const Swiper = ({
           <div
             key={(slide as { key?: string | number }).key ?? index}
             className="swiper-slide"
-            style={{ minWidth: `${100 / currentSlidesPerView}%` }}
+            style={{
+              boxSizing: "border-box",
+              flex: `0 0 ${100 / currentSlidesPerView}%`,
+              maxWidth: `${100 / currentSlidesPerView}%`,
+            }}
           >
             {slide}
           </div>
