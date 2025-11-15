@@ -10,12 +10,22 @@ const sitemapLinks = [
   { href: "/", label: "Home" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/blog", label: "Blog" },
-  { href: "/kontakt", label: "Kontakt" },
 ];
 
 const legalLinks = [
   { href: "/impressum", label: "Impressum" },
   { href: "/datenschutz", label: "Datenschutz" },
+];
+
+const socialLinks = [
+  {
+    href: "https://www.instagram.com/ds_capture_portraits/",
+    label: "Instagram",
+  },
+  {
+    href: "https://www.linkedin.com/in/dawid-chmielewski-860308209/",
+    label: "LinkedIn",
+  },
 ];
 
 export default function Footer() {
@@ -60,14 +70,30 @@ export default function Footer() {
               </Link>
             ))}
             {openPreferences && (
-            <button
-              type="button"
-              className={styles.preferencesButton}
-              onClick={openPreferences}
-            >
-              Cookie-Einstellungen
-            </button>
-          )}
+              <button
+                type="button"
+                className={styles.preferencesButton}
+                onClick={openPreferences}
+              >
+                Cookie-Einstellungen
+              </button>
+            )}
+          </nav>
+        </div>
+
+        <div className={styles.navigationGroup}>
+          <h2 className={styles.groupTitle}>Kontakt</h2>
+          <nav className={styles.linkList} aria-label="Kontakt">
+            <Link className={styles.link} href="/kontakt">
+              Kontaktformular
+            </Link>
+            <div className={styles.socialLinks}>
+              {socialLinks.map((link) => (
+                <Link key={link.href} className={styles.socialLink} href={link.href}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </nav>
         </div>
       </div>
