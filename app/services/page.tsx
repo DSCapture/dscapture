@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
-
-const ServiceSwiper = dynamic(() => import("./ServiceSwiper"), {
-  ssr: false,
-});
+import ServiceSwiper from "./ServiceSwiperClient";
 
 export const metadata: Metadata = {
   title: "Service | DS_Capture",
