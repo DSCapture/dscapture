@@ -8,6 +8,7 @@ import { useCookieConsentContext } from "@/components/cookieConsent/CookieConsen
 
 const sitemapLinks = [
   { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/blog", label: "Blog" },
 ];
