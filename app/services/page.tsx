@@ -24,6 +24,12 @@ type ServiceRecord = {
   gradient_start: string | null;
   gradient_end: string | null;
   image_path: string | null;
+  service_slide_images: {
+    id: string;
+    file_path: string;
+    public_url: string | null;
+    created_at: string;
+  }[] | null;
   service_portfolio_projects: {
     id: string;
     project_id: string;
@@ -43,6 +49,12 @@ async function fetchServices(): Promise<ServiceDefinition[]> {
     .from<ServiceRecord>("services")
     .select(
       `id, slug, label, headline, subline, info_title, info_paragraphs, info_bullet_points, gradient_start, gradient_end, image_path,
+        service_slide_images (
+          id,
+          file_path,
+          public_url,
+          created_at
+        ),
         service_portfolio_projects (
           id,
           project_id,
@@ -72,13 +84,24 @@ async function fetchServices(): Promise<ServiceDefinition[]> {
     process.env.NEXT_PUBLIC_SUPABASE_SERVICE_BUCKET ?? "service-carousel";
 
   return data.map((service) => {
-    const imagePath = service.image_path ?? "";
+    const primaryImage = (service.service_slide_images ?? [])
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() -
+          new Date(a.created_at).getTime(),
+      )[0];
+    const imagePath = primaryImage?.file_path ?? service.image_path ?? "";
     const normalizedPath = imagePath.replace(/^\/+/, "");
-    const imageUrl = imagePath.startsWith("http")
-      ? imagePath
-      : supabaseUrl
-        ? `${supabaseUrl}/storage/v1/object/public/${bucketName}/${normalizedPath}`
-        : normalizedPath;
+    const imageUrl = primaryImage?.public_url
+      ? primaryImage.public_url
+      : imagePath
+        ? imagePath.startsWith("http")
+          ? imagePath
+          : supabaseUrl
+            ? `${supabaseUrl}/storage/v1/object/public/${bucketName}/${normalizedPath}`
+            : normalizedPath
+        : "";
 
     return {
       id: service.slug,

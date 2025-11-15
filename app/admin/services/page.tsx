@@ -1,6 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+
+const SERVICE_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_BUCKET ?? "service-carousel";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 import AdminSidebar from "../adminComponents/adminSidebar/AdminSidebar";
 import { useVerifyAdminAccess } from "@/lib/verifyAdminAccess";
 import { supabase } from "@/lib/supabaseClient";
@@ -12,6 +15,15 @@ type ServicePortfolioAssignment = {
   id: string;
   project_id: string;
   display_order: number;
+};
+
+type ServiceSlideImageRecord = {
+  id: string;
+  service_slug?: string;
+  file_path: string;
+  public_url: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 type ServiceRecord = {
@@ -26,6 +38,7 @@ type ServiceRecord = {
   gradient_start: string | null;
   gradient_end: string | null;
   image_path: string | null;
+  service_slide_images: ServiceSlideImageRecord[] | null;
   service_portfolio_projects: ServicePortfolioAssignment[] | null;
 };
 
@@ -51,6 +64,7 @@ type ServiceFormState = {
   gradientStart: string;
   gradientEnd: string;
   imagePath: string;
+  imagePublicUrl: string;
   selectedProjects: ProjectSelection[];
 };
 
@@ -64,6 +78,7 @@ const emptyForm: ServiceFormState = {
   gradientStart: "",
   gradientEnd: "",
   imagePath: "",
+  imagePublicUrl: "",
   selectedProjects: [],
 };
 
@@ -76,6 +91,18 @@ const parseMultilineInput = (input: string) =>
     .filter((line) => line.length > 0);
 
 function mapServiceToForm(service: ServiceRecord): ServiceFormState {
+  const primaryImage = getPrimaryServiceImage(service);
+  const imagePath = primaryImage?.file_path ?? service.image_path ?? "";
+  const normalizedPath = imagePath.replace(/^\/+/, "");
+  const derivedPublicUrl = primaryImage?.public_url
+    ? primaryImage.public_url
+    : imagePath
+      ? imagePath.startsWith("http")
+        ? imagePath
+        : SUPABASE_URL
+          ? `${SUPABASE_URL}/storage/v1/object/public/${SERVICE_BUCKET}/${normalizedPath}`
+          : ""
+      : "";
   return {
     label: service.label ?? "",
     headline: service.headline ?? "",
@@ -85,7 +112,8 @@ function mapServiceToForm(service: ServiceRecord): ServiceFormState {
     infoBulletPoints: normalizeMultiline(service.info_bullet_points ?? []),
     gradientStart: service.gradient_start ?? "",
     gradientEnd: service.gradient_end ?? "",
-    imagePath: service.image_path ?? "",
+    imagePath,
+    imagePublicUrl: derivedPublicUrl,
     selectedProjects: (service.service_portfolio_projects ?? [])
       .slice()
       .sort((a, b) => a.display_order - b.display_order)
@@ -94,6 +122,21 @@ function mapServiceToForm(service: ServiceRecord): ServiceFormState {
         displayOrder: assignment.display_order,
       })),
   } satisfies ServiceFormState;
+}
+
+function getPrimaryServiceImage(service: ServiceRecord): ServiceSlideImageRecord | null {
+  const images = service.service_slide_images ?? [];
+  if (images.length === 0) {
+    return null;
+  }
+
+  return images
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime(),
+    )[0];
 }
 
 export default function AdminServicesPage() {
@@ -105,6 +148,9 @@ export default function AdminServicesPage() {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [serviceForms, setServiceForms] = useState<Record<string, ServiceFormState>>({});
   const [savingSlug, setSavingSlug] = useState<string | null>(null);
+  const [uploadingImageSlug, setUploadingImageSlug] = useState<string | null>(null);
+
+  const bucketName = SERVICE_BUCKET;
 
   const loadData = useCallback(async () => {
     setLoadingData(true);
@@ -115,6 +161,13 @@ export default function AdminServicesPage() {
           .from<ServiceRecord>("services")
           .select(
             `id, slug, label, headline, subline, info_title, info_paragraphs, info_bullet_points, gradient_start, gradient_end, image_path,
+            service_slide_images (
+              id,
+              file_path,
+              public_url,
+              created_at,
+              updated_at
+            ),
             service_portfolio_projects (
               id,
               project_id,
@@ -245,6 +298,190 @@ export default function AdminServicesPage() {
     [],
   );
 
+  const handleUploadServiceImage = useCallback(
+    async (slug: string, file: File) => {
+      if (!file) {
+        return;
+      }
+
+      setUploadingImageSlug(slug);
+
+      let userId: string | null = null;
+      let userEmail: string | null = null;
+
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        userId = authData.user?.id ?? null;
+        userEmail = authData.user?.email ?? null;
+
+        const sanitizedSlug = slug
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        const fileExt = file.name.split(".").pop()?.toLowerCase() ?? "webp";
+        const baseName = file.name.split(".").slice(0, -1).join(".") || slug;
+        const sanitizedBaseName = baseName
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        const folder = sanitizedSlug || "service";
+        const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+        const randomSuffix = Math.random().toString(36).slice(2, 8);
+        const fileName = `${sanitizedBaseName || folder}-${timestamp}-${randomSuffix}.${fileExt}`;
+        const filePath = `${folder}/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(bucketName)
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const storedPath = uploadData?.path ?? filePath;
+
+        const { data: publicUrlData } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(storedPath);
+
+        const publicUrl = publicUrlData?.publicUrl ?? null;
+
+        if (!publicUrl) {
+          throw new Error("Die öffentliche Bild-URL konnte nicht ermittelt werden.");
+        }
+
+        const { data: upsertedImage, error: upsertError } = await supabase
+          .from<ServiceSlideImageRecord>("service_slide_images")
+          .upsert(
+            {
+              service_slug: slug,
+              file_path: storedPath,
+              public_url: publicUrl,
+            },
+            { onConflict: "service_slug" },
+          )
+          .select()
+          .single();
+
+        if (upsertError) {
+          throw upsertError;
+        }
+
+        const { error: updateError } = await supabase
+          .from("services")
+          .update({ image_path: storedPath })
+          .eq("slug", slug);
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        const finalImage = upsertedImage ?? {
+          id:
+            typeof crypto !== "undefined" && "randomUUID" in crypto
+              ? crypto.randomUUID()
+              : `${slug}-${Date.now()}`,
+          service_slug: slug,
+          file_path: storedPath,
+          public_url: publicUrl,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        setServices((prev) =>
+          prev.map((service) => {
+            if (service.slug !== slug) {
+              return service;
+            }
+
+            const remainingImages = (service.service_slide_images ?? []).filter(
+              (image) => image.id !== finalImage.id,
+            );
+
+            return {
+              ...service,
+              image_path: storedPath,
+              service_slide_images: [finalImage, ...remainingImages],
+            };
+          }),
+        );
+
+        setServiceForms((prev) => ({
+          ...prev,
+          [slug]: {
+            ...(prev[slug] ?? emptyForm),
+            imagePath: storedPath,
+            imagePublicUrl: finalImage.public_url ?? "",
+          },
+        }));
+
+        await logUserAction({
+          action: "service_image_uploaded",
+          description: `Slider-Hintergrund für ${slug} hochgeladen`,
+          context: "admin",
+          userId,
+          userEmail,
+          entityType: "service",
+          entityId: slug,
+          metadata: {
+            filePath: storedPath,
+            fileSize: file.size,
+            mimeType: file.type,
+          },
+        });
+
+        showToast({
+          title: "Bild aktualisiert",
+          message: "Der Slider-Hintergrund wurde erfolgreich hochgeladen.",
+          type: "success",
+        });
+      } catch (error) {
+        console.error("Fehler beim Hochladen des Service-Bildes:", error);
+
+        await logUserAction({
+          action: "service_image_upload_failed",
+          description: `Upload für Service ${slug} fehlgeschlagen`,
+          context: "admin",
+          userId,
+          userEmail,
+          entityType: "service",
+          entityId: slug,
+          metadata: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
+
+        showToast({
+          title: "Fehler",
+          message: "Das Bild konnte nicht hochgeladen werden.",
+          type: "error",
+        });
+      } finally {
+        setUploadingImageSlug(null);
+      }
+    },
+    [bucketName, showToast],
+  );
+
+  const handleImageFileChange = useCallback(
+    (slug: string, event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        void handleUploadServiceImage(slug, file);
+      }
+
+      event.target.value = "";
+    },
+    [handleUploadServiceImage],
+  );
+
   const hasChanges = useMemo(() => {
     return Object.entries(serviceForms).some(([slug, form]) => {
       const service = services.find((entry) => entry.slug === slug);
@@ -254,6 +491,18 @@ export default function AdminServicesPage() {
 
       const paragraphs = parseMultilineInput(form.infoParagraphs);
       const bullets = parseMultilineInput(form.infoBulletPoints);
+      const currentImage = getPrimaryServiceImage(service);
+      const currentImagePath = currentImage?.file_path ?? service.image_path ?? "";
+      const normalizedCurrentPath = currentImagePath.replace(/^\/+/, "");
+      const currentImageUrl = currentImage?.public_url
+        ? currentImage.public_url
+        : currentImagePath
+          ? currentImagePath.startsWith("http")
+            ? currentImagePath
+            : SUPABASE_URL
+              ? `${SUPABASE_URL}/storage/v1/object/public/${SERVICE_BUCKET}/${normalizedCurrentPath}`
+              : ""
+          : "";
 
       const assignments = (service.service_portfolio_projects ?? [])
         .slice()
@@ -269,7 +518,8 @@ export default function AdminServicesPage() {
         form.infoTitle !== (service.info_title ?? "") ||
         form.gradientStart !== (service.gradient_start ?? "") ||
         form.gradientEnd !== (service.gradient_end ?? "") ||
-        form.imagePath !== (service.image_path ?? "") ||
+        form.imagePath !== currentImagePath ||
+        form.imagePublicUrl !== currentImageUrl ||
         paragraphs.join("\n") !== normalizeMultiline(service.info_paragraphs ?? []) ||
         bullets.join("\n") !== normalizeMultiline(service.info_bullet_points ?? []) ||
         selectionIds.join("|") !== assignments.join("|")
@@ -528,17 +778,74 @@ export default function AdminServicesPage() {
                         placeholder="#1f2937"
                       />
                     </label>
-                    <label className={styles.fieldFull}>
-                      <span>Bildpfad / URL</span>
-                      <input
-                        type="text"
-                        value={form.imagePath}
-                        onChange={(event) =>
-                          handleInputChange(service.slug, "imagePath", event.target.value)
+                  </div>
+
+                  <div className={styles.imageSection}>
+                    <div className={styles.imageSectionHeader}>
+                      <div>
+                        <h3>Slider-Hintergrund</h3>
+                        <p>Dieses Bild erscheint als Hintergrund im Service-Slider.</p>
+                      </div>
+                      {form.imagePublicUrl ? (
+                        <a
+                          href={form.imagePublicUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={styles.imagePreviewLink}
+                        >
+                          Bild in neuem Tab öffnen
+                        </a>
+                      ) : null}
+                    </div>
+                    <div className={styles.imageSectionContent}>
+                      <div
+                        className={`${styles.imagePreview} ${
+                          form.imagePublicUrl ? "" : styles.imagePreviewEmpty
+                        }`}
+                        style={
+                          form.imagePublicUrl
+                            ? { backgroundImage: `url("${form.imagePublicUrl}")` }
+                            : undefined
                         }
-                        placeholder="service-carousel/dein-bild.webp"
-                      />
-                    </label>
+                        aria-label={`Aktuelles Sliderbild für ${form.label || service.label}`}
+                      >
+                        {!form.imagePublicUrl ? <span>Kein Bild ausgewählt</span> : null}
+                      </div>
+                      <div className={styles.imageDetails}>
+                        <label className={styles.imageField}>
+                          <span>Gespeicherter Pfad</span>
+                          <input
+                            type="text"
+                            value={form.imagePath}
+                            readOnly
+                            className={styles.imagePathInput}
+                            placeholder={`${service.slug}/dein-bild.webp`}
+                          />
+                        </label>
+                        <p className={styles.imageHint}>
+                          Uploads werden im Bucket „{bucketName}“ gespeichert.
+                        </p>
+                        <div className={styles.uploadControls}>
+                          <input
+                            id={`service-image-${service.slug}`}
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => handleImageFileChange(service.slug, event)}
+                            className={styles.fileInput}
+                            disabled={uploadingImageSlug === service.slug}
+                          />
+                          <label
+                            htmlFor={`service-image-${service.slug}`}
+                            className={styles.uploadButton}
+                            data-disabled={uploadingImageSlug === service.slug || undefined}
+                          >
+                            {uploadingImageSlug === service.slug
+                              ? "Lade hoch..."
+                              : "Neues Bild auswählen"}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className={styles.projectsSection}>
