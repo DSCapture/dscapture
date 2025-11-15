@@ -43,21 +43,11 @@ export default function ServiceSwiper({ services }: ServiceSwiperProps) {
 
   return (
     <div className="swiper-wrapper-container">
-      <button className="nav-btn nav-btn-prev" aria-label="Vorheriger Service">
-        ‹
-      </button>
-      <button className="nav-btn nav-btn-next" aria-label="Nächster Service">
-        ›
-      </button>
-
       <Swiper
         modules={[Navigation, Pagination]}
         slidesPerView={1}
         spaceBetween={32}
-        navigation={{
-          nextEl: ".nav-btn-next",
-          prevEl: ".nav-btn-prev",
-        }}
+        navigation
         pagination={{
           el: ".swiper-pagination",
           clickable: true,
@@ -293,45 +283,6 @@ export default function ServiceSwiper({ services }: ServiceSwiperProps) {
 
         .projects span {
           color: rgba(248, 250, 252, 0.7);
-        }
-
-        .nav-btn {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          z-index: 10;
-          background: rgba(15, 23, 42, 0.55);
-          color: #f8fafc;
-          border: none;
-          border-radius: 999px;
-          padding: 0.6rem 0.9rem;
-          cursor: pointer;
-          font-size: 1.5rem;
-          font-weight: 500;
-          transition: background 0.3s ease, transform 0.3s ease;
-        }
-
-        .nav-btn:hover,
-        .nav-btn:focus-visible {
-          background: rgba(15, 23, 42, 0.85);
-          transform: translateY(-50%) scale(1.05);
-        }
-
-        .nav-btn-prev {
-          left: -0.5rem;
-        }
-
-        .nav-btn-next {
-          right: -0.5rem;
-        }
-
-        @media (max-width: 768px) {
-          .nav-btn-prev {
-            left: 0;
-          }
-          .nav-btn-next {
-            right: 0;
-          }
         }
 
         :global(.swiper-pagination) {
