@@ -159,6 +159,12 @@ const AdminSidebar = () => {
             },
             {
                 type: "link",
+                href: "/admin/services",
+                icon: "bi-layers",
+                label: "Services Manager",
+            },
+            {
+                type: "link",
                 href: "/admin/portfolio",
                 icon: "bi-columns-gap",
                 label: "Portfolio Manager",

@@ -1,3 +1,9 @@
+.servicePage {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 .serviceSection {
   background-color: var(--primary);
 }
@@ -137,4 +143,156 @@
   border-radius: 1.5rem;
   background-color: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
+}
+
+.serviceDetailsSection {
+  padding: clamp(3rem, 5vw, 5rem) 1.5rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.serviceDetailsContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1024px) {
+  .serviceDetailsContent {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.serviceDetailsInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.serviceDetailsHeadline {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  margin: 0;
+}
+
+.serviceDetailsParagraphs {
+  display: grid;
+  gap: 1rem;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+}
+
+.serviceDetailsFallback {
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.serviceDetailsList {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+}
+
+.serviceDetailsList li::marker {
+  color: var(--accent-light, #facc15);
+}
+
+.serviceDetailsPortfolio {
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 1.5rem;
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+}
+
+.servicePortfolioHeader h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.servicePortfolioHeader p {
+  margin: 0.25rem 0 0;
+  opacity: 0.75;
+  font-size: 0.95rem;
+}
+
+.servicePortfolioEmpty {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.servicePortfolioList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.servicePortfolioItem {
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.25);
+  transition: transform 0.3s ease, background 0.3s ease;
+  overflow: hidden;
+}
+
+.servicePortfolioLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.servicePortfolioItem:hover,
+.servicePortfolioItem:focus-within {
+  transform: translateY(-2px);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.servicePortfolioText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.servicePortfolioTitle {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.servicePortfolioSubtitle {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.servicePortfolioIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.servicePortfolioItem:hover .servicePortfolioIcon,
+.servicePortfolioItem:focus-within .servicePortfolioIcon {
+  transform: translateX(2px);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.servicePortfolioIcon i {
+  font-size: 1.1rem;
 }
