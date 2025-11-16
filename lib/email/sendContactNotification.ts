@@ -19,7 +19,7 @@ interface ContactEmailTemplateParams {
 }
 
 const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
-const EMAILJS_SERVICE_ID = "service_x78b04t";
+const EMAILJS_SERVICE_ID = "service_ltlrxg5";
 const EMAILJS_TEMPLATE_ID = "template_jua3irc";
 const EMAILJS_PUBLIC_KEY = "4sw-XsEGxDTv1Z4I0";
 
