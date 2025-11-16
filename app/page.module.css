@@ -416,8 +416,14 @@
     justify-content: center;
   }
 
+  .uspSection {
+    height: auto;
+    display: flex;
+    align-items: center;
+  }
+
   .uspWrapper {
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .uspContent {
