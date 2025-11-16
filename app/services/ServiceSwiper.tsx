@@ -264,14 +264,14 @@ export default function ServiceSwiper({ services }: ServiceSwiperProps) {
           opacity: 0.9;
         }
 
-        .projects ul {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.75rem 1.25rem;
-        }
+          .projects ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.25rem;
+          }
 
         .projects a {
           color: #f8fafc;
@@ -287,6 +287,39 @@ export default function ServiceSwiper({ services }: ServiceSwiperProps) {
 
         .projects span {
           color: rgba(248, 250, 252, 0.7);
+        }
+
+        @media (max-width: 768px) {
+          .projects ul {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 0.85rem;
+            padding-bottom: 0.5rem;
+            margin: 0 -0.5rem;
+            padding-inline: 0.5rem;
+            scroll-snap-type: x proximity;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(248, 250, 252, 0.4) transparent;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          .projects ul::-webkit-scrollbar {
+            height: 6px;
+          }
+
+          .projects ul::-webkit-scrollbar-thumb {
+            background: rgba(248, 250, 252, 0.45);
+            border-radius: 999px;
+          }
+
+          .projects ul::-webkit-scrollbar-track {
+            background: transparent;
+          }
+
+          .projects li {
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+          }
         }
 
         :global(.swiper-pagination) {
