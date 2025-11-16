@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { buildContactTemplateParams, type ContactEmailPayload } from "@/lib/email/contactEmail";
 
+// The route needs access to the private EmailJS credentials. We explicitly opt into the
+// Node.js runtime to ensure that the server-side environment variables are available even
+// when the rest of the application prefers running on the Edge runtime.
+export const runtime = "nodejs";
+
 const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
 
 const SERVICE_ID = process.env.EMAILJS_SERVICE_ID ?? process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
