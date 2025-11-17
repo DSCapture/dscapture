@@ -609,20 +609,18 @@ export default function AdminPortfolioPage() {
   };
 
   const handleNewProjectChange = (event: InputEvent) => {
-    const { name } = event.target;
+    const target = event.target;
+    const { name } = target;
 
-    if (
-      event.target instanceof HTMLInputElement &&
-      event.target.type === "checkbox"
-    ) {
+    if (target instanceof HTMLInputElement && target.type === "checkbox") {
       setNewProjectForm((previous) => ({
         ...previous,
-        [name]: event.target.checked,
+        [name]: target.checked,
       }));
       return;
     }
 
-    const { value } = event.target;
+    const { value } = target;
 
     if (name === "slug") {
       const trimmedValue = value.trim();
