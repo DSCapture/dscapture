@@ -166,7 +166,7 @@ export default function ProjectGallery({ images, projectTitle }: ProjectGalleryP
         })}
       </div>
 
-      {activeImage ? (
+      {activeImage && activeIndex !== null ? (
         <div className={styles.lightbox} role="dialog" aria-modal="true" onClick={closeLightbox}>
           <div
             className={styles.lightboxContent}
