@@ -5,7 +5,7 @@ export function middleware(req: NextRequest) {
   const userId = req.cookies.get("userId")?.value;
 
   // Alle geschützten Routen (nur eingeloggte User)
-  const protectedRoutes = ["/admin"];
+  const protectedRoutes = ["/asdf"];
   if (protectedRoutes.some((r) => req.nextUrl.pathname.startsWith(r))) {
     if (!userId) {
       // redirect zu deiner Login-Seite
@@ -18,8 +18,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: 
+  matcher:
     [
-        "/admin/:path*", 
+        "/asdf/:path*",
     ],
 };

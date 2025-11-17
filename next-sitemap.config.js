@@ -4,7 +4,7 @@ module.exports = {
   generateRobotsTxt: true,
   sitemapSize: 7000,
   exclude: [
-    '/admin',
+    '/asdf',
     '/api/*',
   ],
   robotsTxtOptions: {
@@ -18,7 +18,7 @@ module.exports = {
           '/blog',
           '/portfolio',
         ],
-        disallow: ['/admin', '/api'],
+        disallow: ['/asdf', '/api'],
       },
     ],
   },

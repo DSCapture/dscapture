@@ -36,7 +36,7 @@ export default function Footer() {
   const cookieConsent = useCookieConsentContext();
   const openPreferences = cookieConsent?.openPreferences;
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/asdf")) {
     return null;
   }
 

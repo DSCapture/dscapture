@@ -115,10 +115,10 @@ const AdminSidebar = () => {
         () => [
             {
                 type: "link",
-                href: "/admin",
+                href: "/asdf",
                 icon: "bi-speedometer2",
                 label: "Dashboard",
-                matchPath: (currentPath: string) => currentPath === "/admin",
+                matchPath: (currentPath: string) => currentPath === "/asdf",
             },
             {
                 type: "group",
@@ -127,31 +127,31 @@ const AdminSidebar = () => {
                 label: "Homepage",
                 items: [
                     {
-                        href: "/admin/homepage",
+                        href: "/asdf/homepage",
                         icon: "bi-image",
                         label: "Homepage Hero Manager",
                     },
                     {
-                        href: "/admin/homepage/usps",
+                        href: "/asdf/homepage/usps",
                         icon: "bi-stars",
                         label: "Homepage USP-Punkte",
                         matchPath: (currentPath: string) =>
-                            currentPath.startsWith("/admin/homepage/usps"),
+                            currentPath.startsWith("/asdf/homepage/usps"),
                     },
                     {
-                        href: "/admin/homepage/benefits",
+                        href: "/asdf/homepage/benefits",
                         icon: "bi-gift",
                         label: "Homepage Benefits",
                         matchPath: (currentPath: string) =>
-                            currentPath.startsWith("/admin/homepage/benefits"),
+                            currentPath.startsWith("/asdf/homepage/benefits"),
                     },
                     {
-                        href: "/admin/photographer-intro",
+                        href: "/asdf/photographer-intro",
                         icon: "bi-person-badge",
                         label: "Fotografenvorstellung",
                     },
                     {
-                        href: "/admin/reviews",
+                        href: "/asdf/reviews",
                         icon: "bi-chat-quote",
                         label: "Rezensionen",
                     },
@@ -159,37 +159,37 @@ const AdminSidebar = () => {
             },
             {
                 type: "link",
-                href: "/admin/services",
+                href: "/asdf/services",
                 icon: "bi-layers",
                 label: "Services Manager",
             },
             {
                 type: "link",
-                href: "/admin/portfolio",
+                href: "/asdf/portfolio",
                 icon: "bi-columns-gap",
                 label: "Portfolio Manager",
             },
             {
                 type: "link",
-                href: "/admin/blog",
+                href: "/asdf/blog",
                 icon: "bi-card-text",
                 label: "Blog Manager",
-                matchPath: (currentPath: string) => currentPath.startsWith("/admin/blog"),
+                matchPath: (currentPath: string) => currentPath.startsWith("/asdf/blog"),
             },
             {
                 type: "link",
-                href: "/admin/metadata",
+                href: "/asdf/metadata",
                 icon: "bi-tags",
                 label: "Metadaten",
             },
             {
                 type: "link",
-                href: "/admin/contact",
+                href: "/asdf/contact",
                 icon: "bi-envelope",
                 label: "Kontaktanfragen",
                 matchPath: (currentPath: string) =>
-                    currentPath.startsWith("/admin/contact") &&
-                    !currentPath.startsWith("/admin/contact/dsgvo-loeschung"),
+                    currentPath.startsWith("/asdf/contact") &&
+                    !currentPath.startsWith("/asdf/contact/dsgvo-loeschung"),
             },
             {
                 type: "group",
@@ -198,7 +198,7 @@ const AdminSidebar = () => {
                 label: "Development",
                 items: [
                     {
-                        href: "/admin/logs",
+                        href: "/asdf/logs",
                         icon: "bi-clipboard-data",
                         label: "Aktivitäts Log",
                     },
@@ -206,18 +206,18 @@ const AdminSidebar = () => {
             },
             {
                 type: "link",
-                href: "/admin/contact/dsgvo-loeschung",
+                href: "/asdf/contact/dsgvo-loeschung",
                 icon: "bi-shield-lock",
                 label: "DSGVO-Löschung",
                 matchPath: (currentPath: string) =>
-                    currentPath.startsWith("/admin/contact/dsgvo-loeschung"),
+                    currentPath.startsWith("/asdf/contact/dsgvo-loeschung"),
             },
         ],
         [],
     );
 
     const shouldShowPendingBadge = useMemo(() => {
-        const isContactPage = pathname.startsWith("/admin/contact");
+        const isContactPage = pathname.startsWith("/asdf/contact");
         return !isContactPage && typeof pendingContacts === "number" && pendingContacts > 0;
     }, [pathname, pendingContacts]);
 
@@ -324,7 +324,7 @@ const AdminSidebar = () => {
                                 linkClassNames.push(styles.adminNavLinkActive);
                             }
 
-                            const isContactLink = item.href === "/admin/contact";
+                            const isContactLink = item.href === "/asdf/contact";
 
                             return (
                                 <Link

@@ -88,7 +88,7 @@ export default function Header() {
     [isHome]
   );
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/asdf")) {
     return null;
   }
 

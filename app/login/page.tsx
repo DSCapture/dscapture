@@ -89,7 +89,7 @@ export default function LoginPage() {
         metadata: { role: adminUser?.role ?? null },
       });
 
-      router.push("/admin");
+      router.push("/asdf");
     }
 
     setLoading(false);

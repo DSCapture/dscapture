@@ -231,7 +231,7 @@ export default function BlogCreatePage() {
     });
     setLoading(false);
     setCoverImageFile(null);
-    router.push("/admin/blog");
+    router.push("/asdf/blog");
   }
 
   if (verifying) {
@@ -249,7 +249,7 @@ export default function BlogCreatePage() {
       <div className={`admin-content ${styles.blogContent}`}>
         <header className="adminPageHeader">
           <h1>Neuer Artikel</h1>
-          <Link className={styles.abortButton} href="/admin/blog">
+          <Link className={styles.abortButton} href="/asdf/blog">
             <i className="bi bi-x-circle"></i> Abbrechen
           </Link>
         </header>

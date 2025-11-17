@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /asdf
 Disallow: /api
 
 Sitemap: https://ds-capture.de/sitemap.xml

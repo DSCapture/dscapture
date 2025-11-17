@@ -292,7 +292,7 @@ export default function BlogManager() {
       <div className={`admin-content ${blogStyles.blogContent}`}>
         <header className="adminPageHeader">
           <h1>Blog Manager</h1>
-          <Link className={blogStyles.newBlogButton} href="/admin/blog/neuer-artikel">
+          <Link className={blogStyles.newBlogButton} href="/asdf/blog/neuer-artikel">
             <i className="bi bi-plus-circle"></i> Neuer Artikel
           </Link>
         </header>
@@ -339,7 +339,7 @@ export default function BlogManager() {
             <div className={blogStyles.blogGrid}>
               {filteredPublishedPosts.map((post) => (
                 <article key={post.id} className={blogStyles.blogCard}>
-                  <Link href={`/admin/blog/${post.id}`} className={blogStyles.blogCardMain}>
+                  <Link href={`/asdf/blog/${post.id}`} className={blogStyles.blogCardMain}>
                     <div
                       className={blogStyles.blogCardImage}
                       style={{
@@ -364,7 +364,7 @@ export default function BlogManager() {
                     </div>
                   </Link>
                   <footer className={blogStyles.blogCardFooter}>
-                    <Link className={blogStyles.blogCardAction} href={`/admin/blog/${post.id}`}>
+                    <Link className={blogStyles.blogCardAction} href={`/asdf/blog/${post.id}`}>
                       Bearbeiten
                     </Link>
                     <label className={blogStyles.spotlightToggle}>
@@ -406,7 +406,7 @@ export default function BlogManager() {
             <div className={blogStyles.blogGrid}>
               {filteredDraftPosts.map((post) => (
                 <article key={post.id} className={blogStyles.blogCard}>
-                  <Link href={`/admin/blog/${post.id}`} className={blogStyles.blogCardMain}>
+                  <Link href={`/asdf/blog/${post.id}`} className={blogStyles.blogCardMain}>
                     <div
                       className={blogStyles.blogCardImage}
                       style={{
@@ -424,7 +424,7 @@ export default function BlogManager() {
                     </div>
                   </Link>
                   <footer className={blogStyles.blogCardFooter}>
-                    <Link className={blogStyles.blogCardAction} href={`/admin/blog/${post.id}`}>
+                    <Link className={blogStyles.blogCardAction} href={`/asdf/blog/${post.id}`}>
                       Bearbeiten
                     </Link>
                     <Link

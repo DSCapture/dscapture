@@ -447,7 +447,7 @@ export default function BlogEditPage() {
       type: "success",
     });
     setDeleting(false);
-    router.push("/admin/blog");
+    router.push("/asdf/blog");
   }
 
   if (verifying) {
@@ -465,7 +465,7 @@ export default function BlogEditPage() {
       <div className={`admin-content`}>
         <header className="adminPageHeader">
           <h1>Artikel bearbeiten</h1>
-          <Link className={styles.abortButton} href="/admin/blog">
+          <Link className={styles.abortButton} href="/asdf/blog">
             <i className="bi bi-arrow-left-circle"></i> Zur Übersicht
           </Link>
         </header>
