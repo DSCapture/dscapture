@@ -368,7 +368,7 @@ export default function AdminServicesPage() {
         }
 
         const { data: upsertedImage, error: upsertError } = await supabase
-          .from<ServiceSlideImageRecord>("service_slide_images")
+          .from("service_slide_images")
           .upsert(
             {
               service_slug: slug,

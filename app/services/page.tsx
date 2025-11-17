@@ -173,7 +173,7 @@ function mapServiceRecord(record: ServiceRecord): ServiceSlideData {
 
 async function fetchServices(): Promise<ServiceSlideData[]> {
   const { data, error } = await supabase
-    .from<ServiceRecord>("services")
+    .from("services")
     .select(
       `id, slug, label, headline, subline, info_title, info_paragraphs, info_bullet_points, gradient_start, gradient_end, image_path,
         service_slide_images (id, file_path, public_url, created_at, updated_at),
