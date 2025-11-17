@@ -3,8 +3,45 @@
 import { FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { logUserAction } from "@/lib/logger";
-import { sendContactNotification } from "@/lib/email/sendContactNotification";
+import {
+  buildContactTemplateParams,
+  type ContactEmailPayload,
+} from "@/lib/email/contactEmail";
 import styles from "@/app/kontakt/contact.module.css";
+
+const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
+const EMAILJS_CONFIG = {
+  serviceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+  templateId: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+  publicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+};
+
+const sendEmailNotification = async (payload: ContactEmailPayload) => {
+  const { serviceId, templateId, publicKey } = EMAILJS_CONFIG;
+
+  if (!serviceId || !templateId || !publicKey) {
+    throw new Error("EmailJS ist nicht korrekt konfiguriert.");
+  }
+
+  const response = await fetch(EMAILJS_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      service_id: serviceId,
+      template_id: templateId,
+      public_key: publicKey,
+      user_id: publicKey,
+      template_params: buildContactTemplateParams(payload),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(errorText || `EmailJS Request failed with status ${response.status}`);
+  }
+};
 
 const ContactPageClient = () => {
   const [name, setName] = useState("");
@@ -78,16 +115,18 @@ const ContactPageClient = () => {
       },
     });
 
+    const emailPayload: ContactEmailPayload = {
+      name: trimmedName,
+      email: trimmedEmail,
+      subject: trimmedSubject,
+      phone: trimmedPhone,
+      message: trimmedMessage,
+      hasAcceptedPrivacy,
+      submittedAt: new Date().toISOString(),
+    };
+
     try {
-      await sendContactNotification({
-        name: trimmedName,
-        email: trimmedEmail,
-        subject: trimmedSubject,
-        phone: trimmedPhone,
-        message: trimmedMessage,
-        hasAcceptedPrivacy,
-        submittedAt: new Date().toISOString(),
-      });
+      await sendEmailNotification(emailPayload);
     } catch (notificationError) {
       console.error("Fehler beim Versenden der Kontaktbenachrichtigung:", notificationError);
       await logUserAction({
@@ -96,8 +135,7 @@ const ContactPageClient = () => {
         userEmail: trimmedEmail,
         description: "Kontaktformular wurde gespeichert, aber die E-Mail-Benachrichtigung ist fehlgeschlagen.",
         metadata: {
-          error:
-            notificationError instanceof Error ? notificationError.message : String(notificationError),
+          error: notificationError instanceof Error ? notificationError.message : String(notificationError),
           hasSubject: Boolean(trimmedSubject),
           hasPhone: Boolean(trimmedPhone),
         },
