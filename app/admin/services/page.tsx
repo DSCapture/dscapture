@@ -168,7 +168,7 @@ export default function AdminServicesPage() {
     const [{ data: serviceData, error: serviceError }, { data: projectData, error: projectError }] =
       await Promise.all([
         supabase
-          .from<ServiceRecord>("services")
+          .from("services")
           .select(
             `id, slug, label, headline, subline, info_title, info_paragraphs, info_bullet_points, gradient_start, gradient_end, image_path,
             service_slide_images (
@@ -186,7 +186,7 @@ export default function AdminServicesPage() {
           )
           .order("created_at", { ascending: true }),
         supabase
-          .from<PortfolioProject>("portfolio_projects")
+          .from("portfolio_projects")
           .select("id, title, subtitle, slug")
           .order("title", { ascending: true }),
       ]);
