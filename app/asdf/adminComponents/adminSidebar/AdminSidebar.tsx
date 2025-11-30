@@ -146,6 +146,13 @@ const AdminSidebar = () => {
                             currentPath.startsWith("/asdf/homepage/benefits"),
                     },
                     {
+                        href: "/asdf/homepage/gallery",
+                        icon: "bi-images",
+                        label: "Homepage Galerie",
+                        matchPath: (currentPath: string) =>
+                            currentPath.startsWith("/asdf/homepage/gallery"),
+                    },
+                    {
                         href: "/asdf/photographer-intro",
                         icon: "bi-person-badge",
                         label: "Fotografenvorstellung",
