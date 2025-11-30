@@ -35,6 +35,12 @@ type PhotographerIntro = {
   body: string;
 };
 
+type GalleryImage = {
+  id: string;
+  publicUrl: string;
+  altText: string;
+};
+
 const FALLBACK_USP_ITEMS: UspItem[] = [
   {
     title: "Ganzheitliche Markenstrategie",
@@ -122,6 +128,7 @@ const HomePageClient = () => {
   const [photographerIntro, setPhotographerIntro] =
     useState<PhotographerIntro>(FALLBACK_PHOTOGRAPHER_INTRO);
   const [benefits, setBenefits] = useState<BenefitItem[]>(FALLBACK_BENEFITS);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
 
   const bgY = useTransform(scrollY, [0, 600], [0, 200]);
 
@@ -147,6 +154,11 @@ const HomePageClient = () => {
         .select("title, description, display_order")
         .order("display_order", { ascending: true });
 
+      const galleryImagesPromise = supabase
+        .from("homepage_gallery_images")
+        .select("id, public_url, alt_text, display_order")
+        .order("display_order", { ascending: true });
+
       const photographerIntroPromise = supabase
         .from("homepage_photographer_intro")
         .select("heading, subheading, body")
@@ -158,12 +170,14 @@ const HomePageClient = () => {
         reviewResult,
         photographerIntroResult,
         benefitsResult,
+        galleryImagesResult,
       ] = await Promise.all([
         imagePromise,
         uspPromise,
         reviewsPromise,
         photographerIntroPromise,
         benefitsPromise,
+        galleryImagesPromise,
       ]);
 
       if (!isMounted) {
@@ -280,6 +294,28 @@ const HomePageClient = () => {
 
         setPhotographerIntro({ heading, subheading, body });
       }
+
+      const { data: galleryData, error: galleryError } = galleryImagesResult;
+
+      if (galleryError) {
+        console.error(
+          "Fehler beim Laden der Galerie-Bilder:",
+          galleryError.message,
+        );
+      } else if (galleryData && galleryData.length > 0) {
+        const normalizedGallery = galleryData
+          .filter((record) => Boolean(record.public_url))
+          .map((record) => ({
+            id: String(record.id),
+            publicUrl: record.public_url ?? "",
+            altText: record.alt_text?.trim() || "Galeriebild",
+          }))
+          .filter((record) => record.publicUrl);
+
+        if (normalizedGallery.length > 0) {
+          setGalleryImages(normalizedGallery);
+        }
+      }
     };
 
     void fetchHomepageContent();
@@ -291,6 +327,9 @@ const HomePageClient = () => {
 
   const backgroundSrc = backgroundImageUrl ?? FALLBACK_BACKGROUND;
   const overlaySrc = overlayImageUrl ?? FALLBACK_OVERLAY;
+  const marqueeImages = galleryImages.length > 0
+    ? [...galleryImages, ...galleryImages]
+    : [];
   return (
     <>
       <section className={styles.heroSection}>
@@ -351,6 +390,41 @@ const HomePageClient = () => {
           </div>
         </div>
       </section>
+
+      {galleryImages.length > 0 ? (
+        <section className={styles.gallerySection} aria-label="Impressionen aus der Arbeit">
+          <div className={styles.galleryWrapper}>
+            <div className={styles.galleryHeader}>
+              <p className={styles.galleryEyebrow}>Impressionen</p>
+              <h2 className={styles.galleryHeading}>Bildwelten, die Geschichten erzählen</h2>
+              <p className={styles.galleryIntro}>
+                Eine kuratierte Auswahl aktueller Produktionen. Die Bilder rotieren automatisch, damit jeder Eindruck sichtbar wird.
+              </p>
+            </div>
+
+            <div className={styles.galleryMarquee}>
+              <div
+                className={styles.galleryTrack}
+                style={{
+                  animationDuration: `${Math.max(18, galleryImages.length * 6)}s`,
+                }}
+              >
+                {marqueeImages.map((image, index) => (
+                  <article key={`${image.id}-${index}`} className={styles.galleryItem}>
+                    <Image
+                      src={image.publicUrl}
+                      alt={image.altText || "Galeriebild"}
+                      width={520}
+                      height={340}
+                      className={styles.galleryImage}
+                    />
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className={styles.reviewsSection} aria-label="Kundenrezensionen">
         <div className={styles.reviewsWrapper}>
