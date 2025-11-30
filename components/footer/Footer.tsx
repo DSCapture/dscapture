@@ -112,7 +112,7 @@ export default function Footer() {
         </p>
         <div className={styles.bottomBarRight}>
           <p className={styles.createdByText}>
-            Designed & Developed by <Link className={styles.flowefyLink} href="https://flowefy.de">flowefy.</Link>
+            Designed & Developed by <Link className={styles.flowefyLink} href="https://www.grahm.digital">Grahm Digital</Link>
           </p>
         </div>
       </div>
