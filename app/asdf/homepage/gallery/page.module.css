@@ -1,0 +1,110 @@
+.galleryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2rem 0 3rem;
+}
+
+.header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.header p {
+  margin: 0;
+  max-width: 760px;
+  color: rgba(32, 43, 72, 0.72);
+  line-height: 1.7;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionHeader h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.4rem;
+  color: var(--primary);
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: rgba(32, 43, 72, 0.6);
+}
+
+.uploadForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.errorMessage {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  background: rgba(214, 69, 69, 0.12);
+  color: #a02323;
+  border: 1px solid rgba(214, 69, 69, 0.18);
+}
+
+details {
+  color: rgba(32, 43, 72, 0.7);
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.galleryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: rgba(249, 250, 251, 0.9);
+  border: 1px solid rgba(32, 43, 72, 0.08);
+}
+
+.imagePreview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f2f8;
+  border: 1px solid rgba(32, 43, 72, 0.06);
+}
+
+.imagePlaceholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(32, 43, 72, 0.6);
+  font-weight: 600;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.cardActions .admin-button {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 720px) {
+  .galleryContent {
+    padding: 1.5rem 0 2.5rem;
+  }
+
+  .cardActions {
+    flex-direction: column;
+  }
+}
