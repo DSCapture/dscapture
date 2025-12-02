@@ -16,6 +16,7 @@ const sitemapLinks = [
 const legalLinks = [
   { href: "/impressum", label: "Impressum" },
   { href: "/datenschutz", label: "Datenschutz" },
+  { href: "/agb", label: "AGB" },
 ];
 
 const socialLinks = [
