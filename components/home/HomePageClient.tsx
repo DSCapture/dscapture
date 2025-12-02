@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import ContactButton from "../buttons/contactButton/ContactButton";
 
 import styles from "@/app/page.module.css";
+import Link from "next/link";
 
 const FALLBACK_BACKGROUND = "/DJI_0727.jpg";
 const FALLBACK_OVERLAY = "/dawid3Mask.png";
@@ -421,6 +422,10 @@ const HomePageClient = () => {
                   </article>
                 ))}
               </div>
+            </div>
+            <div className={styles.galeryButtonBox}>
+              {/* <Link className="primaryButton" href="/kontakt" aria-label="Kontakt">Jetzt Strategiegespräch vereinbahren</Link> */}
+              <ContactButton />
             </div>
           </div>
         </section>
