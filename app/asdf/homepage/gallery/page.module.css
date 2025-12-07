@@ -35,6 +35,45 @@
   color: rgba(32, 43, 72, 0.6);
 }
 
+.backgroundGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.backgroundPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgba(249, 250, 251, 0.9);
+  border: 1px solid rgba(32, 43, 72, 0.08);
+}
+
+.backgroundPreviewInner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f2f8;
+  border: 1px solid rgba(32, 43, 72, 0.06);
+}
+
+.backgroundDetails p {
+  margin: 0;
+  color: rgba(32, 43, 72, 0.7);
+  line-height: 1.5;
+}
+
+.backgroundPath {
+  font-family: var(--font-mono, ui-monospace, "SFMono-Regular", "SFMono-Regular");
+  color: rgba(32, 43, 72, 0.8);
+  word-break: break-word;
+}
+
 .uploadForm {
   display: flex;
   flex-direction: column;

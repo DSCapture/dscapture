@@ -45,6 +45,10 @@ type GalleryImage = {
   altText: string;
 };
 
+type GalleryBackground = {
+  public_url: string;
+};
+
 const FALLBACK_USP_ITEMS: UspItem[] = [
   {
     title: "Ganzheitliche Markenstrategie",
@@ -135,6 +139,8 @@ const HomePageClient = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [benefitsBackground, setBenefitsBackground] =
     useState<BenefitBackground | null>(null);
+  const [galleryBackground, setGalleryBackground] =
+    useState<GalleryBackground | null>(null);
 
   const bgY = useTransform(scrollY, [0, 600], [0, 200]);
 
@@ -176,6 +182,12 @@ const HomePageClient = () => {
         .eq("singleton_key", "benefits")
         .maybeSingle();
 
+      const galleryBackgroundPromise = supabase
+        .from("homepage_gallery_backgrounds")
+        .select("public_url")
+        .eq("singleton_key", "gallery")
+        .maybeSingle();
+
       const [
         imageResult,
         uspResult,
@@ -184,6 +196,7 @@ const HomePageClient = () => {
         benefitsResult,
         galleryImagesResult,
         benefitsBackgroundResult,
+        galleryBackgroundResult,
       ] = await Promise.all([
         imagePromise,
         uspPromise,
@@ -192,6 +205,7 @@ const HomePageClient = () => {
         benefitsPromise,
         galleryImagesPromise,
         benefitsBackgroundPromise,
+        galleryBackgroundPromise,
       ]);
 
       if (!isMounted) {
@@ -344,6 +358,20 @@ const HomePageClient = () => {
           setGalleryImages(normalizedGallery);
         }
       }
+
+      const { data: galleryBackgroundData, error: galleryBackgroundError } =
+        galleryBackgroundResult;
+
+      if (galleryBackgroundError) {
+        if (galleryBackgroundError.code !== "PGRST116") {
+          console.error(
+            "Fehler beim Laden des Galerie-Hintergrundes:",
+            galleryBackgroundError.message,
+          );
+        }
+      } else if (galleryBackgroundData?.public_url) {
+        setGalleryBackground({ public_url: galleryBackgroundData.public_url });
+      }
     };
 
     void fetchHomepageContent();
@@ -364,6 +392,15 @@ const HomePageClient = () => {
         backgroundImage: `linear-gradient(180deg, rgba(247, 248, 251, 0.9) 0%, rgba(238, 241, 247, 0.9) 100%), url(${benefitsBackground.public_url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+      }
+    : undefined;
+
+  const galleryBackgroundStyle = galleryBackground?.public_url
+    ? {
+        backgroundImage: `linear-gradient(135deg, rgba(10, 16, 36, 0.92), rgba(10, 16, 36, 0.78)), url(${galleryBackground.public_url})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }
     : undefined;
   return (
@@ -428,7 +465,11 @@ const HomePageClient = () => {
       </section>
 
       {galleryImages.length > 0 ? (
-        <section className={styles.gallerySection} aria-label="Impressionen aus der Arbeit">
+        <section
+          className={styles.gallerySection}
+          aria-label="Impressionen aus der Arbeit"
+          style={galleryBackgroundStyle}
+        >
           <div className={styles.galleryWrapper}>
             <div className={styles.galleryHeader}>
               <p className={styles.galleryEyebrow}>Impressionen</p>
