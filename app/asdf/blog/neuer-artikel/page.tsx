@@ -107,7 +107,7 @@ export default function BlogCreatePage() {
       return;
     }
 
-    const bucketName = "blog-cover-images";
+    const bucketName = "blog-cover-image";
 
     let coverImageUrl = coverImage.trim() ? coverImage.trim() : null;
 
