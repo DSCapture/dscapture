@@ -41,7 +41,7 @@ const SOCIAL_LINKS: SocialLink[] = [
 export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isHomeHeaderHidden, setIsHomeHeaderHidden] = useState(false);
+  const [isHomeScrolled, setIsHomeScrolled] = useState(false);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -51,41 +51,30 @@ export default function Header() {
 
   useEffect(() => {
     if (!isHome) {
-      setIsHomeHeaderHidden(false);
+      setIsHomeScrolled(false);
       return;
     }
 
-    const rootFontSize = Number.parseFloat(
-      getComputedStyle(document.documentElement).fontSize || "16"
-    );
-    const hideThreshold = rootFontSize * 3;
-
-    const updateVisibility = () => {
-      const scrollY = window.scrollY;
-
-      if (scrollY === 0) {
-        setIsHomeHeaderHidden((current) => (current ? false : current));
-        return;
-      }
-
-      if (scrollY > hideThreshold) {
-        setIsHomeHeaderHidden((current) => (current ? current : true));
-      }
+    const updateScrollState = () => {
+      setIsHomeScrolled(window.scrollY > 0);
     };
 
-    updateVisibility();
-    window.addEventListener("scroll", updateVisibility, { passive: true });
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
 
     return () => {
-      window.removeEventListener("scroll", updateVisibility);
+      window.removeEventListener("scroll", updateScrollState);
     };
   }, [isHome]);
   const navLinkClassName = useMemo(
     () =>
-      [styles.headerNavLink, isHome ? styles.headerNavLinkHome : null]
+      [
+        styles.headerNavLink,
+        isHome && !isHomeScrolled ? styles.headerNavLinkHome : null,
+      ]
         .filter(Boolean)
         .join(" "),
-    [isHome]
+    [isHome, isHomeScrolled]
   );
 
   if (pathname?.startsWith("/asdf")) {
@@ -95,13 +84,14 @@ export default function Header() {
   const headerClassName = [
     styles.mainHeader,
     isHome ? styles.mainHeaderHome : styles.mainHeaderDefault,
+    isHome && isHomeScrolled ? styles.mainHeaderHomeScrolled : null,
     isMenuOpen ? styles.headerExpanded : null,
-    isHome && isHomeHeaderHidden ? styles.mainHeaderHidden : null,
   ]
     .filter(Boolean)
     .join(" ");
 
-  const logoSrc = isHome ? "/logo_white.webp" : "/logo_blue.webp";
+  const logoSrc =
+    isHome && !isHomeScrolled ? "/logo_white.webp" : "/logo_blue.webp";
 
   return (
     <header className={headerClassName}>
