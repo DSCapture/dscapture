@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
 
 import AdminSidebar from "../../adminComponents/adminSidebar/AdminSidebar";
 import styles from "./page.module.css";
@@ -16,6 +17,13 @@ type HomepageBenefitRecord = {
   display_order: number;
 };
 
+type BenefitBackgroundRecord = {
+  id: string;
+  singleton_key: string;
+  public_url: string;
+  file_path: string;
+};
+
 type HomepageBenefitFormItem = {
   id: string | null;
   displayOrder: number;
@@ -29,6 +37,9 @@ const INITIAL_BENEFITS: HomepageBenefitFormItem[] = [
   { id: null, displayOrder: 3, title: "", description: "" },
 ];
 
+const BENEFIT_BACKGROUND_BUCKET = "homepage-benefits";
+const BENEFIT_BACKGROUND_SINGLETON_KEY = "benefits";
+
 export default function AdminHomepageBenefitsPage() {
   const { loading: verifying } = useVerifyAdminAccess();
   const { showToast } = useToast();
@@ -40,6 +51,11 @@ export default function AdminHomepageBenefitsPage() {
   const [savingBenefitDisplayOrder, setSavingBenefitDisplayOrder] = useState<
     number | null
   >(null);
+  const [benefitBackground, setBenefitBackground] =
+    useState<BenefitBackgroundRecord | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [uploadingBackground, setUploadingBackground] = useState(false);
+  const [deletingBackground, setDeletingBackground] = useState(false);
 
   useEffect(() => {
     if (verifying) {
@@ -97,6 +113,34 @@ export default function AdminHomepageBenefitsPage() {
     };
 
     void fetchBenefits();
+    const fetchBenefitBackground = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("homepage_benefit_backgrounds")
+          .select("id, singleton_key, public_url, file_path")
+          .eq("singleton_key", BENEFIT_BACKGROUND_SINGLETON_KEY)
+          .maybeSingle();
+
+        if (error) {
+          if (error.code !== "PGRST116") {
+            throw error;
+          }
+          return;
+        }
+
+        if (data) {
+          setBenefitBackground(data as BenefitBackgroundRecord);
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unbekannter Fehler beim Laden des Benefit-Hintergrunds.";
+        console.error("Fehler beim Laden des Benefit-Hintergrunds:", message);
+      }
+    };
+
+    void fetchBenefitBackground();
   }, [verifying]);
 
   const handleFieldChange = (
@@ -116,6 +160,215 @@ export default function AdminHomepageBenefitsPage() {
         } satisfies HomepageBenefitFormItem;
       }),
     );
+  };
+
+  const handleBackgroundUpload = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!backgroundFile) {
+      showToast({
+        message: "Bitte wähle zuerst eine Datei aus.",
+        type: "error",
+      });
+      return;
+    }
+
+    setUploadingBackground(true);
+
+    let currentUser: { id: string; email?: string | null } | null = null;
+
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error(
+          userError?.message ?? "Es konnte kein angemeldeter Nutzer ermittelt werden.",
+        );
+      }
+
+      currentUser = { id: user.id, email: user.email };
+
+      const fileExt = backgroundFile.name.split(".").pop() ?? "png";
+      const filePath = `${user.id}/benefits-background-${Date.now()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(BENEFIT_BACKGROUND_BUCKET)
+        .upload(filePath, backgroundFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from(BENEFIT_BACKGROUND_BUCKET)
+        .getPublicUrl(uploadData?.path ?? filePath);
+
+      const publicUrl = publicUrlData?.publicUrl;
+
+      if (!publicUrl) {
+        throw new Error("Die öffentliche URL konnte nicht ermittelt werden.");
+      }
+
+      const { data, error: upsertError } = await supabase
+        .from("homepage_benefit_backgrounds")
+        .upsert(
+          {
+            singleton_key: BENEFIT_BACKGROUND_SINGLETON_KEY,
+            file_path: uploadData?.path ?? filePath,
+            public_url: publicUrl,
+          },
+          { onConflict: "singleton_key" },
+        )
+        .select("id, singleton_key, public_url, file_path")
+        .single();
+
+      if (upsertError) {
+        throw new Error(upsertError.message);
+      }
+
+      setBenefitBackground(data as BenefitBackgroundRecord);
+      setBackgroundFile(null);
+      event.currentTarget.reset();
+
+      await logUserAction({
+        action: "homepage_benefit_background_saved",
+        context: "admin",
+        userId: currentUser.id,
+        userEmail: currentUser.email ?? null,
+        entityType: "homepage_benefit_background",
+        entityId: data.id,
+        metadata: {
+          filePath: uploadData?.path ?? filePath,
+          publicUrl,
+        },
+      });
+
+      showToast({
+        message: "Hintergrundbild erfolgreich gespeichert!",
+        type: "success",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unbekannter Fehler beim Hochladen des Hintergrundbilds.";
+
+      console.error("Fehler beim Speichern des Backgrounds:", message);
+      showToast({
+        message: `Fehler beim Hochladen: ${message}`,
+        type: "error",
+      });
+
+      await logUserAction({
+        action: "homepage_benefit_background_save_failed",
+        context: "admin",
+        userId: currentUser?.id,
+        userEmail: currentUser?.email ?? null,
+        entityType: "homepage_benefit_background",
+        entityId: BENEFIT_BACKGROUND_SINGLETON_KEY,
+        metadata: { error: message },
+      });
+    } finally {
+      setUploadingBackground(false);
+    }
+  };
+
+  const handleBackgroundDelete = async () => {
+    if (!benefitBackground?.file_path) {
+      showToast({
+        message: "Es wurde kein Bild zum Löschen gefunden.",
+        type: "error",
+      });
+      return;
+    }
+
+    setDeletingBackground(true);
+
+    let currentUser: { id: string; email?: string | null } | null = null;
+
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error(
+          userError?.message ?? "Es konnte kein angemeldeter Nutzer ermittelt werden.",
+        );
+      }
+
+      currentUser = { id: user.id, email: user.email };
+
+      const { error: removeError } = await supabase.storage
+        .from(BENEFIT_BACKGROUND_BUCKET)
+        .remove([benefitBackground.file_path]);
+
+      if (removeError && !removeError.message?.toLowerCase().includes("not found")) {
+        throw new Error(removeError.message);
+      }
+
+      const { error: deleteError } = await supabase
+        .from("homepage_benefit_backgrounds")
+        .delete()
+        .eq("singleton_key", BENEFIT_BACKGROUND_SINGLETON_KEY);
+
+      if (deleteError) {
+        throw new Error(deleteError.message);
+      }
+
+      setBenefitBackground(null);
+      setBackgroundFile(null);
+
+      await logUserAction({
+        action: "homepage_benefit_background_deleted",
+        context: "admin",
+        userId: currentUser.id,
+        userEmail: currentUser.email ?? null,
+        entityType: "homepage_benefit_background",
+        entityId: BENEFIT_BACKGROUND_SINGLETON_KEY,
+        metadata: {
+          filePath: benefitBackground.file_path,
+        },
+      });
+
+      showToast({
+        message: "Hintergrundbild erfolgreich gelöscht!",
+        type: "success",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unbekannter Fehler beim Löschen des Hintergrundbilds.";
+
+      console.error("Fehler beim Löschen des Backgrounds:", message);
+      showToast({
+        message: `Fehler beim Löschen: ${message}`,
+        type: "error",
+      });
+
+      await logUserAction({
+        action: "homepage_benefit_background_delete_failed",
+        context: "admin",
+        userId: currentUser?.id,
+        userEmail: currentUser?.email ?? null,
+        entityType: "homepage_benefit_background",
+        entityId: BENEFIT_BACKGROUND_SINGLETON_KEY,
+        metadata: {
+          error: message,
+          filePath: benefitBackground.file_path,
+        },
+      });
+    } finally {
+      setDeletingBackground(false);
+    }
   };
 
   const handleSubmit = async (
@@ -259,6 +512,57 @@ export default function AdminHomepageBenefitsPage() {
             ausführlicheren Beschreibung.
           </p>
         </header>
+
+        <section className="admin-card">
+          <div className={styles.sectionHeader}>
+            <h2>Benefit Hintergrundbild</h2>
+            <p>
+              Steuert das Hintergrundbild der Benefit-Sektion auf der Homepage. Ideale
+              Abmessungen sind mindestens 1600&nbsp;px Breite bei moderater Höhe.
+            </p>
+          </div>
+
+          {benefitBackground?.public_url ? (
+            <div className="admin-image-preview">
+              <Image
+                src={benefitBackground.public_url}
+                alt="Aktueller Benefit-Hintergrund"
+                width={520}
+                height={260}
+                style={{ objectFit: "cover", borderRadius: "12px" }}
+              />
+              <p className="admin-image-path">{benefitBackground.file_path}</p>
+              <button
+                type="button"
+                className="adminButton"
+                onClick={handleBackgroundDelete}
+                disabled={deletingBackground}
+              >
+                {deletingBackground ? "Lösche..." : "Bild löschen"}
+              </button>
+            </div>
+          ) : (
+            <p>Es ist noch kein Hintergrundbild hochgeladen.</p>
+          )}
+
+          <form onSubmit={handleBackgroundUpload} className="admin-form">
+            <label className="admin-file-input">
+              <span>Datei auswählen</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)}
+              />
+            </label>
+            <button
+              type="submit"
+              className="adminButton"
+              disabled={uploadingBackground}
+            >
+              {uploadingBackground ? "Lade hoch..." : "Hintergrund speichern"}
+            </button>
+          </form>
+        </section>
 
         <section className="admin-card">
           <div className={styles.sectionHeader}>
