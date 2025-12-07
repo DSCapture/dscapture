@@ -39,6 +39,10 @@ type BlogPost = {
   category: BlogCategory | null;
 };
 
+type BlogBackground = {
+  public_url: string | null;
+};
+
 async function getPublishedPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
     .from("posts")
@@ -60,6 +64,21 @@ async function getPublishedPosts(): Promise<BlogPost[]> {
   }));
 }
 
+async function getBlogBackground(): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("blog_backgrounds")
+    .select("public_url")
+    .eq("singleton_key", "blog")
+    .maybeSingle<BlogBackground>();
+
+  if (error) {
+    console.error("Fehler beim Laden des Blog-Hintergrunds:", error);
+    return null;
+  }
+
+  return data?.public_url ?? null;
+}
+
 const dateFormatter = new Intl.DateTimeFormat("de-DE", {
   day: "2-digit",
   month: "long",
@@ -67,96 +86,109 @@ const dateFormatter = new Intl.DateTimeFormat("de-DE", {
 });
 
 export default async function BlogPage() {
-  const posts = await getPublishedPosts();
+  const [posts, backgroundUrl] = await Promise.all([
+    getPublishedPosts(),
+    getBlogBackground(),
+  ]);
   const spotlightPost = posts.find((post) => post.spotlight);
   const otherPosts = spotlightPost
     ? posts.filter((post) => post.id !== spotlightPost.id)
     : posts;
 
+  const pageBackgroundStyle = backgroundUrl
+    ? {
+        backgroundImage: `linear-gradient(180deg, rgba(12, 18, 33, 0.72), rgba(12, 18, 33, 0.9)), url(${backgroundUrl})`,
+      }
+    : undefined;
+
   return (
-    <div className={styles.blogContent}>
-      <h1>Blog</h1>
-      {posts.length === 0 ? (
-        <p className={styles.emptyState}>Derzeit sind keine Blog-Beiträge veröffentlicht.</p>
-      ) : (
-        <>
-          {spotlightPost && (
-            <Link href={`/blog/${spotlightPost.slug}`} className={styles.spotlightCardLink}>
-              <article className={styles.spotlightCard}>
-                <div
-                  className={styles.spotlightImage}
-                  style={{
-                    backgroundImage: spotlightPost.cover_image
-                      ? `url(${spotlightPost.cover_image})`
-                      : undefined,
-                  }}
-                  aria-hidden={!spotlightPost.cover_image}
-                />
-                <div className={styles.spotlightBody}>
-                  <span className={styles.spotlightBadge}>Spotlight</span>
-                  <h2 className={styles.spotlightTitle}>{spotlightPost.title}</h2>
-                  {(spotlightPost.category || spotlightPost.published_at) && (
-                    <div className={styles.metaRow}>
-                      {spotlightPost.category && (
-                        <span className={styles.categoryBadge}>{spotlightPost.category.name}</span>
-                      )}
-                      {spotlightPost.published_at && (
-                        <p className={styles.spotlightMeta}>
-                          {dateFormatter.format(new Date(spotlightPost.published_at))}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {spotlightPost.excerpt && (
-                    <p className={styles.spotlightExcerpt}>{spotlightPost.excerpt}</p>
-                  )}
-                  <span className={styles.spotlightReadMore} aria-hidden>
-                    Weiterlesen
-                  </span>
-                </div>
-              </article>
-            </Link>
-          )}
-          {otherPosts.length > 0 && (
-            <div className={styles.blogGrid}>
-              {otherPosts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`} className={styles.blogCardLink}>
-                  <article className={styles.blogCard}>
+    <div className={styles.pageBackground} style={pageBackgroundStyle}>
+      <div className={styles.pageBackdrop}>
+        <div className={styles.blogContent}>
+          <h1>Blog</h1>
+          {posts.length === 0 ? (
+            <p className={styles.emptyState}>Derzeit sind keine Blog-Beiträge veröffentlicht.</p>
+          ) : (
+            <>
+              {spotlightPost && (
+                <Link href={`/blog/${spotlightPost.slug}`} className={styles.spotlightCardLink}>
+                  <article className={styles.spotlightCard}>
                     <div
-                      className={styles.blogCardImage}
+                      className={styles.spotlightImage}
                       style={{
-                        backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
+                        backgroundImage: spotlightPost.cover_image
+                          ? `url(${spotlightPost.cover_image})`
+                          : undefined,
                       }}
-                      aria-hidden={!post.cover_image}
+                      aria-hidden={!spotlightPost.cover_image}
                     />
-                    <div className={styles.blogCardBody}>
-                      <h2 className={styles.blogCardTitle}>{post.title}</h2>
-                      {(post.category || post.published_at) && (
+                    <div className={styles.spotlightBody}>
+                      <span className={styles.spotlightBadge}>Spotlight</span>
+                      <h2 className={styles.spotlightTitle}>{spotlightPost.title}</h2>
+                      {(spotlightPost.category || spotlightPost.published_at) && (
                         <div className={styles.metaRow}>
-                          {post.category && (
-                            <span className={styles.categoryBadge}>{post.category.name}</span>
+                          {spotlightPost.category && (
+                            <span className={styles.categoryBadge}>{spotlightPost.category.name}</span>
                           )}
-                          {post.published_at && (
-                            <p className={styles.blogCardMeta}>
-                              {dateFormatter.format(new Date(post.published_at))}
+                          {spotlightPost.published_at && (
+                            <p className={styles.spotlightMeta}>
+                              {dateFormatter.format(new Date(spotlightPost.published_at))}
                             </p>
                           )}
                         </div>
                       )}
-                      {post.excerpt && <p className={styles.blogCardExcerpt}>{post.excerpt}</p>}
-                    </div>
-                    <footer className={styles.blogCardFooter}>
-                      <span className={styles.readMoreLink} aria-hidden>
+                      {spotlightPost.excerpt && (
+                        <p className={styles.spotlightExcerpt}>{spotlightPost.excerpt}</p>
+                      )}
+                      <span className={styles.spotlightReadMore} aria-hidden>
                         Weiterlesen
                       </span>
-                    </footer>
+                    </div>
                   </article>
                 </Link>
-              ))}
-            </div>
+              )}
+              {otherPosts.length > 0 && (
+                <div className={styles.blogGrid}>
+                  {otherPosts.map((post) => (
+                    <Link key={post.id} href={`/blog/${post.slug}`} className={styles.blogCardLink}>
+                      <article className={styles.blogCard}>
+                        <div
+                          className={styles.blogCardImage}
+                          style={{
+                            backgroundImage: post.cover_image ? `url(${post.cover_image})` : undefined,
+                          }}
+                          aria-hidden={!post.cover_image}
+                        />
+                        <div className={styles.blogCardBody}>
+                          <h2 className={styles.blogCardTitle}>{post.title}</h2>
+                          {(post.category || post.published_at) && (
+                            <div className={styles.metaRow}>
+                              {post.category && (
+                                <span className={styles.categoryBadge}>{post.category.name}</span>
+                              )}
+                              {post.published_at && (
+                                <p className={styles.blogCardMeta}>
+                                  {dateFormatter.format(new Date(post.published_at))}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          {post.excerpt && <p className={styles.blogCardExcerpt}>{post.excerpt}</p>}
+                        </div>
+                        <footer className={styles.blogCardFooter}>
+                          <span className={styles.readMoreLink} aria-hidden>
+                            Weiterlesen
+                          </span>
+                        </footer>
+                      </article>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
