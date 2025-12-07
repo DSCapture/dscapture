@@ -11,6 +11,8 @@ import { useToast } from "@/components/toast/ToastProvider";
 import { logUserAction } from "@/lib/logger";
 
 const bucketName = "homepage-gallery";
+const backgroundBucketName = "homepage-gallery-background";
+const backgroundSingletonKey = "gallery";
 
 type HomepageGalleryItem = {
   id: string;
@@ -19,6 +21,13 @@ type HomepageGalleryItem = {
   altText: string;
   displayOrder: number;
   createdAt: string;
+};
+
+type GalleryBackgroundRecord = {
+  id: string;
+  singleton_key: string;
+  file_path: string;
+  public_url: string;
 };
 
 export default function AdminHomepageGalleryPage() {
@@ -32,6 +41,10 @@ export default function AdminHomepageGalleryPage() {
   const [uploading, setUploading] = useState(false);
   const [savingItemId, setSavingItemId] = useState<string | null>(null);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [backgroundRecord, setBackgroundRecord] =
+    useState<GalleryBackgroundRecord | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [uploadingBackground, setUploadingBackground] = useState(false);
 
   const nextDisplayOrder = useMemo(() => {
     const highestOrder = galleryItems.reduce(
@@ -81,6 +94,34 @@ export default function AdminHomepageGalleryPage() {
     };
 
     void fetchGalleryItems();
+    const fetchGalleryBackground = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("homepage_gallery_backgrounds")
+          .select("id, singleton_key, public_url, file_path")
+          .eq("singleton_key", backgroundSingletonKey)
+          .maybeSingle();
+
+        if (error) {
+          if (error.code !== "PGRST116") {
+            throw error;
+          }
+          return;
+        }
+
+        if (data) {
+          setBackgroundRecord(data as GalleryBackgroundRecord);
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unbekannter Fehler beim Laden des Galerie-Hintergrunds.";
+        console.error("Fehler beim Laden des Galerie-Hintergrunds:", message);
+      }
+    };
+
+    void fetchGalleryBackground();
   }, [verifying]);
 
   const handleUpload = async (event: FormEvent<HTMLFormElement>) => {
@@ -227,6 +268,121 @@ export default function AdminHomepageGalleryPage() {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleBackgroundUpload = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (!backgroundFile) {
+      showToast({
+        message: "Bitte wähle zuerst ein Hintergrundbild aus.",
+        type: "error",
+      });
+      return;
+    }
+
+    setUploadingBackground(true);
+
+    let currentUser: { id: string | null; email: string | null } = {
+      id: null,
+      email: null,
+    };
+
+    try {
+      const { data: authData, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !authData.user) {
+        throw new Error(
+          userError?.message ?? "Es konnte kein angemeldeter Nutzer ermittelt werden.",
+        );
+      }
+
+      currentUser = {
+        id: authData.user.id ?? null,
+        email: authData.user.email ?? null,
+      };
+
+      const fileExt = backgroundFile.name.split(".").pop() ?? "png";
+      const filePath = `${currentUser.id ?? "anonymous"}/gallery-background-${Date.now()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(backgroundBucketName)
+        .upload(filePath, backgroundFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const storedPath = uploadData?.path ?? filePath;
+
+      const { data: publicUrlData } = supabase.storage
+        .from(backgroundBucketName)
+        .getPublicUrl(storedPath);
+
+      const publicUrl = publicUrlData?.publicUrl ?? null;
+
+      if (!publicUrl) {
+        throw new Error("Die öffentliche URL konnte nicht ermittelt werden.");
+      }
+
+      const { data, error: upsertError } = await supabase
+        .from("homepage_gallery_backgrounds")
+        .upsert(
+          {
+            singleton_key: backgroundSingletonKey,
+            file_path: storedPath,
+            public_url: publicUrl,
+          },
+          { onConflict: "singleton_key" },
+        )
+        .select("id, singleton_key, public_url, file_path")
+        .single();
+
+      if (upsertError) {
+        throw upsertError;
+      }
+
+      setBackgroundRecord(data as GalleryBackgroundRecord);
+      setBackgroundFile(null);
+      event.currentTarget.reset();
+
+      await logUserAction({
+        action: "homepage_gallery_background_saved",
+        context: "admin",
+        userId: currentUser.id,
+        userEmail: currentUser.email,
+        entityType: "homepage_gallery_background",
+        entityId: data.id,
+        metadata: {
+          filePath: storedPath,
+          publicUrl,
+        },
+      });
+
+      showToast({
+        message: "Hintergrundbild gespeichert.",
+        type: "success",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unbekannter Fehler beim Hochladen des Hintergrundbilds.";
+
+      console.error("Fehler beim Hochladen des Galerie-Hintergrunds:", message);
+      showToast({
+        title: "Fehler",
+        message,
+        type: "error",
+      });
+    } finally {
+      setUploadingBackground(false);
     }
   };
 
@@ -442,6 +598,61 @@ export default function AdminHomepageGalleryPage() {
               „{bucketName}“ gespeichert und laufen automatisch auf der Homepage durch.
             </p>
           </header>
+
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2>Galerie-Hintergrund</h2>
+              <p>
+                Steuere das Hintergrundbild der laufenden Bildstrecke. Das Bild wird im Bucket
+                „{backgroundBucketName}“ abgelegt.
+              </p>
+            </div>
+
+            <div className={styles.backgroundGrid}>
+              <form className={`${"admin-form"} ${styles.uploadForm}`} onSubmit={handleBackgroundUpload}>
+                <div className="admin-form-row">
+                  <div className="admin-form-field">
+                    <label htmlFor="gallery-background-file">Hintergrundbild</label>
+                    <input
+                      id="gallery-background-file"
+                      name="gallery-background-file"
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button className="admin-button" type="submit" disabled={uploadingBackground || verifying}>
+                  {uploadingBackground ? "Wird hochgeladen..." : "Hintergrund speichern"}
+                </button>
+              </form>
+
+              <div className={styles.backgroundPreview}>
+                <div className={styles.backgroundPreviewInner}>
+                  {backgroundRecord?.public_url ? (
+                    <Image
+                      src={backgroundRecord.public_url}
+                      alt="Aktuelles Hintergrundbild"
+                      fill
+                      sizes="(max-width: 900px) 100vw, 420px"
+                    />
+                  ) : (
+                    <div className={styles.imagePlaceholder}>Noch kein Hintergrund hinterlegt</div>
+                  )}
+                </div>
+                <div className={styles.backgroundDetails}>
+                  <p>
+                    <strong>Aktueller Status:</strong> {backgroundRecord ? "Gespeichert" : "Kein Bild hinterlegt"}
+                  </p>
+                  {backgroundRecord?.file_path ? (
+                    <p className={styles.backgroundPath}>Pfad: {backgroundRecord.file_path}</p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </section>
 
           <section className={styles.section}>
             <div className={styles.sectionHeader}>

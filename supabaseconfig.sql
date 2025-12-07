@@ -151,6 +151,50 @@ create trigger homepage_benefit_backgrounds_set_updated_at BEFORE
 update on homepage_benefit_backgrounds for EACH row
 execute FUNCTION homepage_benefit_backgrounds_set_updated_at ();
 
+create table public.homepage_gallery_backgrounds (
+  id uuid not null default gen_random_uuid (),
+  singleton_key text not null default 'gallery'::text,
+  file_path text not null,
+  public_url text not null,
+  created_at timestamp with time zone not null default timezone ('utc'::text, now()),
+  updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
+  constraint homepage_gallery_backgrounds_pkey primary key (id),
+  constraint homepage_gallery_backgrounds_singleton unique (singleton_key)
+) TABLESPACE pg_default;
+
+create unique INDEX IF not exists homepage_gallery_backgrounds_singleton_idx
+  on public.homepage_gallery_backgrounds using btree (singleton_key) TABLESPACE pg_default;
+
+create or replace function homepage_gallery_backgrounds_set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = timezone('utc'::text, now());
+  return new;
+end;
+$$;
+
+create or replace function homepage_gallery_backgrounds_set_created_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.created_at is null then
+    new.created_at = timezone('utc'::text, now());
+  end if;
+  return new;
+end;
+$$;
+
+create trigger homepage_gallery_backgrounds_set_created_at BEFORE
+insert on homepage_gallery_backgrounds for EACH row
+execute FUNCTION homepage_gallery_backgrounds_set_created_at ();
+
+create trigger homepage_gallery_backgrounds_set_updated_at BEFORE
+update on homepage_gallery_backgrounds for EACH row
+execute FUNCTION homepage_gallery_backgrounds_set_updated_at ();
+
 create table public.homepage_photographer_intro (
   id uuid not null default extensions.uuid_generate_v4 (),
   singleton_key text not null default 'homepage'::text,
