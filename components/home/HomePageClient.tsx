@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabaseClient";
 import ContactButton from "../buttons/contactButton/ContactButton";
 
 import styles from "@/app/page.module.css";
-import Link from "next/link";
 
 const FALLBACK_BACKGROUND = "/DJI_0727.jpg";
 const FALLBACK_OVERLAY = "/dawid3Mask.png";
@@ -34,6 +33,10 @@ type PhotographerIntro = {
   heading: string;
   subheading: string | null;
   body: string;
+};
+
+type BenefitBackground = {
+  public_url: string;
 };
 
 type GalleryImage = {
@@ -130,6 +133,8 @@ const HomePageClient = () => {
     useState<PhotographerIntro>(FALLBACK_PHOTOGRAPHER_INTRO);
   const [benefits, setBenefits] = useState<BenefitItem[]>(FALLBACK_BENEFITS);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [benefitsBackground, setBenefitsBackground] =
+    useState<BenefitBackground | null>(null);
 
   const bgY = useTransform(scrollY, [0, 600], [0, 200]);
 
@@ -165,6 +170,12 @@ const HomePageClient = () => {
         .select("heading, subheading, body")
         .maybeSingle();
 
+      const benefitsBackgroundPromise = supabase
+        .from("homepage_benefit_backgrounds")
+        .select("public_url")
+        .eq("singleton_key", "benefits")
+        .maybeSingle();
+
       const [
         imageResult,
         uspResult,
@@ -172,6 +183,7 @@ const HomePageClient = () => {
         photographerIntroResult,
         benefitsResult,
         galleryImagesResult,
+        benefitsBackgroundResult,
       ] = await Promise.all([
         imagePromise,
         uspPromise,
@@ -179,6 +191,7 @@ const HomePageClient = () => {
         photographerIntroPromise,
         benefitsPromise,
         galleryImagesPromise,
+        benefitsBackgroundPromise,
       ]);
 
       if (!isMounted) {
@@ -296,6 +309,20 @@ const HomePageClient = () => {
         setPhotographerIntro({ heading, subheading, body });
       }
 
+      const { data: benefitsBackgroundData, error: benefitsBackgroundError } =
+        benefitsBackgroundResult;
+
+      if (benefitsBackgroundError) {
+        if (benefitsBackgroundError.code !== "PGRST116") {
+          console.error(
+            "Fehler beim Laden des Benefits-Hintergrundes:",
+            benefitsBackgroundError.message,
+          );
+        }
+      } else if (benefitsBackgroundData?.public_url) {
+        setBenefitsBackground({ public_url: benefitsBackgroundData.public_url });
+      }
+
       const { data: galleryData, error: galleryError } = galleryImagesResult;
 
       if (galleryError) {
@@ -331,6 +358,14 @@ const HomePageClient = () => {
   const marqueeImages = galleryImages.length > 0
     ? [...galleryImages, ...galleryImages]
     : [];
+
+  const benefitsBackgroundStyle = benefitsBackground?.public_url
+    ? {
+        backgroundImage: `linear-gradient(180deg, rgba(247, 248, 251, 0.9) 0%, rgba(238, 241, 247, 0.9) 100%), url(${benefitsBackground.public_url})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
+    : undefined;
   return (
     <>
       <section className={styles.heroSection}>
@@ -471,7 +506,11 @@ const HomePageClient = () => {
         </div>
       </section>
 
-      <section className={styles.benefitsSection} aria-label="Ihre Vorteile mit DS_Capture">
+      <section
+        className={styles.benefitsSection}
+        aria-label="Ihre Vorteile mit DS_Capture"
+        style={benefitsBackgroundStyle}
+      >
         <div className={styles.benefitsWrapper}>
           <div className={styles.benefitsHeader}>
             <p className={styles.benefitsEyebrow}>Ihre Vorteile</p>
