@@ -423,6 +423,7 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
   margin: 2rem 3rem;
+  margin-bottom: 1rem;
 }
 
 .reviewsScroller::-webkit-scrollbar {
